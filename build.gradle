@@ -25,6 +25,21 @@ repositories {
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
 	compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile 'io.github.openfeign:feign-httpclient:10.0.1'
+    compile group: 'org.projectlombok', name: 'lombok'
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile group: 'org.mockito', name: 'mockito-core'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-core'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-library'
+    testCompile group: 'org.springframework', name: 'spring-test'
+
+    testCompile group: 'org.mockito', name: 'mockito-core'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-core'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-library'
+    testCompile group: 'org.springframework', name: 'spring-test'
+
+    compile 'io.github.openfeign:feign-mock:10.0.1'
+
 }

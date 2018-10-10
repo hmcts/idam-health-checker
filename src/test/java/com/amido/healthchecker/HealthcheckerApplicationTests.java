@@ -11,6 +11,7 @@ public class HealthcheckerApplicationTests {
 
 	@Test
 	public void contextLoads() {
+		assert true;
 	}
 
 }
