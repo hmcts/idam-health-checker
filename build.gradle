@@ -26,7 +26,10 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-actuator')
+
+    compile group: 'io.github.openfeign', name: 'feign-core', version: '10.0.1'
     compile 'io.github.openfeign:feign-httpclient:10.0.1'
+    compile 'io.github.openfeign.form:feign-form:3.4.0'
     compile group: 'org.projectlombok', name: 'lombok'
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
@@ -41,5 +44,4 @@ dependencies {
     testCompile group: 'org.springframework', name: 'spring-test'
 
     compile 'io.github.openfeign:feign-mock:10.0.1'
-
 }

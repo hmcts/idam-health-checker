@@ -2,17 +2,35 @@ package com.amido.healthchecker.health;
 
 import feign.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
+import java.util.Base64;
+
 @Component
-public class AmHealthIndicator implements HealthIndicator {
+public class AccessTokenHealthIndicator implements HealthIndicator {
+
+    public static final String GRANT_TYPE = "password";
+    public static final String SCOPE = "openid profile authorities acr roles";
+
+    @Value("${am.username}")
+    private String username;
+
+    @Value("${am.password}")
+    private String password;
+
+    @Value("${am.auth.username}")
+    private String authUsername;
+
+    @Value("${am.auth.password}")
+    private String authPassword;
 
     private AMFeignClient amFeignClient;
 
     @Autowired
-    public AmHealthIndicator(AMFeignClient amFeignClient) {
+    public AccessTokenHealthIndicator(AMFeignClient amFeignClient) {
         this.amFeignClient = amFeignClient;
     }
 
@@ -30,14 +48,17 @@ public class AmHealthIndicator implements HealthIndicator {
      * @return
      */
     private ServerStatus.Status checkAm() {
-        Response response = amFeignClient.isAMAlive();
-        return ServerStatus.getStatus(response);
+        final String authorization = Base64.getEncoder().encodeToString((authUsername + ":" + authPassword).getBytes());
+
+        final Response response = amFeignClient.canGenerateAccessToken(authorization, GRANT_TYPE, username, password, SCOPE);
+
+        return ServerStatus.checkToken(response);
     }
 
     private Health buildHealth(ServerStatus.Status currentStatus) {
         Health.Builder healthBuilder;
 
-        if (currentStatus.equals(ServerStatus.Status.ALIVE)) {
+        if( currentStatus.equals(ServerStatus.Status.ALIVE)) {
             healthBuilder = Health.up();
         } else {
             healthBuilder = Health.down();
