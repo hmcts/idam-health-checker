@@ -11,16 +11,16 @@ import javax.annotation.PostConstruct;
 @SpringBootApplication
 public class HealthcheckerApplication {
 
-	@Autowired
-	VaultService vaultService;
+    @Autowired
+    VaultService vaultService;
 
-	@PostConstruct
-	public void init() {
-		String amPassword = vaultService.getSecret("am-password");
-		System.setProperty("AM_PASSWORD", amPassword);
-	}
+    @PostConstruct
+    public void init() {
+        String amPassword = vaultService.getSecret("am-password");
+        System.setProperty("AM_PASSWORD", amPassword);
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(HealthcheckerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(HealthcheckerApplication.class, args);
+    }
 }
