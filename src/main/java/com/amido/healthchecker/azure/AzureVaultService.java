@@ -1,4 +1,4 @@
-package com.amido.healthchecker.azure.vault;
+package com.amido.healthchecker.azure;
 
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class VaultService {
+public class AzureVaultService implements VaultService {
 
     @Value("${vault.base.url}")
     private String vaultBaseUrl;
@@ -17,12 +17,15 @@ public class VaultService {
     @Value("${vault.client.key}")
     private String vaultClientKey;
 
-    public String getSecret(final String secretName) {
+    public void loadSecret(final String systemPropertyName, final String secretName) {
 
         final KeyVaultClient client = new KeyVaultClient(new ClientSecretKeyVaultCredential(vaultClientId, vaultClientKey));
 
         final SecretBundle secretBundle = client.getSecret(vaultBaseUrl, secretName);
-
-        return secretBundle.value();
+        if (secretBundle != null) {
+            System.setProperty(systemPropertyName, secretBundle.value());
+        } else {
+            throw new IllegalStateException("Couldn't find secret " + secretName);
+        }
     }
 }

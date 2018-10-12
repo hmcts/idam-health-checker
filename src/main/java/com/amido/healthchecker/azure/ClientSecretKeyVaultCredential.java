@@ -1,4 +1,4 @@
-package com.amido.healthchecker.azure.vault;
+package com.amido.healthchecker.azure;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
@@ -13,7 +13,7 @@ public class ClientSecretKeyVaultCredential extends KeyVaultCredentials {
     private String clientId;
     private String clientKey;
 
-    public ClientSecretKeyVaultCredential( String clientId, String clientKey ) {
+    public ClientSecretKeyVaultCredential(String clientId, String clientKey) {
         this.clientId = clientId;
         this.clientKey = clientKey;
     }
@@ -41,7 +41,7 @@ public class ClientSecretKeyVaultCredential extends KeyVaultCredentials {
         }
 
         if (result == null) {
-            throw new RuntimeException("authentication result was null");
+            throw new RuntimeException("Authentication result was null");
         }
         return result;
     }
