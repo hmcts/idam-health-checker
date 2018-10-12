@@ -36,9 +36,6 @@ public class VaultServiceTest {
     @Test(expected = IllegalStateException.class)
     public void missingValueThrowsException() throws Exception {
         service.loadSecret("SMOKE_TEST_USER_USERNAME", "not-present");
-        String actual = System.getProperty("SMOKE_TEST_USER_USERNAME");
-
-        assertThat(actual.equals("smoke@test.com"));
     }
 
 }
