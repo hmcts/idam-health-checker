@@ -19,6 +19,7 @@ public class AmHealthIndicatorTest {
             "\n" +
             "\n" +
             "</body>";
+
     private static final String DOWN_RESPONSE_BODY = "<body>\n" +
             "\n" +
             "<h1>Server is DOWN </h1>\n" +
@@ -32,17 +33,17 @@ public class AmHealthIndicatorTest {
     private MockClient mockErrorFeignClient;
     private AmHealthIndicator amHealthIndicator;
 
+    private static final String IS_ALIVE_PATH = "/isAlive.jsp";
 
     @Before
     public void setup(){
-        mockHappyFeignClient = new MockClient().add(HttpMethod.GET, "/isAlive.jsp", 200, HAPPY_RESPONSE_BODY);
-        mockDownFeignClient = new MockClient().add(HttpMethod.GET, "/isAlive.jsp", 503, DOWN_RESPONSE_BODY);
-        mockErrorFeignClient = new MockClient().add(HttpMethod.GET, "/isAlive.jsp", 500, "unknown response");
+        mockHappyFeignClient = new MockClient().add(HttpMethod.GET, IS_ALIVE_PATH, 200, HAPPY_RESPONSE_BODY);
+        mockDownFeignClient = new MockClient().add(HttpMethod.GET, IS_ALIVE_PATH, 503, DOWN_RESPONSE_BODY);
+        mockErrorFeignClient = new MockClient().add(HttpMethod.GET, IS_ALIVE_PATH, 500, "unknown response");
     }
 
     @Test
     public void checkAMIsAlive(){
-
         //given
         amFeignClient = Feign.builder().client(mockHappyFeignClient).target(new MockTarget<>(AMFeignClient.class));
         amHealthIndicator = new AmHealthIndicator(amFeignClient);
@@ -51,17 +52,14 @@ public class AmHealthIndicatorTest {
         Health healthStatus = amHealthIndicator.health();
 
         //then
-        mockHappyFeignClient.verifyOne(HttpMethod.GET, "/isAlive.jsp");
+        mockHappyFeignClient.verifyOne(HttpMethod.GET, IS_ALIVE_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("UP"));
         assertThat(healthStatus.getDetails().get("message"), equalTo("Server is ALIVE"));
         assertThat(healthStatus.getDetails().get("errorCode"), equalTo(0));
-
     }
 
-
     @Test
-    public void checkAMIsDown(){
-
+    public void checkAMIsDown() {
         //given
         amFeignClient = Feign.builder().client(mockDownFeignClient).target(new MockTarget<>(AMFeignClient.class));
         amHealthIndicator = new AmHealthIndicator(amFeignClient);
@@ -70,7 +68,7 @@ public class AmHealthIndicatorTest {
         Health healthStatus = amHealthIndicator.health();
 
         //then
-        mockDownFeignClient.verifyOne(HttpMethod.GET, "/isAlive.jsp");
+        mockDownFeignClient.verifyOne(HttpMethod.GET, IS_ALIVE_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("DOWN"));
         assertThat(healthStatus.getDetails().get("message"), equalTo("Server is DOWN"));
         assertThat(healthStatus.getDetails().get("errorCode"), equalTo(503));
@@ -78,8 +76,7 @@ public class AmHealthIndicatorTest {
     }
 
     @Test
-    public void checkAMHasInternalServerError(){
-
+    public void checkAMHasInternalServerError() {
         //given
         amFeignClient = Feign.builder().client(mockErrorFeignClient).target(new MockTarget<>(AMFeignClient.class));
         amHealthIndicator = new AmHealthIndicator(amFeignClient);
@@ -88,11 +85,10 @@ public class AmHealthIndicatorTest {
         Health healthStatus = amHealthIndicator.health();
 
         //then
-        mockErrorFeignClient.verifyOne(HttpMethod.GET, "/isAlive.jsp");
+        mockErrorFeignClient.verifyOne(HttpMethod.GET, IS_ALIVE_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("DOWN"));
         assertThat(healthStatus.getDetails().get("message"), equalTo("Internal Server Error"));
         assertThat(healthStatus.getDetails().get("errorCode"), equalTo(500));
-
     }
 
 }

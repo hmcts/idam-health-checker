@@ -28,7 +28,14 @@ public class AMFeignClientTest {
             "\n" +
             "</body>";
 
-    private static final String TOKEN_RESPONSE_BODY = "TODO";
+    private static final String TOKEN_RESPONSE_BODY = "{\n" +
+            "\t\"access_token\": \"eyJ0eXAiOiJKV1QiLCJ6aXAiOiJOT05FIiwia2l\",\n" +
+            "\t\"refresh_token\": \"eyJ0eXAiOiJKV1QiLCJ6aXAiOiJOT05FIiwia2l\",\n" +
+            "\t\"scope\": \"acr openid profile roles authorities\",\n" +
+            "\t\"id_token\": \"eyJ0eXAiOiJKV1QiLCJraWQiOiJiL082T3ZWdjE\",\t\n" +
+            "    \"token_type\": \"Bearer\",\n" +
+            "\t\"expires_in\": 28799\n" +
+            "}";
 
     private AMFeignClient amFeignClient;
     private AMFeignClient amTokenFeignClient;
@@ -39,7 +46,7 @@ public class AMFeignClientTest {
     @Before
     public void setup() throws IOException {
         mockFeignClient = new MockClient().add(HttpMethod.GET, "/isAlive.jsp", 200, RESPONSE_BODY);
-        amFeignClient = Feign.builder().encoder(new FormEncoder()).client(mockFeignClient).target(new MockTarget<>(AMFeignClient.class));
+        amFeignClient = Feign.builder().client(mockFeignClient).target(new MockTarget<>(AMFeignClient.class));
 
         mockTokenFeignClient = new MockClient().add(HttpMethod.POST, "/oauth2/hmcts/access_token", 200, TOKEN_RESPONSE_BODY);
         amTokenFeignClient = Feign.builder().encoder(new FormEncoder()).client(mockTokenFeignClient).target(new MockTarget<>(AMFeignClient.class));
