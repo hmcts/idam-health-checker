@@ -50,7 +50,7 @@ public class AmTokenHealthIndicatorTest {
         //then
         mockHappyFeignClient.verifyOne(HttpMethod.POST, TOKEN_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("UP"));
-        assertThat(healthStatus.getDetails().get("message"), equalTo("Server is ALIVE"));
+        assertThat(healthStatus.getDetails().get("message"), equalTo("Server returned access_token"));
         assertThat(healthStatus.getDetails().get("errorCode"), equalTo(0));
     }
 

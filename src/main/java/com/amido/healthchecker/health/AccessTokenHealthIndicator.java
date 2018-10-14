@@ -58,7 +58,7 @@ public class AccessTokenHealthIndicator implements HealthIndicator {
     private Health buildHealth(ServerStatus.Status currentStatus) {
         Health.Builder healthBuilder;
 
-        if (currentStatus.equals(ServerStatus.Status.ALIVE)) {
+        if (currentStatus.equals(ServerStatus.Status.RETURNED_ACCESS_TOKEN)) {
             healthBuilder = Health.up();
         } else {
             healthBuilder = Health.down();

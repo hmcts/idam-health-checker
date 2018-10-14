@@ -15,6 +15,7 @@ public class ServerStatus {
     private static final String SERVER_IS_DOWN = "Server is DOWN";
     private static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
     private static final String USER_UNAUTHORIZED = "Unauthorized";
+    private static final String SERVER_RETURNED_ACCESS_TOKEN = "Server returned access_token";
 
     final static Logger logger = LoggerFactory.getLogger(ServerStatus.class);
 
@@ -32,13 +33,12 @@ public class ServerStatus {
 
     public static Status checkToken(Response response) {
         try {
-            String bodyMessage = getBodyMessage(response);
+            final String bodyMessage = getBodyMessage(response);
             if (response.status() == HttpStatus.OK.value() && bodyMessage.contains("access_token")) {
-                return Status.ALIVE;
+                return Status.RETURNED_ACCESS_TOKEN;
             } else if (response.status() == HttpStatus.UNAUTHORIZED.value()) {
                 return Status.UNAUTHORIZED;
-            }
-            else if (response.status() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+            } else if (response.status() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
                 return Status.SERVER_ERROR;
             } else {
                 return Status.DOWN;
@@ -61,6 +61,7 @@ public class ServerStatus {
 
     enum Status {
         ALIVE(0, SERVER_IS_ALIVE),
+        RETURNED_ACCESS_TOKEN(0, SERVER_RETURNED_ACCESS_TOKEN),
         DOWN(503, SERVER_IS_DOWN),
         SERVER_ERROR(500, INTERNAL_SERVER_ERROR),
         UNAUTHORIZED(401, USER_UNAUTHORIZED);
