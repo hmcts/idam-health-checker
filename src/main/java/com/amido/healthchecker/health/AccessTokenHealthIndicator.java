@@ -1,6 +1,7 @@
 package com.amido.healthchecker.health;
 
 import feign.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.Base64;
 
 @Component
+@Slf4j
 public class AccessTokenHealthIndicator implements HealthIndicator {
 
     public static final String GRANT_TYPE = "password";
@@ -39,33 +41,36 @@ public class AccessTokenHealthIndicator implements HealthIndicator {
      */
     @Override
     public Health health() {
-        ServerStatus.Status currentStatus = checkAm();
-        return buildHealth(currentStatus);
+        return checkAm();
     }
 
     /**
      * Specific check.
-     * @return
+     * @return Health status
      */
-    private ServerStatus.Status checkAm() {
-        final String authorization = Base64.getEncoder().encodeToString((authUsername + ":" + authPassword).getBytes());
+    private Health checkAm() {
+        try {
+            final String authorization = Base64.getEncoder().encodeToString((authUsername + ":" + authPassword).getBytes());
 
-        final Response response = amFeignClient.canGenerateAccessToken(authorization, GRANT_TYPE, username, password, SCOPE);
+            final Response response = amFeignClient.canGenerateAccessToken(authorization, GRANT_TYPE, username, password, SCOPE);
 
-        return ServerStatus.checkToken(response);
-    }
+            final ServerStatus.Status currentStatus = ServerStatus.checkToken(response);
 
-    private Health buildHealth(ServerStatus.Status currentStatus) {
-        Health.Builder healthBuilder;
-
-        if (currentStatus.equals(ServerStatus.Status.RETURNED_ACCESS_TOKEN)) {
-            healthBuilder = Health.up();
-        } else {
-            healthBuilder = Health.down();
+            if (currentStatus.equals(ServerStatus.Status.RETURNED_ACCESS_TOKEN)) {
+                return Health.up()
+                        .withDetail("message", currentStatus.message)
+                        .build();
+            } else {
+                return Health.down()
+                        .withDetail("message", currentStatus.message)
+                        .withDetail("errorCode", currentStatus.errorCode)
+                        .build();
+            }
+        } catch (Exception e) {
+            log.error("An exception occurred while trying to fetch AM server access_token", e);
+            return Health.down()
+                    .withException(e)
+                    .build();
         }
-
-        return healthBuilder.withDetail("message", currentStatus.message)
-                            .withDetail("errorCode", currentStatus.errorCode)
-                            .build();
     }
 }

@@ -55,7 +55,7 @@ public class AmHealthIndicatorTest {
         mockHappyFeignClient.verifyOne(HttpMethod.GET, IS_ALIVE_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("UP"));
         assertThat(healthStatus.getDetails().get("message"), equalTo("Server is ALIVE"));
-        assertThat(healthStatus.getDetails().get("errorCode"), equalTo(0));
+        assertThat(healthStatus.getDetails().get("errorCode"), equalTo(null));
     }
 
     @Test
@@ -72,7 +72,6 @@ public class AmHealthIndicatorTest {
         assertThat(healthStatus.getStatus().getCode(), equalTo("DOWN"));
         assertThat(healthStatus.getDetails().get("message"), equalTo("Server is DOWN"));
         assertThat(healthStatus.getDetails().get("errorCode"), equalTo(503));
-
     }
 
     @Test

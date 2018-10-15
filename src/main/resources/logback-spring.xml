@@ -32,16 +32,26 @@
         </rollingPolicy>
     </appender>
 
+    <appender name="Syslog" class="ch.qos.logback.classic.net.SyslogAppender">
+        <syslogHost>127.0.0.1</syslogHost>
+        <facility>LOCAL0</facility>
+        <port>514</port>
+        <throwableExcluded>false</throwableExcluded>
+        <suffixPattern>health-checker-service %m thread:%t priority:%p category:%c exception:%exception</suffixPattern>
+    </appender>
+
     <!-- LOG everything at INFO level -->
     <root level="info">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
+        <appender-ref ref="Syslog" />
     </root>
 
-    <!-- LOG "com.amido.healthchecker.health*" at TRACE level -->
-    <logger name="com.amido.healthchecker.health" level="trace" additivity="false">
+    <!-- LOG "com.amido.healthchecker.health*" at DEBUG level -->
+    <logger name="com.amido.healthchecker.health" level="debug" additivity="false">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
+        <appender-ref ref="Syslog" />
     </logger>
 
 </configuration>

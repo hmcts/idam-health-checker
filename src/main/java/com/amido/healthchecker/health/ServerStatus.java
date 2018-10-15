@@ -1,8 +1,8 @@
 package com.amido.healthchecker.health;
 
 import feign.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import feign.codec.Decoder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 
 import java.io.BufferedReader;
@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ServerStatus {
     private static final String SERVER_IS_ALIVE = "Server is ALIVE";
     private static final String SERVER_IS_DOWN = "Server is DOWN";
@@ -17,17 +18,18 @@ public class ServerStatus {
     private static final String USER_UNAUTHORIZED = "Unauthorized";
     private static final String SERVER_RETURNED_ACCESS_TOKEN = "Server returned access_token";
 
-    final static Logger logger = LoggerFactory.getLogger(ServerStatus.class);
-
     public static Status getStatus(Response response) {
         try {
-            String bodyMessage = getBodyMessage(response);
-
-            if (bodyMessage.contains(SERVER_IS_ALIVE)) return Status.ALIVE;
-            if (bodyMessage.contains(SERVER_IS_DOWN)) return Status.DOWN;
-        } catch (IOException ioEx){
-            logger.error("Couldn't get isAlive status", ioEx);
+            final String bodyMessage = getBodyMessage(response);
+            if (bodyMessage.contains(SERVER_IS_ALIVE)) {
+                return Status.ALIVE;
+            } else if (bodyMessage.contains(SERVER_IS_DOWN)) {
+                return Status.DOWN;
+            }
+        } catch (IOException ioEx) {
+            log.error("Couldn't get isAlive status", ioEx);
         }
+
         return Status.SERVER_ERROR;
     }
 
@@ -44,19 +46,20 @@ public class ServerStatus {
                 return Status.DOWN;
             }
         } catch (IOException e) {
-            logger.error("Couldn't check token", e);
+            log.error("Couldn't check token", e);
         }
 
         return Status.SERVER_ERROR;
     }
 
     private static String getBodyMessage(Response response) throws IOException {
-        logger.info("Response: " + response);
+        log.info("Response: " + response);
 
-        String bodyMessage = new BufferedReader(new InputStreamReader(response.body().asInputStream())).lines().collect(Collectors.joining("\n"));
-        logger.info("Body: " + bodyMessage);
+        final Decoder decoder = new Decoder.Default();
+        final String decodedResponse = (String)decoder.decode(response, String.class);
+        log.info("Body: " + decodedResponse);
 
-        return bodyMessage;
+        return decodedResponse;
     }
 
     enum Status {
