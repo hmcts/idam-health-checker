@@ -1,29 +1,20 @@
-package com.amido.healthchecker.health;
+package com.amido.healthchecker.health.am;
 
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
-
 @Component
 @Slf4j
-public class AccessTokenHealthIndicator implements HealthIndicator {
-
-    public static final String GRANT_TYPE = "password";
-    public static final String SCOPE = "openid profile authorities acr roles";
-
-    @Value("${am.client.name}")
-    private String clientName;
+public class AmHealthIndicator implements HealthIndicator {
 
     private AMFeignClient amFeignClient;
 
     @Autowired
-    public AccessTokenHealthIndicator(AMFeignClient amFeignClient) {
+    public AmHealthIndicator(AMFeignClient amFeignClient) {
         this.amFeignClient = amFeignClient;
     }
 
@@ -41,15 +32,10 @@ public class AccessTokenHealthIndicator implements HealthIndicator {
      */
     private Health checkAm() {
         try {
-            final String authorization = Base64.getEncoder().encodeToString((clientName + ":" + System.getProperty("AM_PASSWORD")).getBytes());
+            final Response response = amFeignClient.isAMAlive();
 
-            final Response response = amFeignClient.canGenerateAccessToken(authorization, GRANT_TYPE,
-                    System.getProperty("SMOKE_TEST_USER_USERNAME"),
-                    System.getProperty("SMOKE_TEST_USER_PASSWORD"), SCOPE);
-
-            final ServerStatus.Status currentStatus = ServerStatus.checkToken(response);
-
-            if (currentStatus.equals(ServerStatus.Status.RETURNED_ACCESS_TOKEN)) {
+            final ServerStatus.Status currentStatus = ServerStatus.getStatus(response);
+            if (currentStatus.equals(ServerStatus.Status.ALIVE)) {
                 return Health.up()
                         .withDetail("message", currentStatus.message)
                         .build();
@@ -60,7 +46,7 @@ public class AccessTokenHealthIndicator implements HealthIndicator {
                         .build();
             }
         } catch (Exception e) {
-            log.error("An exception occurred while trying to fetch AM server access_token", e);
+            log.error("An exception occurred while checking if the AM server is alive", e);
             return Health.down()
                     .withException(e)
                     .build();

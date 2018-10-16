@@ -1,7 +1,7 @@
 package com.amido.healthchecker;
 
-import com.amido.healthchecker.health.AMFeignClient;
-import com.amido.healthchecker.health.AmHealthIndicator;
+import com.amido.healthchecker.health.am.AMFeignClient;
+import com.amido.healthchecker.health.am.AmHealthIndicator;
 import feign.Feign;
 import feign.form.FormEncoder;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.amido.healthchecker.health;
+package com.amido.healthchecker.health.am;
 
 import feign.Response;
 import feign.codec.Decoder;
