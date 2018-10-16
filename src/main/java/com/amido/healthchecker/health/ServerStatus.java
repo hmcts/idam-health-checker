@@ -4,11 +4,7 @@ import feign.Response;
 import feign.codec.Decoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class ServerStatus {
