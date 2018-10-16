@@ -17,17 +17,8 @@ public class AccessTokenHealthIndicator implements HealthIndicator {
     public static final String GRANT_TYPE = "password";
     public static final String SCOPE = "openid profile authorities acr roles";
 
-    @Value("${am.username}")
-    private String username;
-
-    @Value("${am.password}")
-    private String password;
-
-    @Value("${am.auth.username}")
-    private String authUsername;
-
-    @Value("${am.auth.password}")
-    private String authPassword;
+    @Value("${am.client.name}")
+    private String clientName;
 
     private AMFeignClient amFeignClient;
 
@@ -50,9 +41,11 @@ public class AccessTokenHealthIndicator implements HealthIndicator {
      */
     private Health checkAm() {
         try {
-            final String authorization = Base64.getEncoder().encodeToString((authUsername + ":" + authPassword).getBytes());
+            final String authorization = Base64.getEncoder().encodeToString((clientName + ":" + System.getProperty("AM_PASSWORD")).getBytes());
 
-            final Response response = amFeignClient.canGenerateAccessToken(authorization, GRANT_TYPE, username, password, SCOPE);
+            final Response response = amFeignClient.canGenerateAccessToken(authorization, GRANT_TYPE,
+                    System.getProperty("SMOKE_TEST_USER_USERNAME"),
+                    System.getProperty("SMOKE_TEST_USER_PASSWORD"), SCOPE);
 
             final ServerStatus.Status currentStatus = ServerStatus.checkToken(response);
 

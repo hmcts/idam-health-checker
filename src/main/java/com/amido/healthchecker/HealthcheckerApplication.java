@@ -16,7 +16,8 @@ public class HealthcheckerApplication {
     @PostConstruct
     public void init() {
         vaultService.loadSecret("AM_PASSWORD", "am-password");
-        vaultService.loadSecret("IDM_PASSWORD", "idm-password");
+        vaultService.loadSecret("SMOKE_TEST_USER_USERNAME", "smoke-test-user-username");
+        vaultService.loadSecret("SMOKE_TEST_USER_PASSWORD", "smoke-test-user-password");
     }
 
     public static void main(String[] args) {
