@@ -1,12 +1,14 @@
 package com.amido.healthchecker.health;
 
 import feign.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class AmHealthIndicator implements HealthIndicator {
 
     private AMFeignClient amFeignClient;
@@ -21,30 +23,33 @@ public class AmHealthIndicator implements HealthIndicator {
      */
     @Override
     public Health health() {
-        ServerStatus.Status currentStatus = checkAm();
-        return buildHealth(currentStatus);
+        return checkAm();
     }
 
     /**
      * Specific check.
-     * @return
+     * @return Health status
      */
-    private ServerStatus.Status checkAm() {
-        Response response = amFeignClient.isAMAlive();
-        return ServerStatus.getStatus(response);
-    }
+    private Health checkAm() {
+        try {
+            final Response response = amFeignClient.isAMAlive();
 
-    private Health buildHealth(ServerStatus.Status currentStatus) {
-        Health.Builder healthBuilder;
-
-        if (currentStatus.equals(ServerStatus.Status.ALIVE)) {
-            healthBuilder = Health.up();
-        } else {
-            healthBuilder = Health.down();
+            final ServerStatus.Status currentStatus = ServerStatus.getStatus(response);
+            if (currentStatus.equals(ServerStatus.Status.ALIVE)) {
+                return Health.up()
+                        .withDetail("message", currentStatus.message)
+                        .build();
+            } else {
+                return Health.down()
+                        .withDetail("message", currentStatus.message)
+                        .withDetail("errorCode", currentStatus.errorCode)
+                        .build();
+            }
+        } catch (Exception e) {
+            log.error("An exception occurred while checking if the AM server is alive", e);
+            return Health.down()
+                    .withException(e)
+                    .build();
         }
-
-        return healthBuilder.withDetail("message", currentStatus.message)
-                            .withDetail("errorCode", currentStatus.errorCode)
-                            .build();
     }
 }
