@@ -11,7 +11,6 @@ public class DummyVaultService implements VaultService {
     private Environment env;
 
     public void loadSecret(final String systemPropertyName, final String secretName) {
-
         final String value = env.getProperty(secretName);
         if (value != null) {
             System.setProperty(systemPropertyName, value);

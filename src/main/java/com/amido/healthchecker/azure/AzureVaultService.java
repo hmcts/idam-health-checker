@@ -5,6 +5,8 @@ import com.microsoft.azure.keyvault.models.SecretBundle;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 @Component
 public class AzureVaultService implements VaultService {
 
@@ -17,10 +19,14 @@ public class AzureVaultService implements VaultService {
     @Value("${vault.client.key}")
     private String vaultClientKey;
 
+    private KeyVaultClient client;
+
+    @PostConstruct
+    public void init() {
+        client = new KeyVaultClient(new ClientSecretKeyVaultCredential(vaultClientId, vaultClientKey));
+    }
+
     public void loadSecret(final String systemPropertyName, final String secretName) {
-
-        final KeyVaultClient client = new KeyVaultClient(new ClientSecretKeyVaultCredential(vaultClientId, vaultClientKey));
-
         final SecretBundle secretBundle = client.getSecret(vaultBaseUrl, secretName);
         if (secretBundle != null) {
             System.setProperty(systemPropertyName, secretBundle.value());
