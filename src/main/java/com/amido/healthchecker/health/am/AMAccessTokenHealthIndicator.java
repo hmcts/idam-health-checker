@@ -14,7 +14,7 @@ import java.util.Base64;
 @Component
 @Slf4j
 @Profile("am")
-public class AccessTokenHealthIndicator implements HealthIndicator {
+public class AMAccessTokenHealthIndicator implements HealthIndicator {
 
     public static final String GRANT_TYPE = "password";
     public static final String SCOPE = "openid profile authorities acr roles";
@@ -25,7 +25,7 @@ public class AccessTokenHealthIndicator implements HealthIndicator {
     private AMFeignClient amFeignClient;
 
     @Autowired
-    public AccessTokenHealthIndicator(AMFeignClient amFeignClient) {
+    public AMAccessTokenHealthIndicator(AMFeignClient amFeignClient) {
         this.amFeignClient = amFeignClient;
     }
 

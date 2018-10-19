@@ -12,7 +12,7 @@ import org.springframework.boot.actuate.health.Health;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class AmTokenHealthIndicatorTest {
+public class AMTokenHealthIndicatorTest {
 
     private static final String TOKEN_RESPONSE_BODY = "{\n" +
             "\t\"access_token\": \"eyJ0eXAiOiJKV1QiLCJ6aXAiOiJOT05FIiwia2l\",\n" +
@@ -27,7 +27,7 @@ public class AmTokenHealthIndicatorTest {
     private MockClient mockHappyFeignClient;
     private MockClient mockUnauthorizedFeignClient;
     private MockClient mockErrorFeignClient;
-    private AccessTokenHealthIndicator accessTokenHealthIndicator;
+    private AMAccessTokenHealthIndicator accessTokenHealthIndicator;
 
     private static final String TOKEN_PATH = "/oauth2/hmcts/access_token";
 
@@ -42,7 +42,7 @@ public class AmTokenHealthIndicatorTest {
     public void checkAccessTokenIsPresent() {
         //given
         amFeignClient = Feign.builder().encoder(new FormEncoder()).client(mockHappyFeignClient).target(new MockTarget<>(AMFeignClient.class));
-        accessTokenHealthIndicator = new AccessTokenHealthIndicator(amFeignClient);
+        accessTokenHealthIndicator = new AMAccessTokenHealthIndicator(amFeignClient);
 
         //when
         Health healthStatus = accessTokenHealthIndicator.health();
@@ -58,7 +58,7 @@ public class AmTokenHealthIndicatorTest {
     public void checkUnauthorizedResponse() {
         //given
         amFeignClient = Feign.builder().encoder(new FormEncoder()).client(mockUnauthorizedFeignClient).target(new MockTarget<>(AMFeignClient.class));
-        accessTokenHealthIndicator = new AccessTokenHealthIndicator(amFeignClient);
+        accessTokenHealthIndicator = new AMAccessTokenHealthIndicator(amFeignClient);
 
         //when
         Health healthStatus = accessTokenHealthIndicator.health();
@@ -74,7 +74,7 @@ public class AmTokenHealthIndicatorTest {
     public void checkInternalServerErrorResponse() {
         //given
         amFeignClient = Feign.builder().encoder(new FormEncoder()).client(mockErrorFeignClient).target(new MockTarget<>(AMFeignClient.class));
-        accessTokenHealthIndicator = new AccessTokenHealthIndicator(amFeignClient);
+        accessTokenHealthIndicator = new AMAccessTokenHealthIndicator(amFeignClient);
 
         //when
         Health healthStatus = accessTokenHealthIndicator.health();

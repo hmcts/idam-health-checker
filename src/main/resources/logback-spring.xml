@@ -48,7 +48,7 @@
     </root>
 
     <!-- LOG "com.amido.healthchecker.health*" at DEBUG level -->
-    <logger name="com.amido.healthchecker.health" level="debug" additivity="false">
+    <logger name="com.amido.healthchecker.health" level="info" additivity="false">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
         <appender-ref ref="Syslog" />

@@ -11,7 +11,7 @@ import org.springframework.boot.actuate.health.Health;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class AmHealthIndicatorTest {
+public class AMHealthIndicatorTest {
 
     private static final String HAPPY_RESPONSE_BODY = "<body>\n" +
             "\n" +
@@ -31,7 +31,7 @@ public class AmHealthIndicatorTest {
     private MockClient mockHappyFeignClient;
     private MockClient mockDownFeignClient;
     private MockClient mockErrorFeignClient;
-    private AmHealthIndicator amHealthIndicator;
+    private AMHealthIndicator amHealthIndicator;
 
     private static final String IS_ALIVE_PATH = "/isAlive.jsp";
 
@@ -46,7 +46,7 @@ public class AmHealthIndicatorTest {
     public void checkAMIsAlive(){
         //given
         amFeignClient = Feign.builder().client(mockHappyFeignClient).target(new MockTarget<>(AMFeignClient.class));
-        amHealthIndicator = new AmHealthIndicator(amFeignClient);
+        amHealthIndicator = new AMHealthIndicator(amFeignClient);
 
         //when
         Health healthStatus = amHealthIndicator.health();
@@ -62,7 +62,7 @@ public class AmHealthIndicatorTest {
     public void checkAMIsDown() {
         //given
         amFeignClient = Feign.builder().client(mockDownFeignClient).target(new MockTarget<>(AMFeignClient.class));
-        amHealthIndicator = new AmHealthIndicator(amFeignClient);
+        amHealthIndicator = new AMHealthIndicator(amFeignClient);
 
         //when
         Health healthStatus = amHealthIndicator.health();
@@ -78,7 +78,7 @@ public class AmHealthIndicatorTest {
     public void checkAMHasInternalServerError() {
         //given
         amFeignClient = Feign.builder().client(mockErrorFeignClient).target(new MockTarget<>(AMFeignClient.class));
-        amHealthIndicator = new AmHealthIndicator(amFeignClient);
+        amHealthIndicator = new AMHealthIndicator(amFeignClient);
 
         //when
         Health healthStatus = amHealthIndicator.health();

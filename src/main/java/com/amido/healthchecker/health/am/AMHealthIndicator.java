@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @Profile("am")
-public class AmHealthIndicator implements HealthIndicator {
+public class AMHealthIndicator implements HealthIndicator {
 
     private AMFeignClient amFeignClient;
 
     @Autowired
-    public AmHealthIndicator(AMFeignClient amFeignClient) {
+    public AMHealthIndicator(AMFeignClient amFeignClient) {
         this.amFeignClient = amFeignClient;
     }
 

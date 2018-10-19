@@ -10,11 +10,11 @@ import java.io.IOException;
 public abstract class ServerStatus {
 
     protected static String getBodyMessage(Response response) throws IOException {
-        log.info("Response: " + response);
+        log.debug("Response: " + response);
 
         final Decoder decoder = new Decoder.Default();
         final String decodedResponse = (String)decoder.decode(response, String.class);
-        log.info("Body: " + decodedResponse);
+        log.debug("Body: " + decodedResponse);
 
         return decodedResponse;
     }
