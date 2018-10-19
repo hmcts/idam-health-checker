@@ -2,12 +2,16 @@ package com.amido.healthchecker.azure;
 
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
 @Component
+@Qualifier("vaultService")
+@Profile("live")
 public class AzureVaultService implements VaultService {
 
     @Value("${vault.base.url}")
