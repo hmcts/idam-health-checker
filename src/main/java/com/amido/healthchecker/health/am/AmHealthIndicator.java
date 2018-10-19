@@ -34,8 +34,8 @@ public class AmHealthIndicator implements HealthIndicator {
         try {
             final Response response = amFeignClient.isAMAlive();
 
-            final ServerStatus.Status currentStatus = ServerStatus.getStatus(response);
-            if (currentStatus.equals(ServerStatus.Status.ALIVE)) {
+            final AMServerStatus.Status currentStatus = AMServerStatus.getStatus(response);
+            if (currentStatus.equals(AMServerStatus.Status.ALIVE)) {
                 return Health.up()
                         .withDetail("message", currentStatus.message)
                         .build();

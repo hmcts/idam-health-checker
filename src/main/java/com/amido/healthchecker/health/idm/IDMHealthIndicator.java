@@ -38,9 +38,9 @@ public class IDMHealthIndicator implements HealthIndicator {
 
             final Response response = idmFeignClient.pingIdm(authorization);
 
-            final ServerStatus.Status currentStatus = ServerStatus.checkPingResponse(response);
+            final IDMServerStatus.Status currentStatus = IDMServerStatus.checkPingResponse(response);
 
-            if (currentStatus.equals(ServerStatus.Status.SERVER_READY)) {
+            if (currentStatus.equals(IDMServerStatus.Status.SERVER_READY)) {
                 return Health.up()
                         .withDetail("message", currentStatus.message)
                         .build();

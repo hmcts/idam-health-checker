@@ -47,9 +47,9 @@ public class AccessTokenHealthIndicator implements HealthIndicator {
                     System.getProperty("SMOKE_TEST_USER_USERNAME"),
                     System.getProperty("SMOKE_TEST_USER_PASSWORD"), SCOPE);
 
-            final ServerStatus.Status currentStatus = ServerStatus.checkToken(response);
+            final AMServerStatus.Status currentStatus = AMServerStatus.checkToken(response);
 
-            if (currentStatus.equals(ServerStatus.Status.RETURNED_ACCESS_TOKEN)) {
+            if (currentStatus.equals(AMServerStatus.Status.RETURNED_ACCESS_TOKEN)) {
                 return Health.up()
                         .withDetail("message", currentStatus.message)
                         .build();

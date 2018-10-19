@@ -9,8 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.actuate.health.Health;
 
-import static com.amido.healthchecker.health.idm.ServerStatus.SERVER_IS_READY;
-import static com.amido.healthchecker.health.idm.ServerStatus.SERVER_NOT_READY;
+import static com.amido.healthchecker.health.idm.IDMServerStatus.SERVER_IS_READY;
+import static com.amido.healthchecker.health.idm.IDMServerStatus.SERVER_NOT_READY;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -34,7 +34,7 @@ public class IDMHealthIndicatorTest {
     public void setup() {
         mockHappyFeignClient = new MockClient().add(HttpMethod.GET, TOKEN_PATH, 200, RESPONSE_BODY);
         mockUnauthorizedFeignClient = new MockClient().add(HttpMethod.GET, TOKEN_PATH, 401, "");
-        mockErrorFeignClient = new MockClient().add(HttpMethod.GET, TOKEN_PATH, 500, "");
+        mockErrorFeignClient = new MockClient().add(HttpMethod.GET, TOKEN_PATH, 503, "");
     }
 
     @Test
@@ -66,7 +66,7 @@ public class IDMHealthIndicatorTest {
         mockUnauthorizedFeignClient.verifyOne(HttpMethod.GET, TOKEN_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("DOWN"));
         assertThat(healthStatus.getDetails().get("message"), equalTo(SERVER_NOT_READY));
-        assertThat(healthStatus.getDetails().get("errorCode"), equalTo(500));
+        assertThat(healthStatus.getDetails().get("errorCode"), equalTo(503));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class IDMHealthIndicatorTest {
         mockErrorFeignClient.verifyOne(HttpMethod.GET, TOKEN_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("DOWN"));
         assertThat(healthStatus.getDetails().get("message"), equalTo(SERVER_NOT_READY));
-        assertThat(healthStatus.getDetails().get("errorCode"), equalTo(500));
+        assertThat(healthStatus.getDetails().get("errorCode"), equalTo(503));
     }
 
 }
