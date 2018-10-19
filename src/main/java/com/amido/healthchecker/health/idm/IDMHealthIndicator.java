@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 
 @Component
 @Slf4j
+@Profile("idm")
 public class IDMHealthIndicator implements HealthIndicator {
 
     private IDMFeignClient idmFeignClient;

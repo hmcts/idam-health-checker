@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 
 @Component
 @Slf4j
+@Profile("am")
 public class AccessTokenHealthIndicator implements HealthIndicator {
 
     public static final String GRANT_TYPE = "password";

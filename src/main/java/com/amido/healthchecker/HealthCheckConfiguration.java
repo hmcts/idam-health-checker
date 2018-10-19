@@ -1,7 +1,6 @@
 package com.amido.healthchecker;
 
 import com.amido.healthchecker.health.am.AMFeignClient;
-import com.amido.healthchecker.health.am.AmHealthIndicator;
 import com.amido.healthchecker.health.idm.IDMFeignClient;
 import feign.Feign;
 import feign.form.FormEncoder;
@@ -31,11 +30,6 @@ public class HealthCheckConfiguration {
     @Bean
     IDMFeignClient idmFeignClient() {
         return Feign.builder().encoder(new FormEncoder()).target(IDMFeignClient.class, idmUri);
-    }
-
-    @Bean
-    AmHealthIndicator amHealthIndicator() {
-        return new AmHealthIndicator(amFeignClient());
     }
 
     @Bean(name="vaultService")
