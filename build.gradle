@@ -10,6 +10,10 @@ buildscript {
 	}
 }
 
+plugins {
+    id 'com.jfrog.bintray' version '1.8.0'
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
@@ -17,6 +21,23 @@ apply plugin: 'org.springframework.boot'
 group = 'com.amido'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publications = ['Main']
+    publish = true
+    pkg {
+        repo = 'hmcts-maven'
+        name = "${rootProject.name}"
+        userOrg = 'hmcts'
+        licenses = ['MIT']
+        vcsUrl = "https://github.com/hmcts/${rootProject.name}"
+        version {
+            name = project.version
+        }
+    }
+}
 
 repositories {
 	mavenCentral()
