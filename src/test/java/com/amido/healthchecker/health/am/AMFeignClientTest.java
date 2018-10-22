@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
-import static com.amido.healthchecker.health.am.AccessTokenHealthIndicator.GRANT_TYPE;
-import static com.amido.healthchecker.health.am.AccessTokenHealthIndicator.SCOPE;
+import static com.amido.healthchecker.health.am.AMAccessTokenHealthIndicator.GRANT_TYPE;
+import static com.amido.healthchecker.health.am.AMAccessTokenHealthIndicator.SCOPE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 

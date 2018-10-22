@@ -1,13 +1,13 @@
 package com.amido.healthchecker.health.am;
 
+import com.amido.healthchecker.health.ServerStatus;
 import feign.Response;
-import feign.codec.Decoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import java.io.IOException;
 
 @Slf4j
-public class ServerStatus {
+public class AMServerStatus extends ServerStatus {
     private static final String SERVER_IS_ALIVE = "Server is ALIVE";
     private static final String SERVER_IS_DOWN = "Server is DOWN";
     private static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
@@ -46,16 +46,6 @@ public class ServerStatus {
         }
 
         return Status.SERVER_ERROR;
-    }
-
-    private static String getBodyMessage(Response response) throws IOException {
-        log.info("Response: " + response);
-
-        final Decoder decoder = new Decoder.Default();
-        final String decodedResponse = (String)decoder.decode(response, String.class);
-        log.info("Body: " + decodedResponse);
-
-        return decodedResponse;
     }
 
     enum Status {

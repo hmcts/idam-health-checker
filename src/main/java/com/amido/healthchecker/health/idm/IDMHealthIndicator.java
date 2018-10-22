@@ -1,21 +1,25 @@
-package com.amido.healthchecker.health.am;
+package com.amido.healthchecker.health.idm;
 
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import java.util.Base64;
 
 @Component
 @Slf4j
-public class AmHealthIndicator implements HealthIndicator {
+@Profile("idm")
+public class IDMHealthIndicator implements HealthIndicator {
 
-    private AMFeignClient amFeignClient;
+    private IDMFeignClient idmFeignClient;
 
     @Autowired
-    public AmHealthIndicator(AMFeignClient amFeignClient) {
-        this.amFeignClient = amFeignClient;
+    public IDMHealthIndicator(IDMFeignClient idmFeignClient) {
+        this.idmFeignClient = idmFeignClient;
     }
 
     /**
@@ -23,19 +27,22 @@ public class AmHealthIndicator implements HealthIndicator {
      */
     @Override
     public Health health() {
-        return checkAm();
+        return checkIdm();
     }
 
     /**
      * Specific check.
      * @return Health status
      */
-    private Health checkAm() {
+    private Health checkIdm() {
         try {
-            final Response response = amFeignClient.isAMAlive();
+            final String authorization = Base64.getEncoder().encodeToString(("anonymous:anonymous").getBytes());
 
-            final ServerStatus.Status currentStatus = ServerStatus.getStatus(response);
-            if (currentStatus.equals(ServerStatus.Status.ALIVE)) {
+            final Response response = idmFeignClient.pingIdm(authorization);
+
+            final IDMServerStatus.Status currentStatus = IDMServerStatus.checkPingResponse(response);
+
+            if (currentStatus.equals(IDMServerStatus.Status.SERVER_READY)) {
                 return Health.up()
                         .withDetail("message", currentStatus.message)
                         .build();
@@ -46,7 +53,7 @@ public class AmHealthIndicator implements HealthIndicator {
                         .build();
             }
         } catch (Exception e) {
-            log.error("An exception occurred while checking if the AM server is alive", e);
+            log.error("An exception occurred while trying to fetch the IDM ping response", e);
             return Health.down()
                     .withException(e)
                     .build();
