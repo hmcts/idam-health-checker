@@ -1,5 +1,6 @@
 package com.amido.healthchecker.health.am;
 
+import com.amido.healthchecker.util.SecretHolder;
 import feign.Feign;
 import feign.form.FormEncoder;
 import feign.mock.HttpMethod;
@@ -27,6 +28,7 @@ public class AMTokenHealthIndicatorTest {
     private MockClient mockHappyFeignClient;
     private MockClient mockUnauthorizedFeignClient;
     private MockClient mockErrorFeignClient;
+    private SecretHolder secretHolder;
     private AMAccessTokenHealthIndicator accessTokenHealthIndicator;
 
     private static final String TOKEN_PATH = "/oauth2/hmcts/access_token";
@@ -36,13 +38,14 @@ public class AMTokenHealthIndicatorTest {
         mockHappyFeignClient = new MockClient().add(HttpMethod.POST, TOKEN_PATH, 200, TOKEN_RESPONSE_BODY);
         mockUnauthorizedFeignClient = new MockClient().add(HttpMethod.POST, TOKEN_PATH, 401, TOKEN_RESPONSE_BODY);
         mockErrorFeignClient = new MockClient().add(HttpMethod.POST, TOKEN_PATH, 500, TOKEN_RESPONSE_BODY);
+        secretHolder = new SecretHolder();
     }
 
     @Test
     public void checkAccessTokenIsPresent() {
         //given
         amFeignClient = Feign.builder().encoder(new FormEncoder()).client(mockHappyFeignClient).target(new MockTarget<>(AMFeignClient.class));
-        accessTokenHealthIndicator = new AMAccessTokenHealthIndicator(amFeignClient);
+        accessTokenHealthIndicator = new AMAccessTokenHealthIndicator(amFeignClient, secretHolder);
 
         //when
         Health healthStatus = accessTokenHealthIndicator.health();
@@ -58,7 +61,7 @@ public class AMTokenHealthIndicatorTest {
     public void checkUnauthorizedResponse() {
         //given
         amFeignClient = Feign.builder().encoder(new FormEncoder()).client(mockUnauthorizedFeignClient).target(new MockTarget<>(AMFeignClient.class));
-        accessTokenHealthIndicator = new AMAccessTokenHealthIndicator(amFeignClient);
+        accessTokenHealthIndicator = new AMAccessTokenHealthIndicator(amFeignClient, secretHolder);
 
         //when
         Health healthStatus = accessTokenHealthIndicator.health();
@@ -74,7 +77,7 @@ public class AMTokenHealthIndicatorTest {
     public void checkInternalServerErrorResponse() {
         //given
         amFeignClient = Feign.builder().encoder(new FormEncoder()).client(mockErrorFeignClient).target(new MockTarget<>(AMFeignClient.class));
-        accessTokenHealthIndicator = new AMAccessTokenHealthIndicator(amFeignClient);
+        accessTokenHealthIndicator = new AMAccessTokenHealthIndicator(amFeignClient, secretHolder);
 
         //when
         Health healthStatus = accessTokenHealthIndicator.health();

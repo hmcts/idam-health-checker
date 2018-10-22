@@ -1,5 +1,6 @@
 package com.amido.healthchecker.health.am;
 
+import com.amido.healthchecker.util.SecretHolder;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +29,12 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
 
     private AMFeignClient amFeignClient;
 
+    private SecretHolder secretHolder;
+
     @Autowired
-    public AMAccessTokenHealthIndicator(AMFeignClient amFeignClient) {
+    public AMAccessTokenHealthIndicator(AMFeignClient amFeignClient, SecretHolder secretHolder) {
         this.amFeignClient = amFeignClient;
+        this.secretHolder = secretHolder;
     }
 
     /**
@@ -47,14 +51,12 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
      */
     private Health checkAm() {
         try {
-            final String authorization = Base64.getEncoder().encodeToString((clientName + ":" + System.getProperty(AM_PASSWORD)).getBytes());
 
-            final Response response = amFeignClient.canGenerateAccessToken(authorization, GRANT_TYPE,
-                    System.getProperty(SMOKE_TEST_USER_USERNAME),
-                    System.getProperty(SMOKE_TEST_USER_PASSWORD), SCOPE);
+            final Response response = amFeignClient.canGenerateAccessToken(getAuthorization(), GRANT_TYPE,
+                    secretHolder.getSmokeTestUserUsername(),
+                    secretHolder.getSmokeTestUserPassword(), SCOPE);
 
             final AMServerStatus.Status currentStatus = AMServerStatus.checkToken(response);
-
             if (currentStatus.equals(AMServerStatus.Status.RETURNED_ACCESS_TOKEN)) {
                 return Health.up()
                         .withDetail("message", currentStatus.message)
@@ -71,5 +73,9 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
                     .withException(e)
                     .build();
         }
+    }
+
+    private String getAuthorization() {
+        return Base64.getEncoder().encodeToString((clientName + ":" + secretHolder.getAmPassword()).getBytes());
     }
 }

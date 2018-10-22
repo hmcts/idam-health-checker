@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '1.5.16.RELEASE'
+        springBootVersion = '2.0.6.RELEASE'
 	}
 	repositories {
 		mavenCentral()
@@ -24,27 +24,28 @@ repositories {
 
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-web')
-	compile('org.springframework.boot:spring-boot-starter-actuator')
-    
+    compile('org.springframework.boot:spring-boot-starter-web:2.0.6.RELEASE')
+    compile 'org.springframework.boot:spring-boot-starter-actuator:2.0.6.RELEASE'
+
     compile group: 'io.github.openfeign', name: 'feign-core', version: '10.0.1'
     compile 'io.github.openfeign:feign-httpclient:10.0.1'
     compile 'io.github.openfeign.form:feign-form:3.4.0'
-    compile group: 'org.projectlombok', name: 'lombok'
+    compile 'org.projectlombok:lombok:1.18.2'
 
-    testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile group: 'org.mockito', name: 'mockito-core'
+    testCompile('org.springframework.boot:spring-boot-starter-test:2.0.6.RELEASE')
     testCompile group: 'org.hamcrest', name: 'hamcrest-core'
     testCompile group: 'org.hamcrest', name: 'hamcrest-library'
     testCompile group: 'org.springframework', name: 'spring-test'
 
-    testCompile group: 'org.mockito', name: 'mockito-core'
+    testCompile 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
     testCompile group: 'org.hamcrest', name: 'hamcrest-core'
     testCompile group: 'org.hamcrest', name: 'hamcrest-library'
     testCompile group: 'org.springframework', name: 'spring-test'
 
-    compile 'io.github.openfeign:feign-mock:10.0.1'
+    testCompile 'io.github.openfeign:feign-mock:10.0.1'
 
-	compile 'com.microsoft.azure:azure-keyvault:1.0.0'
-	compile 'com.microsoft.azure:adal4j:1.5.0'
+    compile 'com.microsoft.azure:azure-keyvault:1.0.0'
+    compile 'com.microsoft.azure:adal4j:1.5.0'
+
+    compile 'org.springframework.ldap:spring-ldap-core:2.3.2.RELEASE'
 }
