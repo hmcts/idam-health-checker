@@ -11,6 +11,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 
+import static com.amido.healthchecker.HealthcheckerApplication.AM_PASSWORD;
+import static com.amido.healthchecker.HealthcheckerApplication.SMOKE_TEST_USER_PASSWORD;
+import static com.amido.healthchecker.HealthcheckerApplication.SMOKE_TEST_USER_USERNAME;
+
 @Component
 @Slf4j
 @Profile("am")
@@ -43,11 +47,11 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
      */
     private Health checkAm() {
         try {
-            final String authorization = Base64.getEncoder().encodeToString((clientName + ":" + System.getProperty("AM_PASSWORD")).getBytes());
+            final String authorization = Base64.getEncoder().encodeToString((clientName + ":" + System.getProperty(AM_PASSWORD)).getBytes());
 
             final Response response = amFeignClient.canGenerateAccessToken(authorization, GRANT_TYPE,
-                    System.getProperty("SMOKE_TEST_USER_USERNAME"),
-                    System.getProperty("SMOKE_TEST_USER_PASSWORD"), SCOPE);
+                    System.getProperty(SMOKE_TEST_USER_USERNAME),
+                    System.getProperty(SMOKE_TEST_USER_PASSWORD), SCOPE);
 
             final AMServerStatus.Status currentStatus = AMServerStatus.checkToken(response);
 

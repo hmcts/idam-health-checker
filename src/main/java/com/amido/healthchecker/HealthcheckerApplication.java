@@ -11,6 +11,10 @@ import javax.annotation.PostConstruct;
 @SpringBootApplication
 public class HealthcheckerApplication {
 
+    public static final String AM_PASSWORD = "AM_PASSWORD";
+    public static final String SMOKE_TEST_USER_USERNAME = "SMOKE_TEST_USER_USERNAME";
+    public static final String SMOKE_TEST_USER_PASSWORD = "SMOKE_TEST_USER_PASSWORD";
+
     @Value("${am.secret.name.password}")
     private String amSecretNamePassword;
 
@@ -25,9 +29,9 @@ public class HealthcheckerApplication {
 
     @PostConstruct
     public void init() {
-        vaultService.loadSecret("AM_PASSWORD", amSecretNamePassword);
-        vaultService.loadSecret("SMOKE_TEST_USER_USERNAME", amSecretNameSmokeTestUserUsername);
-        vaultService.loadSecret("SMOKE_TEST_USER_PASSWORD", amSecretNameSmokeTestUserPassword);
+        vaultService.loadSecret(AM_PASSWORD, amSecretNamePassword);
+        vaultService.loadSecret(SMOKE_TEST_USER_USERNAME, amSecretNameSmokeTestUserUsername);
+        vaultService.loadSecret(SMOKE_TEST_USER_PASSWORD, amSecretNameSmokeTestUserPassword);
     }
 
     public static void main(String[] args) {
