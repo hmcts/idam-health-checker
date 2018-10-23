@@ -3,6 +3,7 @@ package com.amido.healthchecker.azure;
 import com.amido.healthchecker.util.SecretHolder;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Qualifier("vaultService")
 @Profile("live")
+@Slf4j
 public class AzureVaultService implements VaultService {
 
     @Value("${vault.base.url}")
@@ -21,7 +23,7 @@ public class AzureVaultService implements VaultService {
     private SecretHolder secretHolder;
 
     @Autowired
-    public AzureVaultService(SecretHolder secretHolder, KeyVaultClient keyVaultClient){
+    public AzureVaultService(SecretHolder secretHolder, KeyVaultClient keyVaultClient) {
         this.secretHolder = secretHolder;
         this.client = keyVaultClient;
     }
@@ -29,13 +31,13 @@ public class AzureVaultService implements VaultService {
     @Override
     public void loadAllSecrets() {
         this.secretHolder.getSecretNames().forEach(name -> {
-                    final SecretBundle secretBundle = client.getSecret(vaultBaseUrl, name);
-                    if(secretBundle!=null) {
-                        this.secretHolder.setSecretsMap(name, secretBundle.value());
-                    } else {
-                        throw new IllegalStateException("Couldn't find secret " + name);
-                    }
-                }
-        );
+            final SecretBundle secretBundle = client.getSecret(vaultBaseUrl, name);
+            if (secretBundle != null) {
+                log.info("Setting secret: " + name);
+                this.secretHolder.setSecretsMap(name, secretBundle.value());
+            } else {
+                throw new IllegalStateException("Couldn't find secret " + name);
+            }
+        });
     }
 }
