@@ -9,12 +9,7 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
 import java.util.Base64;
-
-import static com.amido.healthchecker.HealthcheckerApplication.AM_PASSWORD;
-import static com.amido.healthchecker.HealthcheckerApplication.SMOKE_TEST_USER_PASSWORD;
-import static com.amido.healthchecker.HealthcheckerApplication.SMOKE_TEST_USER_USERNAME;
 
 @Component
 @Slf4j
