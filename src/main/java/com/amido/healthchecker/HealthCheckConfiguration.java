@@ -6,6 +6,7 @@ import com.amido.healthchecker.health.idm.IDMFeignClient;
 import com.amido.healthchecker.util.*;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import feign.Feign;
+import feign.Request;
 import feign.form.FormEncoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +39,7 @@ public class HealthCheckConfiguration {
     @Value("${idm.uri}")
     private String idmUri;
 
+
     @Value("${am.secret.name.smoke.test.user.username}")
     private String smokeTestUserUserName;
 
@@ -54,13 +56,21 @@ public class HealthCheckConfiguration {
     private String dsUserStorePasswordName;
 
 
+    @Value("${feign.connect.timeout.millis:5000}")
+    private int connectTimeoutMillis;
+
+    @Value("${feign.read.timeout.millis:60000}")
+    private int readTimeoutMillis;
+
+
     @Bean
     AMFeignClient amFeignClient() {
-        return Feign.builder().encoder(new FormEncoder()).target(AMFeignClient.class, amUri);
+        return Feign.builder().encoder(new FormEncoder()).options(timeoutOptions()).target(AMFeignClient.class, amUri);
     }
 
     @Bean
     IDMFeignClient idmFeignClient() {
+
         return Feign.builder().encoder(new FormEncoder()).target(IDMFeignClient.class, idmUri);
 
     }
@@ -89,6 +99,11 @@ public class HealthCheckConfiguration {
     @Bean
     AMSecretHolder amSecretHolder(){
         return new AMSecretHolder(amPasswordName, smokeTestUserUserName, smokeTestUserPassword);
+    }
+
+    @Bean
+    public Request.Options timeoutOptions() {
+        return new Request.Options(connectTimeoutMillis, readTimeoutMillis);
     }
 
     @Bean

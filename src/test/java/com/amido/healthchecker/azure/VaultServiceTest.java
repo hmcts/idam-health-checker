@@ -6,6 +6,7 @@ import com.amido.healthchecker.util.DSUserStoreSecretHolder;
 import com.amido.healthchecker.util.SecretHolder;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.mockito.Mockito;
 import org.springframework.core.env.Environment;
 
@@ -61,7 +62,5 @@ public class VaultServiceTest {
         assertThat(secretHolder.getDSUserStorePassword(), equalTo("Pa55word11"));
         assertThat(secretHolder.getDSTokenStorePassword(), equalTo("Pa55word11"));
 
-
-    }
 
 }

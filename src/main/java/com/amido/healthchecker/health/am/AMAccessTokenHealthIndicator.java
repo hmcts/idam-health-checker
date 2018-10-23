@@ -22,6 +22,9 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
     @Value("${am.client.name}")
     private String clientName;
 
+    @Value("${am.smoke.test.user.username}")
+    private String smokeTestUsername;
+
     private AMFeignClient amFeignClient;
 
     private SecretHolder secretHolder;
@@ -46,10 +49,10 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
      */
     private Health checkAm() {
         try {
-
             final Response response = amFeignClient.canGenerateAccessToken(getAuthorization(), GRANT_TYPE,
                     secretHolder.getSmokeTestUserUsername(),
                     secretHolder.getSmokeTestUserPassword(), SCOPE);
+
 
             final AMServerStatus.Status currentStatus = AMServerStatus.checkToken(response);
             if (currentStatus.equals(AMServerStatus.Status.RETURNED_ACCESS_TOKEN)) {
