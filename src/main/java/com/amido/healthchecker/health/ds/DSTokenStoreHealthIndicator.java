@@ -12,7 +12,7 @@ import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("ds-token-store")
+@Profile("ds-tokenstore")
 public class DSTokenStoreHealthIndicator implements HealthIndicator {
 
     private DSProperties dsTokenStoreProperties;
