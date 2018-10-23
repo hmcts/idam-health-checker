@@ -1,5 +1,8 @@
 package com.amido.healthchecker.health.am;
 
+import com.amido.healthchecker.util.AMSecretHolder;
+import com.amido.healthchecker.util.DSTokenStoreSecretHolder;
+import com.amido.healthchecker.util.DSUserStoreSecretHolder;
 import com.amido.healthchecker.util.SecretHolder;
 import feign.Feign;
 import feign.form.FormEncoder;
@@ -29,6 +32,9 @@ public class AMTokenHealthIndicatorTest {
     private MockClient mockUnauthorizedFeignClient;
     private MockClient mockErrorFeignClient;
     private SecretHolder secretHolder;
+    private AMSecretHolder amSecretHolder = new AMSecretHolder("am-passwordName", "smoke-test-user-username", "smoke-test-user-passwordName");
+    private DSTokenStoreSecretHolder dsTokenStoreSecretHolder = new DSTokenStoreSecretHolder("ds-token-store-passwordName");
+    private DSUserStoreSecretHolder dsUserStoreSecretHolder = new DSUserStoreSecretHolder("ds-user-store-passwordName");
     private AMAccessTokenHealthIndicator accessTokenHealthIndicator;
 
     private static final String TOKEN_PATH = "/oauth2/hmcts/access_token";
@@ -38,7 +44,7 @@ public class AMTokenHealthIndicatorTest {
         mockHappyFeignClient = new MockClient().add(HttpMethod.POST, TOKEN_PATH, 200, TOKEN_RESPONSE_BODY);
         mockUnauthorizedFeignClient = new MockClient().add(HttpMethod.POST, TOKEN_PATH, 401, TOKEN_RESPONSE_BODY);
         mockErrorFeignClient = new MockClient().add(HttpMethod.POST, TOKEN_PATH, 500, TOKEN_RESPONSE_BODY);
-        secretHolder = new SecretHolder();
+        secretHolder = new SecretHolder(amSecretHolder, dsTokenStoreSecretHolder, dsUserStoreSecretHolder);
     }
 
     @Test

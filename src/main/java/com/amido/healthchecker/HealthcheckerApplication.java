@@ -11,19 +11,6 @@ import javax.annotation.PostConstruct;
 @SpringBootApplication
 public class HealthcheckerApplication {
 
-    public static final String AM_PASSWORD = "AM_PASSWORD";
-    public static final String SMOKE_TEST_USER_USERNAME = "SMOKE_TEST_USER_USERNAME";
-    public static final String SMOKE_TEST_USER_PASSWORD = "SMOKE_TEST_USER_PASSWORD";
-
-    @Value("${am.secret.name.password}")
-    private String amSecretNamePassword;
-
-    @Value("${am.secret.name.smoke.test.user.username}")
-    private String amSecretNameSmokeTestUserUsername;
-
-    @Value("${am.secret.name.smoke.test.user.password}")
-    private String amSecretNameSmokeTestUserPassword;
-
     @Autowired
     VaultService vaultService;
 

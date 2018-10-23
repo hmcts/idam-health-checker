@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 @Component
 @Qualifier("vaultService")
 @Profile("live")
@@ -17,14 +19,7 @@ public class AzureVaultService implements VaultService {
     @Value("${vault.base.url}")
     private String vaultBaseUrl;
 
-    @Value("${vault.client.id}")
-    private String vaultClientId;
-
-    @Value("${vault.client.key}")
-    private String vaultClientKey;
-
     private KeyVaultClient client;
-
     private SecretHolder secretHolder;
 
     @Autowired
@@ -36,22 +31,18 @@ public class AzureVaultService implements VaultService {
     @Override
     public void loadAllSecrets() {
         this.secretHolder.getSecretNames().forEach(name -> {
-                final SecretBundle secretBundle = client.getSecret(vaultBaseUrl, name);
-                if (secretBundle != null) {
-                    this.secretHolder.setSecretsMap(name, secretBundle.value());
-                } else {
-                    throw new IllegalStateException("Couldn't find secret " + name);
+                    final SecretBundle secretBundle = client.getSecret(vaultBaseUrl, name);
+                    if(secretBundle!=null) {
+                        this.secretHolder.setSecretsMap(name, secretBundle.value());
+                    } else {
+                        throw new IllegalStateException("Couldn't find secret " + name);
+                    }
                 }
-            }
         );
     }
 
-    public void loadSecret(final String systemPropertyName, final String secretName) {
-        final SecretBundle secretBundle = client.getSecret(vaultBaseUrl, secretName);
-        if (secretBundle != null) {
-            System.setProperty(systemPropertyName, secretBundle.value());
-        } else {
-            throw new IllegalStateException("Couldn't find secret " + secretName);
-        }
+    protected void setVaultBaseUrl(String baseUrl){
+        this.vaultBaseUrl = baseUrl;
     }
+
 }

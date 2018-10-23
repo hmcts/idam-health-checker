@@ -14,7 +14,6 @@ import org.springframework.util.StringUtils;
 public class DummyVaultService implements VaultService {
 
     private Environment env;
-
     private SecretHolder secretHolder;
 
     @Autowired
@@ -22,6 +21,7 @@ public class DummyVaultService implements VaultService {
         this.env = env;
         this.secretHolder = secretHolder;
     }
+
 
     @Override
     public void loadAllSecrets() {

@@ -1,6 +1,6 @@
 package com.amido.healthchecker.health.ds;
 
-import com.amido.healthchecker.util.LdapProperties;
+import com.amido.healthchecker.util.DSProperties;
 import com.amido.healthchecker.util.SecretHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
@@ -12,15 +12,15 @@ import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("ds")
-public class CTSHealthIndicator implements HealthIndicator {
+@Profile("ds-user-store")
+public class DSUserStoreHealthIndicator implements HealthIndicator {
 
-    private LdapProperties ctsLdapProperties;
+    private DSProperties dsUserStoreProperties;
     private SecretHolder secretHolder;
 
     @Autowired
-    public CTSHealthIndicator(LdapProperties ctsLdapProperties, SecretHolder secretHolder){
-        this.ctsLdapProperties = ctsLdapProperties;
+    public DSUserStoreHealthIndicator(DSProperties dsUserStoreProperties, SecretHolder secretHolder){
+        this.dsUserStoreProperties = dsUserStoreProperties;
         this.secretHolder = secretHolder;
     }
 
@@ -38,10 +38,10 @@ public class CTSHealthIndicator implements HealthIndicator {
 
     private LdapContextSource getLdapContextSource() {
         LdapContextSource contextSource = new LdapContextSource();
-        contextSource.setUrl(ctsLdapProperties.getBaseUrl());
-        contextSource.setBase(ctsLdapProperties.getBase());
-        contextSource.setUserDn(ctsLdapProperties.getUserDN());
-        contextSource.setPassword(secretHolder.getCtsLdapPassword());
+        contextSource.setUrl(dsUserStoreProperties.getBaseUrl());
+        contextSource.setBase(dsUserStoreProperties.getBase());
+        contextSource.setUserDn(dsUserStoreProperties.getUserDN());
+        contextSource.setPassword(secretHolder.getDSUserStorePassword());
         contextSource.afterPropertiesSet();
         return contextSource;
     }

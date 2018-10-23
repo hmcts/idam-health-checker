@@ -1,61 +1,73 @@
 package com.amido.healthchecker.util;
 
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Data
 @Component
 public class SecretHolder {
-    public static final String CONST_LDAP_PASSWORD = "Pa55word11";
-    private static final String SECRET_NAME_AM_PASSWORD = "am-password";
-    private static final String SECRET_NAME_SMOKE_TEST_USER_USERNAME = "smoke-test-user-username";
-    private static final String SECRET_NAME_SMOKE_TEST_USER_PASSWORD = "smoke-test-user-password";
-    private static final String SECRET_NAME_CTS_LDAP_PASSWORD = "cts-ldap-password";
-    private static final String SECRET_NAME_CRS_LDAP_PASSWORD = "crs-ldap-password";
-
-    private List<String> secretNames = Arrays.asList(SECRET_NAME_AM_PASSWORD,
-            SECRET_NAME_SMOKE_TEST_USER_USERNAME,
-            SECRET_NAME_SMOKE_TEST_USER_PASSWORD,
-            SECRET_NAME_CRS_LDAP_PASSWORD,
-            SECRET_NAME_CTS_LDAP_PASSWORD);
+    private List<String> secretNames;
 
     private Map<String, Object> secretsMap;
 
-    public SecretHolder(){
-        secretsMap = new HashMap<>();
+    private AMSecretHolder amSecretHolder;
+    private DSUserStoreSecretHolder dsUserStoreSecretHolder;
+    private DSTokenStoreSecretHolder dsTokenStoreSecretHolder;
+
+    @Autowired
+    public SecretHolder(AMSecretHolder amSecretHolder, DSTokenStoreSecretHolder dsTokenStoreSecretHolder, DSUserStoreSecretHolder dsUserStoreSecretHolder){
+        this.amSecretHolder = amSecretHolder;
+        this.dsTokenStoreSecretHolder = dsTokenStoreSecretHolder;
+        this.dsUserStoreSecretHolder = dsUserStoreSecretHolder;
+
+        this.secretsMap = new HashMap<>();
+        this.secretNames = Stream.of(amSecretHolder.getAMSecretNames(),
+                                        dsTokenStoreSecretHolder.getDSTokenStoreSecretNames(),
+                                        dsUserStoreSecretHolder.getDSUserStoreSecretNames()).flatMap(Collection :: stream).collect(Collectors.toList());
     }
 
-    public String getAmPassword() {
-        return String.valueOf(secretsMap.get(SECRET_NAME_AM_PASSWORD));
+
+    public String getAmPassword(){
+        return String.valueOf(secretsMap.get(amSecretHolder.getAmPasswordName()));
     }
 
     public String getSmokeTestUserUsername() {
-        return String.valueOf(secretsMap.get(SECRET_NAME_SMOKE_TEST_USER_USERNAME));
+
+        return String.valueOf(secretsMap.get(amSecretHolder.getSmokeTestUserUsername()));
     }
 
     public String getSmokeTestUserPassword() {
-        return String.valueOf(secretsMap.get(SECRET_NAME_SMOKE_TEST_USER_PASSWORD));
+
+        return String.valueOf(secretsMap.get(amSecretHolder.getSmokeTestUserPassword()));
     }
 
-    public String getCtsLdapPassword() {
-        return String.valueOf(secretsMap.get(SECRET_NAME_CTS_LDAP_PASSWORD));
+    public String getDSTokenStorePassword() {
+
+        return String.valueOf(secretsMap.get(dsTokenStoreSecretHolder.getPasswordName()));
     }
 
-    public String getCrsLdapPassword() {
-        return String.valueOf(secretsMap.get(SECRET_NAME_CRS_LDAP_PASSWORD));
+    public String getDSUserStorePassword() {
+        return String.valueOf(secretsMap.get(dsUserStoreSecretHolder.getPasswordName()));
     }
 
-    public void setSecretsMap(String key, Object value) {
+    public void setSecretsMap(String key, Object value){
         this.secretsMap.put(key, value);
     }
 
-    public String toString() {
+
+    public String toString(){
+
         return secretsMap.toString();
+
+
     }
 
 }

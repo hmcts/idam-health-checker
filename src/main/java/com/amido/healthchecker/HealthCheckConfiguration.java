@@ -3,8 +3,7 @@ package com.amido.healthchecker;
 import com.amido.healthchecker.azure.ClientSecretKeyVaultCredential;
 import com.amido.healthchecker.health.am.AMFeignClient;
 import com.amido.healthchecker.health.idm.IDMFeignClient;
-import com.amido.healthchecker.util.LdapProperties;
-import com.amido.healthchecker.util.SecretHolder;
+import com.amido.healthchecker.util.*;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import feign.Feign;
 import feign.form.FormEncoder;
@@ -18,26 +17,42 @@ public class HealthCheckConfiguration {
     @Value("${am.uri}")
     private String amUri;
 
-    @Value("${idm.uri}")
-    private String idmUri;
+    @Value("${ds.token.store.url}")
+    private String dsTokenStoreURL;
 
-    @Value("${CTS.ldap.url}")
-    private String ctsLdapURL;
+    @Value("${ds.token.store.userDN: ldap://localhost:1389}")
+    private String dsTokenStoreUserDN;
 
-    @Value("${CTS.ldap.userDN: ldap://localhost:1389}")
-    private String ctsLdapUserDN;
+    @Value("${ds.user.store.url}")
+    private String dsUserStoreURL;
 
-    @Value("${CRS.ldap.url}")
-    private String crsLdapURL;
-
-    @Value("${CRS.ldap.userDN}")
-    private String crsLdapUserDN;
+    @Value("${ds.user.store.userDN}")
+    private String dsUserStoreUserDN;
 
     @Value("${vault.client.id}")
     private String vaultClientId;
 
     @Value("${vault.client.key}")
     private String vaultClientKey;
+
+    @Value("${idm.uri}")
+    private String idmUri;
+
+    @Value("${am.secret.name.smoke.test.user.username}")
+    private String smokeTestUserUserName;
+
+    @Value("${am.secret.name.smoke.test.user.password}")
+    private String smokeTestUserPassword;
+
+    @Value("${am.secret.name.password}")
+    private String amPasswordName;
+
+    @Value("${ds.token.store.secret.name.password}")
+    private String dsTokenStorePasswordName;
+
+    @Value("${ds.user.store.secret.name.password}")
+    private String dsUserStorePasswordName;
+
 
     @Bean
     AMFeignClient amFeignClient() {
@@ -47,25 +62,45 @@ public class HealthCheckConfiguration {
     @Bean
     IDMFeignClient idmFeignClient() {
         return Feign.builder().encoder(new FormEncoder()).target(IDMFeignClient.class, idmUri);
+
     }
 
-    @Bean(name="ctsLdapProperties")
-    LdapProperties ctsLdapProperties() {
-        return new LdapProperties(ctsLdapURL, ctsLdapUserDN, "", "");
+    @Bean(name="dsTokenStoreProperties")
+    DSProperties dsTokenStoreProperties(){
+        return new DSProperties(dsTokenStoreURL, dsTokenStoreUserDN, "", "");
     }
 
-    @Bean(name="crsLdapProperties")
-    LdapProperties crsLdapProperties() {
-        return new LdapProperties(crsLdapURL, crsLdapUserDN, "", "");
+    @Bean(name="dsUserStoreProperties")
+    DSProperties dsUserStoreProperties(){
+        return new DSProperties(dsUserStoreURL, dsUserStoreUserDN, "", "");
     }
 
     @Bean
-    KeyVaultClient keyVaultClient() {
+    KeyVaultClient keyVaultClient(){
         return new KeyVaultClient(new ClientSecretKeyVaultCredential(vaultClientId, vaultClientKey));
     }
 
+
     @Bean
-    SecretHolder secretHolder() {
-        return new SecretHolder();
+    SecretHolder secretHolder(){
+        return new SecretHolder(amSecretHolder(), dsTokenStoreSecretHolder(), dsUserStoreSecretHolder());
     }
+
+    @Bean
+    AMSecretHolder amSecretHolder(){
+        return new AMSecretHolder(amPasswordName, smokeTestUserUserName, smokeTestUserPassword);
+    }
+
+    @Bean
+    DSTokenStoreSecretHolder dsTokenStoreSecretHolder(){
+        return new DSTokenStoreSecretHolder(dsTokenStorePasswordName);
+    }
+
+    @Bean
+    DSUserStoreSecretHolder dsUserStoreSecretHolder(){
+        return new DSUserStoreSecretHolder(dsUserStorePasswordName);
+    }
+
+
 }
+
