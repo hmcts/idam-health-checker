@@ -57,7 +57,6 @@ public class HealthCheckConfiguration {
     @Value("${feign.read.timeout.millis:60000}")
     private int readTimeoutMillis;
 
-
     @Bean
     AMFeignClient amFeignClient() {
         return Feign.builder().encoder(new FormEncoder()).options(timeoutOptions()).target(AMFeignClient.class, amUri);
@@ -65,52 +64,47 @@ public class HealthCheckConfiguration {
 
     @Bean
     IDMFeignClient idmFeignClient() {
-
-        return Feign.builder().encoder(new FormEncoder()).target(IDMFeignClient.class, idmUri);
-
+        return Feign.builder().encoder(new FormEncoder()).options(timeoutOptions()).target(IDMFeignClient.class, idmUri);
     }
 
     @Bean(name="dsTokenStoreProperties")
-    DSProperties dsTokenStoreProperties(){
+    DSProperties dsTokenStoreProperties() {
         return new DSProperties(dsTokenStoreURL, dsTokenStoreUserDN, "", "");
     }
 
     @Bean(name="dsUserStoreProperties")
-    DSProperties dsUserStoreProperties(){
+    DSProperties dsUserStoreProperties() {
         return new DSProperties(dsUserStoreURL, dsUserStoreUserDN, "", "");
     }
 
     @Bean
-    KeyVaultClient keyVaultClient(){
+    KeyVaultClient keyVaultClient() {
         return new KeyVaultClient(new ClientSecretKeyVaultCredential(vaultClientId, vaultClientKey));
     }
 
-
     @Bean
-    SecretHolder secretHolder(){
+    SecretHolder secretHolder() {
         return new SecretHolder(amSecretHolder(), dsTokenStoreSecretHolder(), dsUserStoreSecretHolder());
     }
 
     @Bean
-    AMSecretHolder amSecretHolder(){
+    AMSecretHolder amSecretHolder() {
         return new AMSecretHolder(amPasswordName, smokeTestUserPassword);
     }
 
     @Bean
-    public Request.Options timeoutOptions() {
+    Request.Options timeoutOptions() {
         return new Request.Options(connectTimeoutMillis, readTimeoutMillis);
     }
 
     @Bean
-    DSTokenStoreSecretHolder dsTokenStoreSecretHolder(){
+    DSTokenStoreSecretHolder dsTokenStoreSecretHolder() {
         return new DSTokenStoreSecretHolder(dsTokenStorePasswordName);
     }
 
     @Bean
-    DSUserStoreSecretHolder dsUserStoreSecretHolder(){
+    DSUserStoreSecretHolder dsUserStoreSecretHolder() {
         return new DSUserStoreSecretHolder(dsUserStorePasswordName);
     }
-
-
 }
 
