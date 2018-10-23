@@ -50,7 +50,7 @@ public class VaultServiceTest {
     }
 
     @Test
-    public void shouldUpdateSecretHolder(){
+    public void shouldUpdateSecretHolder() {
         //when
         service.loadAllSecrets();
 
@@ -61,6 +61,6 @@ public class VaultServiceTest {
         assertThat(secretHolder.getSmokeTestUserPassword(), equalTo("password"));
         assertThat(secretHolder.getDSUserStorePassword(), equalTo("Pa55word11"));
         assertThat(secretHolder.getDSTokenStorePassword(), equalTo("Pa55word11"));
-
+    }
 
 }
