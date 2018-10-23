@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
@@ -27,15 +27,15 @@ public class VaultServiceTest {
 
     @Test
     public void shouldExtractParameterAsSystemProperty() throws Exception {
-        service.loadSecret("SMOKE_TEST_USER_USERNAME", "smoke-test-user-username");
-        String actual = System.getProperty("SMOKE_TEST_USER_USERNAME");
+        service.loadSecret("SMOKE_TEST_USER_PASSWORD", "system-owner-password");
+        String actual = System.getProperty("SMOKE_TEST_USER_PASSWORD");
 
-        assertThat(actual.equals("smoke@test.com"));
+        assertEquals("Passw0rd1234", actual);
     }
 
     @Test(expected = IllegalStateException.class)
     public void missingValueThrowsException() throws Exception {
-        service.loadSecret("SMOKE_TEST_USER_USERNAME", "not-present");
+        service.loadSecret("SOME_VALUE", "not-present");
     }
 
 }
