@@ -39,16 +39,16 @@ public class HealthCheckConfiguration {
     @Value("${idm.uri}")
     private String idmUri;
 
-    @Value("${secret.name.am.smoke.test.user.password}")
+    @Value("${am.secret.name.smoke.test.user.password}")
     private String smokeTestUserPassword;
 
-    @Value("${secret.name.am.password}")
+    @Value("${am.secret.name.password}")
     private String amPasswordName;
 
-    @Value("${secret.name.ds.token.store.password}")
+    @Value("${ds.token.store.secret.name.password}")
     private String dsTokenStorePasswordName;
 
-    @Value("${secret.name.ds.user.store.password}")
+    @Value("${ds.user.store.secret.name.password}")
     private String dsUserStorePasswordName;
 
     @Value("${feign.connect.timeout.millis:5000}")
