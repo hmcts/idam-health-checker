@@ -28,6 +28,7 @@ file space check will be the only `HeathIndicator` contributing to the overall s
 
 ```vault.base.url
 vault.client.id
-vault.client.key```
+vault.client.key
+```
 
 will be passed in as environment variables as the jar file is run.
