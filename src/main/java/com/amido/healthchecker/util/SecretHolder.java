@@ -23,29 +23,30 @@ public class SecretHolder {
     private DSTokenStoreSecretHolder dsTokenStoreSecretHolder;
 
     @Autowired
-    public SecretHolder(AMSecretHolder amSecretHolder, DSTokenStoreSecretHolder dsTokenStoreSecretHolder, DSUserStoreSecretHolder dsUserStoreSecretHolder){
+    public SecretHolder(AMSecretHolder amSecretHolder,
+                        DSTokenStoreSecretHolder dsTokenStoreSecretHolder,
+                        DSUserStoreSecretHolder dsUserStoreSecretHolder) {
         this.amSecretHolder = amSecretHolder;
         this.dsTokenStoreSecretHolder = dsTokenStoreSecretHolder;
         this.dsUserStoreSecretHolder = dsUserStoreSecretHolder;
 
         this.secretsMap = new HashMap<>();
         this.secretNames = Stream.of(amSecretHolder.getAMSecretNames(),
-                                        dsTokenStoreSecretHolder.getDSTokenStoreSecretNames(),
-                                        dsUserStoreSecretHolder.getDSUserStoreSecretNames()).flatMap(Collection :: stream).collect(Collectors.toList());
+                dsTokenStoreSecretHolder.getDSTokenStoreSecretNames(),
+                dsUserStoreSecretHolder.getDSUserStoreSecretNames())
+                .flatMap(Collection :: stream)
+                .collect(Collectors.toList());
     }
 
-
-    public String getAmPassword(){
+    public String getAmPassword() {
         return String.valueOf(secretsMap.get(amSecretHolder.getAmPasswordName()));
     }
 
     public String getSmokeTestUserPassword() {
-
         return String.valueOf(secretsMap.get(amSecretHolder.getSmokeTestUserPassword()));
     }
 
     public String getDSTokenStorePassword() {
-
         return String.valueOf(secretsMap.get(dsTokenStoreSecretHolder.getPasswordName()));
     }
 
@@ -53,16 +54,12 @@ public class SecretHolder {
         return String.valueOf(secretsMap.get(dsUserStoreSecretHolder.getPasswordName()));
     }
 
-    public void setSecretsMap(String key, Object value){
+    public void setSecretsMap(String key, Object value) {
         this.secretsMap.put(key, value);
     }
 
-
-    public String toString(){
-
+    public String toString() {
         return secretsMap.toString();
-
-
     }
 
 }
