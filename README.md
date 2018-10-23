@@ -26,7 +26,8 @@ to `spring.profiles.active` e.g.
 which will enable both the AM and IDM checks. If only one of `dev` or `live` is defined, then the (default)
 file space check will be the only `HeathIndicator` contributing to the overall status.
 
-```vault.base.url
+```
+vault.base.url
 vault.client.id
 vault.client.key
 ```
