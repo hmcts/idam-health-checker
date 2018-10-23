@@ -39,11 +39,6 @@ public class SecretHolder {
         return String.valueOf(secretsMap.get(amSecretHolder.getAmPasswordName()));
     }
 
-    public String getSmokeTestUserUsername() {
-
-        return String.valueOf(secretsMap.get(amSecretHolder.getSmokeTestUserUsername()));
-    }
-
     public String getSmokeTestUserPassword() {
 
         return String.valueOf(secretsMap.get(amSecretHolder.getSmokeTestUserPassword()));

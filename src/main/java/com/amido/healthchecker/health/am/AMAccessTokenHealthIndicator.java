@@ -50,7 +50,7 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
     private Health checkAm() {
         try {
             final Response response = amFeignClient.canGenerateAccessToken(getAuthorization(), GRANT_TYPE,
-                    secretHolder.getSmokeTestUserUsername(),
+                    smokeTestUsername,
                     secretHolder.getSmokeTestUserPassword(), SCOPE);
 
 

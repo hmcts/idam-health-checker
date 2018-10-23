@@ -19,7 +19,7 @@ public class AzureVaultServiceTest {
 
     private final String vaultBaseUrl = "https://somewhere.vault.azure.net/";
 
-    private AMSecretHolder amSecretHolder = new AMSecretHolder("am-passwordName", "smoke-test-user-username", "smoke-test-user-passwordName");
+    private AMSecretHolder amSecretHolder = new AMSecretHolder("am-passwordName","smoke-test-user-passwordName");
     private DSTokenStoreSecretHolder dsTokenStoreSecretHolder = new DSTokenStoreSecretHolder("ds-token-store-passwordName");
     private DSUserStoreSecretHolder dsUserStoreSecretHolder = new DSUserStoreSecretHolder("ds-user-store-passwordName");
 
@@ -52,16 +52,14 @@ public class AzureVaultServiceTest {
         vaultService.loadAllSecrets();
 
         //then assert
-        assertThat(secretHolder.getSecretsMap().size(), equalTo(5));
+        assertThat(secretHolder.getSecretsMap().size(), equalTo(4));
         assertThat(secretHolder.getAmPassword(), equalTo("am-test"));
-        assertThat(secretHolder.getSmokeTestUserUsername(), equalTo("smoke-test"));
         assertThat(secretHolder.getSmokeTestUserPassword(), equalTo("smoke-test"));
         assertThat(secretHolder.getDSUserStorePassword(), equalTo("ldap-test"));
         assertThat(secretHolder.getDSTokenStorePassword(), equalTo("ldap-test"));
 
         //then verify
         Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "am-passwordName");
-        Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "smoke-test-user-username");
         Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "smoke-test-user-passwordName");
         Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "ds-token-store-passwordName");
         Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "ds-user-store-passwordName");

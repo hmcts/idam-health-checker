@@ -21,7 +21,7 @@ public class VaultServiceTest {
     private SecretHolder secretHolder;
     private Environment mockEnvironment;
 
-    private AMSecretHolder amSecretHolder = new AMSecretHolder("am-password", "smoke-test-user-username", "smoke-test-user-password");
+    private AMSecretHolder amSecretHolder = new AMSecretHolder("am-password", "smoke-test-user-password");
     private DSTokenStoreSecretHolder dsTokenStoreSecretHolder = new DSTokenStoreSecretHolder("ds-token-store-password");
     private DSUserStoreSecretHolder dsUserStoreSecretHolder = new DSUserStoreSecretHolder("ds-user-store-password");
 
@@ -55,9 +55,8 @@ public class VaultServiceTest {
         service.loadAllSecrets();
 
         //then
-        assertThat(secretHolder.getSecretsMap().size(), equalTo(5));
+        assertThat(secretHolder.getSecretsMap().size(), equalTo(4));
         assertThat(secretHolder.getAmPassword(), equalTo("test"));
-        assertThat(secretHolder.getSmokeTestUserUsername(), equalTo("testr@test.net"));
         assertThat(secretHolder.getSmokeTestUserPassword(), equalTo("password"));
         assertThat(secretHolder.getDSUserStorePassword(), equalTo("Pa55word11"));
         assertThat(secretHolder.getDSTokenStorePassword(), equalTo("Pa55word11"));

@@ -39,10 +39,6 @@ public class HealthCheckConfiguration {
     @Value("${idm.uri}")
     private String idmUri;
 
-
-    @Value("${am.secret.name.smoke.test.user.username}")
-    private String smokeTestUserUserName;
-
     @Value("${am.secret.name.smoke.test.user.password}")
     private String smokeTestUserPassword;
 
@@ -54,7 +50,6 @@ public class HealthCheckConfiguration {
 
     @Value("${ds.user.store.secret.name.password}")
     private String dsUserStorePasswordName;
-
 
     @Value("${feign.connect.timeout.millis:5000}")
     private int connectTimeoutMillis;
@@ -98,7 +93,7 @@ public class HealthCheckConfiguration {
 
     @Bean
     AMSecretHolder amSecretHolder(){
-        return new AMSecretHolder(amPasswordName, smokeTestUserUserName, smokeTestUserPassword);
+        return new AMSecretHolder(amPasswordName, smokeTestUserPassword);
     }
 
     @Bean

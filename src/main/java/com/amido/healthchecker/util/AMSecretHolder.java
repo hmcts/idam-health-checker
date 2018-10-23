@@ -14,20 +14,14 @@ public class AMSecretHolder {
 
     private String amPasswordName;
 
-    private String smokeTestUserUsername;
-
     private String smokeTestUserPassword;
 
-
-    public AMSecretHolder(String amPasswordName, String smokeTestUserUsername, String smokeTestUserPassword){
+    public AMSecretHolder(String amPasswordName, String smokeTestUserPassword){
         this.amPasswordName = amPasswordName;
-        this.smokeTestUserUsername = smokeTestUserUsername;
         this.smokeTestUserPassword = smokeTestUserPassword;
     }
 
-
     public List<String> getAMSecretNames(){
-        return Arrays.asList(amPasswordName, smokeTestUserUsername, smokeTestUserPassword);
+        return Arrays.asList(amPasswordName, smokeTestUserPassword);
     }
-
 }

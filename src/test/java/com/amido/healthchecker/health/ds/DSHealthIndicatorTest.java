@@ -14,7 +14,7 @@ public class DSHealthIndicatorTest {
 
     private DSTokenStoreHealthIndicator healthIndicator;
 
-    private AMSecretHolder amSecretHolder = new AMSecretHolder("am-passwordName", "smoke-test-user-username", "smoke-test-user-passwordName");
+    private AMSecretHolder amSecretHolder = new AMSecretHolder("am-passwordName", "smoke-test-user-passwordName");
     private DSTokenStoreSecretHolder dsTokenStoreSecretHolder = new DSTokenStoreSecretHolder("ds-token-store-passwordName");
     private DSUserStoreSecretHolder dsUserStoreSecretHolder = new DSUserStoreSecretHolder("ds-user-store-passwordName");
 
