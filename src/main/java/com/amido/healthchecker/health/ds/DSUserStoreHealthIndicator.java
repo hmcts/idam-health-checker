@@ -12,7 +12,7 @@ import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("ds-user-store")
+@Profile("ds-userstore")
 public class DSUserStoreHealthIndicator implements HealthIndicator {
 
     private DSProperties dsUserStoreProperties;
