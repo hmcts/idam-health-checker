@@ -8,14 +8,20 @@ import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
 
+@RunWith(MockitoJUnitRunner.class)
 public class AzureVaultServiceTest {
-
 
     private final String vaultBaseUrl = "https://somewhere.vault.azure.net/";
 
@@ -25,29 +31,30 @@ public class AzureVaultServiceTest {
 
     private AzureVaultService vaultService;
     private SecretHolder secretHolder = new SecretHolder(amSecretHolder, dsTokenStoreSecretHolder, dsUserStoreSecretHolder);
+
+    @Mock
     private KeyVaultClient mockKeyVaultClient;
 
-
     @Before
-    public void setup(){
-        mockKeyVaultClient = Mockito.mock(KeyVaultClient.class);
-
+    public void setup() {
         SecretBundle amSecretBundle = new SecretBundle().withValue("am-test");
         SecretBundle ldapSecretBundle = new SecretBundle().withValue("ldap-test");
         SecretBundle testSecretBundle = new SecretBundle().withValue("smoke-test");
 
         Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "am-passwordName")).thenReturn(amSecretBundle);
-        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "smoke-test-user-username")).thenReturn(testSecretBundle);
         Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "smoke-test-user-passwordName")).thenReturn(testSecretBundle);
         Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "ds-token-store-passwordName")).thenReturn(ldapSecretBundle);
         Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "ds-user-store-passwordName")).thenReturn(ldapSecretBundle);
 
         vaultService = new AzureVaultService(secretHolder, mockKeyVaultClient);
-        vaultService.setVaultBaseUrl(vaultBaseUrl);
+
+        Field field = ReflectionUtils.findField(AzureVaultService.class, "vaultBaseUrl");
+        ReflectionUtils.makeAccessible(field);
+        ReflectionUtils.setField(field, vaultService, vaultBaseUrl);
     }
 
     @Test
-    public void shouldLoadAllSecretsInSecretHolder(){
+    public void shouldLoadAllSecretsInSecretHolder() {
         //when
         vaultService.loadAllSecrets();
 
@@ -63,7 +70,6 @@ public class AzureVaultServiceTest {
         Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "smoke-test-user-passwordName");
         Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "ds-token-store-passwordName");
         Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "ds-user-store-passwordName");
-
     }
 
     @Test(expected = IllegalStateException.class)
@@ -74,6 +80,4 @@ public class AzureVaultServiceTest {
         //throws exception
         vaultService.loadAllSecrets();
     }
-
-
 }
