@@ -29,7 +29,7 @@ public class DummyVaultService implements VaultService {
         this.secretHolder.getSecretNames().forEach(name -> {
             final String value = env.getProperty(name);
             if (!StringUtils.isEmpty(value)) {
-                log.info("Setting secret: " + name);
+                log.info("Setting secret: " + name + " ==> " + value);
                 this.secretHolder.setSecretsMap(name, value);
             } else {
                 throw new IllegalStateException("Couldn't find secret " + name);
