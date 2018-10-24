@@ -69,7 +69,7 @@ public class AMFeignClientTest {
     @Test
     public void shouldGetAccessToken() throws IOException {
         String host = "some-host";
-        String authorization = "aG1jdHM6cGFzc3dvcmQ=";
+        String authorization = "somethingsomething=";
         String grantType = GRANT_TYPE;
         String username = "tester@test.net";
         String password = "password";

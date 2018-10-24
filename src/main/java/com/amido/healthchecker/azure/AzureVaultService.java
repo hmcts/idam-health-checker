@@ -33,7 +33,6 @@ public class AzureVaultService implements VaultService {
         this.secretHolder.getSecretNames().forEach(name -> {
             final SecretBundle secretBundle = client.getSecret(vaultBaseUrl, name);
             if (secretBundle != null) {
-                log.info("Setting secret: " + name + " ==> " + secretBundle.value());
                 this.secretHolder.setSecretsMap(name, secretBundle.value());
             } else {
                 throw new IllegalStateException("Couldn't find secret " + name);
