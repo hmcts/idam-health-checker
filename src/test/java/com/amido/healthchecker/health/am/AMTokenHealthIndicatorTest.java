@@ -37,7 +37,7 @@ public class AMTokenHealthIndicatorTest {
     private DSUserStoreSecretHolder dsUserStoreSecretHolder = new DSUserStoreSecretHolder("ds-user-store-passwordName");
     private AMAccessTokenHealthIndicator accessTokenHealthIndicator;
 
-    private static final String TOKEN_PATH = "/oauth2/hmcts/access_token";
+    private static final String TOKEN_PATH = "/oauth2/access_token?realm=hmcts";
 
     @Before
     public void setup() {
