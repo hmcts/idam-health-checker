@@ -25,9 +25,9 @@ public class AzureVaultServiceTest {
 
     private final String vaultBaseUrl = "https://somewhere.vault.azure.net/";
 
-    private AMSecretHolder amSecretHolder = new AMSecretHolder("am-passwordName","smoke-test-user-passwordName");
-    private DSTokenStoreSecretHolder dsTokenStoreSecretHolder = new DSTokenStoreSecretHolder("ds-token-store-passwordName");
-    private DSUserStoreSecretHolder dsUserStoreSecretHolder = new DSUserStoreSecretHolder("ds-user-store-passwordName");
+    private AMSecretHolder amSecretHolder = new AMSecretHolder("am-password","smoke-test-user-password");
+    private DSTokenStoreSecretHolder dsTokenStoreSecretHolder = new DSTokenStoreSecretHolder("ds-token-store-password");
+    private DSUserStoreSecretHolder dsUserStoreSecretHolder = new DSUserStoreSecretHolder("ds-user-store-password");
 
     private AzureVaultService vaultService;
     private SecretHolder secretHolder = new SecretHolder(amSecretHolder, dsTokenStoreSecretHolder, dsUserStoreSecretHolder);
@@ -41,10 +41,10 @@ public class AzureVaultServiceTest {
         SecretBundle ldapSecretBundle = new SecretBundle().withValue("ldap-test");
         SecretBundle testSecretBundle = new SecretBundle().withValue("smoke-test");
 
-        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "am-passwordName")).thenReturn(amSecretBundle);
-        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "smoke-test-user-passwordName")).thenReturn(testSecretBundle);
-        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "ds-token-store-passwordName")).thenReturn(ldapSecretBundle);
-        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "ds-user-store-passwordName")).thenReturn(ldapSecretBundle);
+        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "am-password")).thenReturn(amSecretBundle);
+        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "smoke-test-user-password")).thenReturn(testSecretBundle);
+        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "ds-token-store-password")).thenReturn(ldapSecretBundle);
+        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "ds-user-store-password")).thenReturn(ldapSecretBundle);
 
         vaultService = new AzureVaultService(secretHolder, mockKeyVaultClient);
 
@@ -66,16 +66,16 @@ public class AzureVaultServiceTest {
         assertThat(secretHolder.getDSTokenStorePassword(), equalTo("ldap-test"));
 
         //then verify
-        Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "am-passwordName");
-        Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "smoke-test-user-passwordName");
-        Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "ds-token-store-passwordName");
-        Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "ds-user-store-passwordName");
+        Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "am-password");
+        Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "smoke-test-user-password");
+        Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "ds-token-store-password");
+        Mockito.verify(mockKeyVaultClient, times(1)).getSecret(vaultBaseUrl, "ds-user-store-password");
     }
 
     @Test(expected = IllegalStateException.class)
     public void missingValueThrowsException() {
         //given
-        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "am-passwordName")).thenReturn(null);
+        Mockito.when(mockKeyVaultClient.getSecret(vaultBaseUrl, "am-password")).thenReturn(null);
 
         //throws exception
         vaultService.loadAllSecrets();
