@@ -7,10 +7,10 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 script:
-- "./gradlew build"
+- "./gradlew build --debug"
 deploy:
 - provider: script
-  script: "./gradlew bintrayUpload"
+  script: "./gradlew bintrayUpload --stacktrace --scan"
   skip_cleanup: true
   on:
     repo: hmcts/idam-health-checker
