@@ -47,7 +47,7 @@
         <appender-ref ref="Syslog" />
     </root>
 
-    <!-- LOG "com.amido.healthchecker.health*" at DEBUG level -->
+    <!-- LOG "uk.gov.hmcts.reform.idam.healthchecker.health*" at DEBUG level -->
     <logger name="com.amido.healthchecker.health" level="info" additivity="false">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
