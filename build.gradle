@@ -7,7 +7,7 @@ plugins {
 }
 
 
-group = 'com.amido'
+group = 'uk.gov.hmcts.reform'
 version = '0.0.4-SNAPSHOT'
 sourceCompatibility = 1.8
 
