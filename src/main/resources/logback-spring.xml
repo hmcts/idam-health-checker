@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <springProfile name="test">
+        <property name="LOGS" value="./logs" />
+    </springProfile>
 
-    <property name="LOGS" value="/var/log/healthcheck" />
+    <springProfile name="live">
+        <property name="LOGS" value="/var/log/healthcheck" />
+    </springProfile>
 
     <appender name="Console"
               class="ch.qos.logback.core.ConsoleAppender">
