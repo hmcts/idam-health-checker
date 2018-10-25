@@ -28,13 +28,13 @@ public class IDMHealthIndicatorTest {
     private MockClient mockErrorFeignClient;
     private IDMHealthIndicator idmHealthIndicator;
 
-    private static final String TOKEN_PATH = "/info/ping";
+    private static final String PING_PATH = "/info/ping";
 
     @Before
     public void setup() {
-        mockHappyFeignClient = new MockClient().add(HttpMethod.GET, TOKEN_PATH, 200, RESPONSE_BODY);
-        mockUnauthorizedFeignClient = new MockClient().add(HttpMethod.GET, TOKEN_PATH, 401, "");
-        mockErrorFeignClient = new MockClient().add(HttpMethod.GET, TOKEN_PATH, 503, "");
+        mockHappyFeignClient = new MockClient().add(HttpMethod.GET, PING_PATH, 200, RESPONSE_BODY);
+        mockUnauthorizedFeignClient = new MockClient().add(HttpMethod.GET, PING_PATH, 401, "");
+        mockErrorFeignClient = new MockClient().add(HttpMethod.GET, PING_PATH, 503, "");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class IDMHealthIndicatorTest {
         Health healthStatus = idmHealthIndicator.health();
 
         //then
-        mockHappyFeignClient.verifyOne(HttpMethod.GET, TOKEN_PATH);
+        mockHappyFeignClient.verifyOne(HttpMethod.GET, PING_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("UP"));
         assertThat(healthStatus.getDetails().get("message"), equalTo(SERVER_IS_READY));
         assertThat(healthStatus.getDetails().get("errorCode"), equalTo(null));
@@ -63,7 +63,7 @@ public class IDMHealthIndicatorTest {
         Health healthStatus = idmHealthIndicator.health();
 
         //then
-        mockUnauthorizedFeignClient.verifyOne(HttpMethod.GET, TOKEN_PATH);
+        mockUnauthorizedFeignClient.verifyOne(HttpMethod.GET, PING_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("DOWN"));
         assertThat(healthStatus.getDetails().get("message"), equalTo(SERVER_NOT_READY));
         assertThat(healthStatus.getDetails().get("errorCode"), equalTo(503));
@@ -79,7 +79,7 @@ public class IDMHealthIndicatorTest {
         Health healthStatus = idmHealthIndicator.health();
 
         //then
-        mockErrorFeignClient.verifyOne(HttpMethod.GET, TOKEN_PATH);
+        mockErrorFeignClient.verifyOne(HttpMethod.GET, PING_PATH);
         assertThat(healthStatus.getStatus().getCode(), equalTo("DOWN"));
         assertThat(healthStatus.getDetails().get("message"), equalTo(SERVER_NOT_READY));
         assertThat(healthStatus.getDetails().get("errorCode"), equalTo(503));

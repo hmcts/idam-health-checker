@@ -37,7 +37,7 @@
         <facility>LOCAL0</facility>
         <port>514</port>
         <throwableExcluded>false</throwableExcluded>
-        <suffixPattern>health-checker-service %m thread:%t priority:%p category:%c exception:%exception</suffixPattern>
+        <suffixPattern>healthcheck %m thread:%t priority:%p category:%c exception:%exception</suffixPattern>
     </appender>
 
     <!-- LOG everything at INFO level -->

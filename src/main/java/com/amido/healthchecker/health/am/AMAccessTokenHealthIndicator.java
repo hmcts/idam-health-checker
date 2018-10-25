@@ -68,7 +68,7 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
                         .build();
             }
         } catch (Exception e) {
-            log.error("An exception occurred while trying to fetch AM server access_token", e);
+            log.error("AM server access_token exception", e);
             return Health.down()
                     .withException(e)
                     .build();

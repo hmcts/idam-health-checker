@@ -19,28 +19,22 @@ public class DSHealthIndicatorTest {
     private DSUserStoreSecretHolder dsUserStoreSecretHolder = new DSUserStoreSecretHolder("ds-user-store-passwordName");
 
     @Before
-    public void setup(){
+    public void setup() {
         SecretHolder secretHolder = new SecretHolder(amSecretHolder, dsTokenStoreSecretHolder, dsUserStoreSecretHolder);
         secretHolder.setSecretsMap("ds-token-store-passwordName", "Pa55word11");
-        DSProperties ldapProperties = new DSProperties("ldap://localhost:1389", "cn=Directory Manager", "Pa55word11", "");
+        DSProperties ldapProperties = new DSProperties("ldap://localhost:1389", "cn=Directory Manager", "somePassword", "");
         healthIndicator = new DSTokenStoreHealthIndicator(ldapProperties, secretHolder);
     }
 
-
     @Test
-    public void shouldCheckLdapHealth(){
-
+    public void shouldCheckLdapHealth() {
         //when
         Health resultHealth = healthIndicator.health();
 
         //then
-        log.info("DS health :: {}",resultHealth.getStatus().getCode());
-        if(!resultHealth.getStatus().getCode().equals("UP")){
+        log.info("DS health: {}", resultHealth.getStatus().getCode());
+        if (!resultHealth.getStatus().getCode().equals("UP")) {
             assertThat(resultHealth.getStatus().getCode(), equalTo("DOWN"));
         }
-
     }
-
-
 }
-

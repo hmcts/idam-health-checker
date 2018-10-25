@@ -32,8 +32,8 @@ public class VaultServiceTest {
         when(mockEnvironment.getProperty("am-password")).thenReturn("test");
         when(mockEnvironment.getProperty("smoke-test-user-username")).thenReturn("testr@test.net");
         when(mockEnvironment.getProperty("smoke-test-user-password")).thenReturn("password");
-        when(mockEnvironment.getProperty("ds-token-store-password")).thenReturn("Pa55word11");
-        when(mockEnvironment.getProperty("ds-user-store-password")).thenReturn("Pa55word11");
+        when(mockEnvironment.getProperty("ds-token-store-password")).thenReturn("somePassword");
+        when(mockEnvironment.getProperty("ds-user-store-password")).thenReturn("somePassword");
 
         secretHolder = new SecretHolder(amSecretHolder, dsTokenStoreSecretHolder, dsUserStoreSecretHolder);
 
@@ -58,8 +58,8 @@ public class VaultServiceTest {
         assertThat(secretHolder.getSecretsMap().size(), equalTo(4));
         assertThat(secretHolder.getAmPassword(), equalTo("test"));
         assertThat(secretHolder.getSmokeTestUserPassword(), equalTo("password"));
-        assertThat(secretHolder.getDSUserStorePassword(), equalTo("Pa55word11"));
-        assertThat(secretHolder.getDSTokenStorePassword(), equalTo("Pa55word11"));
+        assertThat(secretHolder.getDSUserStorePassword(), equalTo("somePassword"));
+        assertThat(secretHolder.getDSTokenStorePassword(), equalTo("somePassword"));
     }
 
 }
