@@ -37,6 +37,10 @@ public class AMFeignClientTest {
             "\t\"expires_in\": 28799\n" +
             "}";
 
+    private static final String IS_ALIVE_PATH = "/isAlive.jsp";
+
+    private static final String ACCESS_TOKEN_PATH = "/oauth2/access_token?realm=hmcts";
+
     private AMFeignClient amFeignClient;
     private AMFeignClient amTokenFeignClient;
 
@@ -45,10 +49,10 @@ public class AMFeignClientTest {
 
     @Before
     public void setup() throws IOException {
-        mockFeignClient = new MockClient().add(HttpMethod.GET, "/isAlive.jsp", 200, RESPONSE_BODY);
+        mockFeignClient = new MockClient().add(HttpMethod.GET, IS_ALIVE_PATH, 200, RESPONSE_BODY);
         amFeignClient = Feign.builder().client(mockFeignClient).target(new MockTarget<>(AMFeignClient.class));
 
-        mockTokenFeignClient = new MockClient().add(HttpMethod.POST, "/oauth2/hmcts/access_token", 200, TOKEN_RESPONSE_BODY);
+        mockTokenFeignClient = new MockClient().add(HttpMethod.POST, ACCESS_TOKEN_PATH, 200, TOKEN_RESPONSE_BODY);
         amTokenFeignClient = Feign.builder().encoder(new FormEncoder()).client(mockTokenFeignClient).target(new MockTarget<>(AMFeignClient.class));
     }
 
@@ -58,23 +62,24 @@ public class AMFeignClientTest {
         String bodyMessage = new BufferedReader(new InputStreamReader(result.body().asInputStream())).lines().collect(Collectors.joining("\n"));
 
         assertThat(bodyMessage, equalTo(RESPONSE_BODY));
-        mockFeignClient.verifyOne(HttpMethod.GET, "/isAlive.jsp");
+        mockFeignClient.verifyOne(HttpMethod.GET, IS_ALIVE_PATH);
         mockFeignClient.verifyStatus();
     }
 
     @Test
     public void shouldGetAccessToken() throws IOException {
-        String authorization = "aG1jdHM6cGFzc3dvcmQ=";
+        String host = "some-host";
+        String authorization = "somethingsomething=";
         String grantType = GRANT_TYPE;
         String username = "tester@test.net";
         String password = "password";
         String scope = SCOPE;
 
-        Response result = amTokenFeignClient.canGenerateAccessToken(authorization, grantType, username, password, scope);
+        Response result = amTokenFeignClient.canGenerateAccessToken(host, authorization, grantType, username, password, scope);
         String bodyMessage = new BufferedReader(new InputStreamReader(result.body().asInputStream())).lines().collect(Collectors.joining("\n"));
 
         assertThat(bodyMessage, equalTo(TOKEN_RESPONSE_BODY));
-        mockTokenFeignClient.verifyOne(HttpMethod.POST, "/oauth2/hmcts/access_token");
+        mockTokenFeignClient.verifyOne(HttpMethod.POST, ACCESS_TOKEN_PATH);
         mockTokenFeignClient.verifyStatus();
     }
 }

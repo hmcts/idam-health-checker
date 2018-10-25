@@ -26,6 +26,9 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
     @Value("${am.smoke.test.user.username}")
     private String smokeTestUsername;
 
+    @Value("${am.host}")
+    private String host;
+
     private AMFeignClient amFeignClient;
 
     private SecretHolder secretHolder;
@@ -50,10 +53,9 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
      */
     private Health checkAm() {
         try {
-            final Response response = amFeignClient.canGenerateAccessToken(getAuthorization(), GRANT_TYPE,
+            final Response response = amFeignClient.canGenerateAccessToken(host, getAuthorization(), GRANT_TYPE,
                     smokeTestUsername,
                     secretHolder.getSmokeTestUserPassword(), SCOPE);
-
 
             final AMServerStatus.Status currentStatus = AMServerStatus.checkToken(response);
             if (currentStatus.equals(AMServerStatus.Status.RETURNED_ACCESS_TOKEN)) {
@@ -67,7 +69,7 @@ public class AMAccessTokenHealthIndicator implements HealthIndicator {
                         .build();
             }
         } catch (Exception e) {
-            log.error("An exception occurred while trying to fetch AM server access_token", e);
+            log.error("AM server access_token exception", e);
             return Health.down()
                     .withException(e)
                     .build();

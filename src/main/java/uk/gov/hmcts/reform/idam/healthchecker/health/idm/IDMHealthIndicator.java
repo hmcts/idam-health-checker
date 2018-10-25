@@ -53,7 +53,7 @@ public class IDMHealthIndicator implements HealthIndicator {
                         .build();
             }
         } catch (Exception e) {
-            log.error("An exception occurred while trying to fetch the IDM ping response", e);
+            log.error("IDM server exception", e);
             return Health.down()
                     .withException(e)
                     .build();

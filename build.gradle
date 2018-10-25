@@ -8,7 +8,7 @@ plugins {
 
 
 group = 'com.amido'
-version = '0.0.2-SNAPSHOT'
+version = '0.0.4-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {

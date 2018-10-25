@@ -26,9 +26,11 @@ public class IDMFeignClientTest {
 
     private MockClient mockFeignClient;
 
+    private static final String PING_PATH = "/info/ping";
+
     @Before
     public void setup() throws IOException {
-        mockFeignClient = new MockClient().add(HttpMethod.GET, "/info/ping", 200, RESPONSE_BODY);
+        mockFeignClient = new MockClient().add(HttpMethod.GET, PING_PATH, 200, RESPONSE_BODY);
         idmFeignClient = Feign.builder().client(mockFeignClient).target(new MockTarget<>(IDMFeignClient.class));
     }
 
@@ -42,7 +44,7 @@ public class IDMFeignClientTest {
         final String bodyMessage = (String)decoder.decode(result, String.class);
 
         assertThat(bodyMessage, equalTo(RESPONSE_BODY));
-        mockFeignClient.verifyOne(HttpMethod.GET, "/info/ping");
+        mockFeignClient.verifyOne(HttpMethod.GET, PING_PATH);
         mockFeignClient.verifyStatus();
     }
 }

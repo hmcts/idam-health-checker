@@ -48,7 +48,7 @@ public class AMHealthIndicator implements HealthIndicator {
                         .build();
             }
         } catch (Exception e) {
-            log.error("An exception occurred while checking if the AM server is alive", e);
+            log.error("AM server ping exception", e);
             return Health.down()
                     .withException(e)
                     .build();

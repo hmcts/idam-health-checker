@@ -24,7 +24,7 @@ public class AMServerStatus extends ServerStatus {
                 return Status.DOWN;
             }
         } catch (IOException ioEx) {
-            log.error("Couldn't get isAlive status", ioEx);
+            log.error("AM server isAlive exception", ioEx);
         }
 
         return Status.SERVER_ERROR;
@@ -43,7 +43,7 @@ public class AMServerStatus extends ServerStatus {
                 return Status.DOWN;
             }
         } catch (IOException e) {
-            log.error("Couldn't check token", e);
+            log.error("AM server token exception", e);
         }
 
         return Status.SERVER_ERROR;
