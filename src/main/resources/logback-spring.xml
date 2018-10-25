@@ -4,13 +4,9 @@
         <property name="LOGS" value="./logs" />
     </springProfile>
 
-<<<<<<< Updated upstream
-    <property name="LOGS" value="./logs" />
-=======
     <springProfile name="live">
         <property name="LOGS" value="/var/log/healthcheck" />
     </springProfile>
->>>>>>> Stashed changes
 
     <appender name="Console"
               class="ch.qos.logback.core.ConsoleAppender">
