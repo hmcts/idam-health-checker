@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="LOGS" value="./logs" />
+    <property name="LOGS" value="/var/log/healthcheck" />
 
     <appender name="Console"
               class="ch.qos.logback.core.ConsoleAppender">
@@ -14,7 +14,7 @@
 
     <appender name="RollingFile"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOGS}/spring-boot-logger.log</file>
+        <file>${LOGS}/healthcheck.log</file>
         <encoder
                 class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
@@ -23,7 +23,7 @@
         <rollingPolicy
                 class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily and when the file reaches 10 MegaBytes -->
-            <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>${LOGS}/archived/healthcheck-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
@@ -32,26 +32,16 @@
         </rollingPolicy>
     </appender>
 
-    <appender name="Syslog" class="ch.qos.logback.classic.net.SyslogAppender">
-        <syslogHost>127.0.0.1</syslogHost>
-        <facility>LOCAL0</facility>
-        <port>514</port>
-        <throwableExcluded>false</throwableExcluded>
-        <suffixPattern>healthcheck %m thread:%t priority:%p category:%c exception:%exception</suffixPattern>
-    </appender>
-
     <!-- LOG everything at INFO level -->
     <root level="info">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
-        <appender-ref ref="Syslog" />
     </root>
 
-    <!-- LOG "com.amido.healthchecker.health*" at DEBUG level -->
-    <logger name="com.amido.healthchecker.health" level="info" additivity="false">
+    <!-- LOG "uk.gov.hmcts.reform.idam.healthchecker.health*" at INFO level -->
+    <logger name="uk.gov.hmcts.reform.idam.healthchecker.health" level="info" additivity="false">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
-        <appender-ref ref="Syslog" />
     </logger>
 
 </configuration>
