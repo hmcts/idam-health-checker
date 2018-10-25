@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <springProfile name="test">
+        <property name="LOGS" value="./logs" />
+    </springProfile>
 
+<<<<<<< Updated upstream
     <property name="LOGS" value="./logs" />
+=======
+    <springProfile name="live">
+        <property name="LOGS" value="/var/log/healthcheck" />
+    </springProfile>
+>>>>>>> Stashed changes
 
     <appender name="Console"
               class="ch.qos.logback.core.ConsoleAppender">
