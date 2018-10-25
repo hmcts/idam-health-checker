@@ -1,18 +1,11 @@
-buildscript {
-	ext {
-        springBootVersion = '2.0.6.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+plugins {
+    id 'java-library'
+    id 'org.springframework.boot' version '2.0.6.RELEASE'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '2.0.3'
+    id 'com.jfrog.bintray' version '1.8.0'
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
 
 group = 'com.amido'
 version = '0.0.2-SNAPSHOT'
@@ -48,4 +41,33 @@ dependencies {
     compile 'com.microsoft.azure:adal4j:1.5.0'
 
     compile 'org.springframework.ldap:spring-ldap-core:2.3.2.RELEASE'
+}
+
+publishing {
+    publications {
+        Main(MavenPublication) {
+            from components.java
+            artifact shadowJar
+            groupId project.group
+            artifactId rootProject.name
+            version project.version
+        }
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publications = ['Main']
+    publish = true
+    pkg {
+        repo = 'hmcts-maven'
+        name = "${rootProject.name}"
+        userOrg = 'hmcts'
+        licenses = ['MIT']
+        vcsUrl = "https://github.com/hmcts/${rootProject.name}"
+        version {
+            name = project.version
+        }
+    }
 }
