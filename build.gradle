@@ -8,11 +8,12 @@ plugins {
 
 
 group = 'uk.gov.hmcts.reform'
-version = '0.0.6-SNAPSHOT'
+version = '0.0.16-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
 	mavenCentral()
+    jcenter()
 }
 
 
@@ -43,11 +44,18 @@ dependencies {
     compile 'org.springframework.ldap:spring-ldap-core:2.3.2.RELEASE'
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+
 publishing {
     publications {
         Main(MavenPublication) {
             from components.java
             artifact shadowJar
+            artifact sourcesJar
             groupId project.group
             artifactId rootProject.name
             version project.version
