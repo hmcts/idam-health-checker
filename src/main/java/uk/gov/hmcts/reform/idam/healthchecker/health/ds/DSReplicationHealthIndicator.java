@@ -11,7 +11,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 @Component
-@Profile({"ds-tokenstore", "ds-userstore"})
+@Profile("ds-replication")
 @Slf4j
 public class DSReplicationHealthIndicator implements HealthIndicator {
 
