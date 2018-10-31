@@ -46,5 +46,4 @@ public class DSTokenStoreHealthIndicator implements HealthIndicator {
         return contextSource;
     }
 
-
 }
