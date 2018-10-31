@@ -22,8 +22,8 @@ public class AmPasswordGrantHealthStatus implements HealthStatus {
     private final String authorization;
 
     private String host = "localhost";
-    private String username = "user";
-    private String password = "password";
+    private String username = "idamowner@hmcts.net";
+    private String password = "Pa55word11";
     private String client = "hmcts";
     private String clientSecret = "password";
 

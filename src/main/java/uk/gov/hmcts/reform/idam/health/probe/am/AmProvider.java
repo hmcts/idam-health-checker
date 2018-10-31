@@ -42,9 +42,10 @@ public interface AmProvider {
 
     @PostMapping(
             value = "/oauth2/access_token?realm=hmcts",
-            produces = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     Response accessToken(@RequestHeader("Authorization") String auth,
                          @RequestHeader("Host") String host,
                          Map<String, ?> formParams);
+
 }
