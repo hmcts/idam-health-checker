@@ -17,3 +17,9 @@ management:
 azure:
   application-insights:
     instrumentation-key: 3981751e-f34d-42e8-a4e4-062cc01d5bc0
+
+userstore:
+  healthprobe:
+    authentication:
+      freshness-interval: 30000
+      check-interval: 10000
