@@ -1,0 +1,13 @@
+ldap:
+  root: ldaps://forgerock-ds-userstore:1639
+  principal: dummy
+  password: dummy
+  partitionSuffix: dc=reform,dc=hmcts,dc=net
+
+userstore:
+  healthprobe:
+    authentication:
+      freshness:
+        interval: 30000
+      check:
+        interval: 10000

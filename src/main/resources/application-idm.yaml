@@ -1,5 +1,5 @@
 idm:
-  root: http://localhost:18080/openidm
+  root: https://openidm-localhost:18441/openidm
   healthprobe:
     ping:
       freshness:

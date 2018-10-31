@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.idam.health.probe.Status;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 
 @Component
 @Profile("idm")
