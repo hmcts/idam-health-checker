@@ -1,0 +1,13 @@
+am:
+  root: http://localhost:8080/openam
+  healthprobe:
+    isAlive:
+      freshness:
+        interval: 30000
+      check:
+        interval: 10000
+    passwordgrant:
+      freshness:
+        interval: 60000
+      check:
+        interval: 45000
