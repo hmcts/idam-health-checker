@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: idam-health-check
+
+management:
+  endpoints:
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true
+    metrics:
+      enabled: true
+  health:
+    defaults:
+      enabled: false
+
+azure:
+  application-insights:
+    instrumentation-key: 3981751e-f34d-42e8-a4e4-062cc01d5bc0

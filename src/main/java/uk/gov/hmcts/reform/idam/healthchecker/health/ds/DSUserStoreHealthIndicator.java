@@ -1,3 +1,4 @@
+/*
 package uk.gov.hmcts.reform.idam.healthchecker.health.ds;
 
 
@@ -49,3 +50,4 @@ public class DSUserStoreHealthIndicator implements HealthIndicator {
 
 
 }
+*/

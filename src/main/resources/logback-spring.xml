@@ -5,7 +5,7 @@
     </springProfile>
 
     <springProfile name="live">
-        <property name="LOGS" value="/var/log/healthcheck" />
+        <property name="LOGS" value="log/healthcheck" />
     </springProfile>
 
     <appender name="Console"

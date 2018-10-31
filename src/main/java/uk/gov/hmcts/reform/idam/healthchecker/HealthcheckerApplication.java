@@ -7,7 +7,7 @@ import uk.gov.hmcts.reform.idam.healthchecker.azure.VaultService;
 
 import javax.annotation.PostConstruct;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class HealthcheckerApplication {
 
     @Autowired

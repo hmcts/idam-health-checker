@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.idam.healthchecker;
 
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import feign.Feign;
+import feign.Logger;
 import feign.Request;
 import feign.form.FormEncoder;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +14,7 @@ import uk.gov.hmcts.reform.idam.healthchecker.health.am.AMFeignClient;
 import uk.gov.hmcts.reform.idam.healthchecker.health.idm.IDMFeignClient;
 import uk.gov.hmcts.reform.idam.healthchecker.util.*;
 
-@Configuration
+//@Configuration
 public class HealthCheckConfiguration {
 
     @Value("${am.uri}")
@@ -60,7 +61,11 @@ public class HealthCheckConfiguration {
 
     @Bean
     AMFeignClient amFeignClient() {
-        return Feign.builder().encoder(new FormEncoder()).options(timeoutOptions()).target(AMFeignClient.class, amUri);
+        return Feign.builder().encoder(new FormEncoder())
+                .options(timeoutOptions())
+                .logger(new Logger.JavaLogger().appendToFile("./log/http.log"))
+                .logLevel(Logger.Level.FULL)
+                .target(AMFeignClient.class, amUri);
     }
 
     @Bean

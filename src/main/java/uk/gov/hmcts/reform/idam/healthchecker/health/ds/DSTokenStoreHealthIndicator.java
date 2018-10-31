@@ -1,3 +1,4 @@
+/*
 package uk.gov.hmcts.reform.idam.healthchecker.health.ds;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,3 +49,4 @@ public class DSTokenStoreHealthIndicator implements HealthIndicator {
 
 
 }
+*/
