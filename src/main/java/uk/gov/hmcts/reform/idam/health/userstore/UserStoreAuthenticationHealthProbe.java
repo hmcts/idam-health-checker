@@ -1,11 +1,11 @@
-package uk.gov.hmcts.reform.idam.health.probe.userstore;
+package uk.gov.hmcts.reform.idam.health.userstore;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
-import uk.gov.hmcts.reform.idam.health.probe.env.ProbeUserProperties;
+import uk.gov.hmcts.reform.idam.health.props.ProbeUserProperties;
 
 @Component
 @Profile("userstore")

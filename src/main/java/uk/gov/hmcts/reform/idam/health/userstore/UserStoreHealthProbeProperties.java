@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.userstore;
+package uk.gov.hmcts.reform.idam.health.userstore;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe;
+package uk.gov.hmcts.reform.idam.health;
 
 import feign.codec.Encoder;
 import feign.form.FormEncoder;

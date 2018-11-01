@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.am;
+package uk.gov.hmcts.reform.idam.health.am;
 
 import com.google.common.collect.ImmutableMap;
 import org.springframework.cloud.openfeign.FeignClient;

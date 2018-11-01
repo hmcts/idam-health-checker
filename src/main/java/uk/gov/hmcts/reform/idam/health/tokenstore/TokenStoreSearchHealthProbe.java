@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.tokenstore;
+package uk.gov.hmcts.reform.idam.health.tokenstore;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;

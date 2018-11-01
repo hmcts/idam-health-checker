@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.env;
+package uk.gov.hmcts.reform.idam.health.props;
 
 import lombok.Getter;
 import lombok.Setter;

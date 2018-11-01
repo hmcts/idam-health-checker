@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.idm;
+package uk.gov.hmcts.reform.idam.health.idm;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

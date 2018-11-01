@@ -1,5 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.env;
-
+package uk.gov.hmcts.reform.idam.health.props;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,12 +6,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties("web.admin.client")
+@ConfigurationProperties("system.owner")
 @Getter
 @Setter
-public class AgentProperties {
+public class ProbeUserProperties {
 
-    private String name = "hmcts";
-    private String secret;
-
+    private String username;
+    private String password;
 }

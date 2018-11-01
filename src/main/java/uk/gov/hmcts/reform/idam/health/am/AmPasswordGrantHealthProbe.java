@@ -1,12 +1,12 @@
-package uk.gov.hmcts.reform.idam.health.probe.am;
+package uk.gov.hmcts.reform.idam.health.am;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
-import uk.gov.hmcts.reform.idam.health.probe.env.AgentProperties;
-import uk.gov.hmcts.reform.idam.health.probe.env.ProbeUserProperties;
+import uk.gov.hmcts.reform.idam.health.props.AgentProperties;
+import uk.gov.hmcts.reform.idam.health.props.ProbeUserProperties;
 
 import java.util.Base64;
 import java.util.Map;

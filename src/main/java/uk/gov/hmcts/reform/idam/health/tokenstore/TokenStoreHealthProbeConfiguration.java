@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.tokenstore;
+package uk.gov.hmcts.reform.idam.health.tokenstore;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

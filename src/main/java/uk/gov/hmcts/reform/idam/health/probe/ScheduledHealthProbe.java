@@ -27,7 +27,7 @@ public class ScheduledHealthProbe {
             }
         };
 
-        Timer timer = new Timer("", true);
+        Timer timer = new Timer(healthProbe.getClass().getName(), true);
         timer.scheduleAtFixedRate(timerTask, 0, checkInterval);
     }
 
@@ -36,7 +36,7 @@ public class ScheduledHealthProbe {
                 && LocalDateTime.now().isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));
     }
 
-    public void refresh() {
+    private void refresh() {
         boolean probeResult = this.healthProbe.probe();
         this.status = probeResult ? Status.UP : Status.DOWN;
         this.statusDateTime = LocalDateTime.now();

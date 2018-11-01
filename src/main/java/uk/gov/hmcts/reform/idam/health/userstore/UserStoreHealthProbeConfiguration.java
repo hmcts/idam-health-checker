@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.userstore;
+package uk.gov.hmcts.reform.idam.health.userstore;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

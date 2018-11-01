@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.idm;
+package uk.gov.hmcts.reform.idam.health.idm;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;

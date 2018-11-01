@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe;
+package uk.gov.hmcts.reform.idam.health;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

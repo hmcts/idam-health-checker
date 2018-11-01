@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.idm;
+package uk.gov.hmcts.reform.idam.health.idm;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Profile;

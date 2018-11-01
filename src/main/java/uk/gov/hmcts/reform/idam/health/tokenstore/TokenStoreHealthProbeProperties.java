@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.probe.idm;
+package uk.gov.hmcts.reform.idam.health.tokenstore;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,17 +6,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties("idm.healthprobe")
+@ConfigurationProperties("tokenstore.healthprobe")
 @Getter
 @Setter
-public class IdmHealthProbeProperties {
+public class TokenStoreHealthProbeProperties {
 
     @Getter
     @Setter
-    static class Ping {
+    static class Search {
         private Long freshnessInterval;
         private Long checkInterval;
     }
 
-    private Ping ping;
+    private Search search;
 }
