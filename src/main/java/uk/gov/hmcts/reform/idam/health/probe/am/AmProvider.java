@@ -15,7 +15,7 @@ import java.util.Map;
 @Profile("am")
 public interface AmProvider {
 
-    default Response passwordGrantAccessToken(
+    default Map<String, String> passwordGrantAccessToken(
             String grantType,
             String host,
             String auth,
@@ -38,13 +38,13 @@ public interface AmProvider {
     @GetMapping(
             value = "/isAlive.jsp"
     )
-    Response isAlive();
+    String isAlive();
 
     @PostMapping(
             value = "/oauth2/access_token?realm=hmcts",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    Response accessToken(@RequestHeader("Authorization") String auth,
+    Map<String, String> accessToken(@RequestHeader("Authorization") String auth,
                          @RequestHeader("Host") String host,
                          Map<String, ?> formParams);
 
