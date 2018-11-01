@@ -1,8 +1,0 @@
-idm:
-  root: https://openidm-localhost:18441/openidm
-  healthprobe:
-    ping:
-      freshness:
-        interval: 30000
-      check:
-        interval: 10000

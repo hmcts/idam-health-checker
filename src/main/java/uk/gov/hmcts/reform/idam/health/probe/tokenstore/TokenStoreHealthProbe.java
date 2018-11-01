@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.probe.tokenstore;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,14 +16,14 @@ import java.time.temporal.ChronoUnit;
 @Slf4j
 public class TokenStoreHealthProbe implements HealthProbe {
 
-    private final Long tokenStoreSearchFreshnessInterval;
+    private final TokenStoreHealthProbeProperties healthProbeProperties;
     private final HealthStatusReport tokenStoreSearchReport;
     private final TokenStoreSearchHealthStatus tokenStoreSearchHealthStatus;
 
     public TokenStoreHealthProbe(
             TokenStoreSearchHealthStatus tokenStoreSearchHealthStatus,
-            @Value("#{new Long('${tokenstore.healthprobe.search.freshness.interval}')}") Long userStoreSearchFreshnessInterval) {
-        this.tokenStoreSearchFreshnessInterval = userStoreSearchFreshnessInterval;
+            TokenStoreHealthProbeProperties healthProbeProperties) {
+        this.healthProbeProperties = healthProbeProperties;
         this.tokenStoreSearchHealthStatus = tokenStoreSearchHealthStatus;
 
         this.tokenStoreSearchReport = new HealthStatusReport();
@@ -33,11 +32,13 @@ public class TokenStoreHealthProbe implements HealthProbe {
     @Override
     public boolean isOkay() {
         return tokenStoreSearchReport.getStatus() == Status.UP
-                && LocalDateTime.now().isBefore(tokenStoreSearchReport.getTimestamp().plus(tokenStoreSearchFreshnessInterval, ChronoUnit.MILLIS));
+                && LocalDateTime.now().isBefore(
+                        tokenStoreSearchReport.getTimestamp().plus(
+                                healthProbeProperties.getSearch().getFreshnessInterval(), ChronoUnit.MILLIS));
     }
 
 
-    @Scheduled(fixedDelayString = "${tokenstore.healthprobe.search.check.interval}")
+    @Scheduled(fixedDelayString = "#{@tokenStoreHealthProbeProperties.search.checkInterval}")
     private void tokenStoreSearchTask() {
         Status status = tokenStoreSearchHealthStatus.determineStatus();
         tokenStoreSearchReport.setStatusName("tokenstore-search");

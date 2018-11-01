@@ -17,14 +17,14 @@ import java.time.temporal.ChronoUnit;
 @Slf4j
 public class UserStoreHealthProbe implements HealthProbe {
 
-    private final Long userStoreAuthenticationFreshnessInterval;
+    private final UserStoreHealthProbeProperties healthProbeProperties;
     private final HealthStatusReport userStoreAuthenticationReport;
     private final UserStoreAuthenticationHealthStatus userStoreAuthenticationHealthStatus;
 
     public UserStoreHealthProbe(
             UserStoreAuthenticationHealthStatus userStoreAuthenticationHealthStatus,
-            @Value("#{new Long('${userstore.healthprobe.authentication.freshness.interval}')}") Long userStoreAuthenticationFreshnessInterval) {
-        this.userStoreAuthenticationFreshnessInterval = userStoreAuthenticationFreshnessInterval;
+            UserStoreHealthProbeProperties healthProbeProperties) {
+        this.healthProbeProperties = healthProbeProperties;
         this.userStoreAuthenticationHealthStatus = userStoreAuthenticationHealthStatus;
 
         this.userStoreAuthenticationReport = new HealthStatusReport();
@@ -33,11 +33,12 @@ public class UserStoreHealthProbe implements HealthProbe {
     @Override
     public boolean isOkay() {
         return userStoreAuthenticationReport.getStatus() == Status.UP
-                && LocalDateTime.now().isBefore(userStoreAuthenticationReport.getTimestamp().plus(userStoreAuthenticationFreshnessInterval, ChronoUnit.MILLIS));
+                && LocalDateTime.now().isBefore(
+                        userStoreAuthenticationReport.getTimestamp().plus(
+                                healthProbeProperties.getAuthentication().getFreshnessInterval(), ChronoUnit.MILLIS));
     }
 
-
-    @Scheduled(fixedDelayString = "${userstore.healthprobe.authentication.check.interval}")
+    @Scheduled(fixedDelayString = "#{@userStoreHealthProbeProperties.authentication.checkInterval}")
     private void userStoreAuthenticationTask() {
         Status status = userStoreAuthenticationHealthStatus.determineStatus();
         userStoreAuthenticationReport.setStatusName("userstore-authentication");

@@ -1,31 +1,26 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
+import uk.gov.hmcts.reform.idam.health.probe.env.ConfigProperties;
 
 @Configuration
-@ConditionalOnProperty("ldap.root")
+@Profile({"userstore", "tokenstore"})
 public class SpringLdapConfiguration {
 
-    private final Environment environment;
-
-    public SpringLdapConfiguration(Environment environment) {
-        this.environment = environment;
-    }
+    @Autowired
+    private ConfigProperties configProperties;
 
     @Bean
     public LdapContextSource contextSource() {
         LdapContextSource contextSource = new LdapContextSource();
-
-        contextSource.setUrl(environment.getRequiredProperty("ldap.root"));
-        contextSource.setBase(environment.getRequiredProperty("ldap.partitionSuffix"));
-        contextSource.setUserDn(environment.getRequiredProperty("ldap.principal"));
-        contextSource.setPassword(environment.getRequiredProperty("ldap.password"));
-
+        contextSource.setUrl(configProperties.getLdap().getRoot());
+        contextSource.setUserDn(configProperties.getLdap().getPrincipal());
+        contextSource.setPassword(configProperties.getLdap().getPassword());
         return contextSource;
     }
 
