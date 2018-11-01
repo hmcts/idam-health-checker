@@ -31,10 +31,15 @@ public class UserStoreAuthenticationHealthProbe implements HealthProbe {
 
     @Override
     public boolean probe() {
-        boolean isAuthenticationSuccessful = ldapTemplate.authenticate(
-                LDAP_PARTITION_SUFFIX,
-                ldapUserFilter,
-                ldapUserPassword);
-        return isAuthenticationSuccessful;
+        try {
+            boolean isAuthenticationSuccessful = ldapTemplate.authenticate(
+                    LDAP_PARTITION_SUFFIX,
+                    ldapUserFilter,
+                    ldapUserPassword);
+            return isAuthenticationSuccessful;
+        } catch (Exception e) {
+            log.error("UserStore-Auth " + e.getMessage());
+        }
+        return false;
     }
 }

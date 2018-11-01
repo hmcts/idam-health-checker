@@ -14,7 +14,7 @@ public class UserStoreHealthProbeConfiguration {
     private UserStoreHealthProbeProperties userStoreHealthProbeProperties;
 
     @Bean
-    public ScheduledHealthProbe userStoreAuthenticationHealthProbe(
+    public ScheduledHealthProbe userStoreAuthenticationScheduledHealthProbe(
             UserStoreAuthenticationHealthProbe userStoreAuthenticationHealthProbe) {
         return new ScheduledHealthProbe(
                 userStoreAuthenticationHealthProbe,

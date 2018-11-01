@@ -13,11 +13,10 @@ public class UserStoreHealthProbeProperties {
 
     @Getter
     @Setter
-    static class Authentication {
-
+    static class Probe {
         private Long freshnessInterval;
         private Long checkInterval;
     }
 
-    private Authentication authentication;
+    private UserStoreHealthProbeProperties.Probe authentication;
 }
