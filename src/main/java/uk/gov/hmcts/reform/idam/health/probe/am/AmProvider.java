@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.probe.am;
 
 import com.google.common.collect.ImmutableMap;
-import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;

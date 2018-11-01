@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
-import uk.gov.hmcts.reform.idam.health.probe.HealthStatus;
 import uk.gov.hmcts.reform.idam.health.probe.HealthStatusReport;
 import uk.gov.hmcts.reform.idam.health.probe.Status;
 
@@ -26,8 +25,6 @@ public class AmHealthProbe implements HealthProbe {
     private final HealthStatusReport amPasswordGrantStatusReport;
     private final AmPasswordGrantHealthStatus amPasswordGrantHealthStatus;
 
-    private final HealthStatus[] healthStatus;
-
     public AmHealthProbe(AmIsAliveHealthStatus amIsAliveHealthStatus,
                          @Value("#{new Long('${am.healthprobe.isalive.freshness.interval}')}") Long amIsAliveFreshnessInterval,
                          AmPasswordGrantHealthStatus amPasswordGrantHealthStatus,
@@ -39,10 +36,6 @@ public class AmHealthProbe implements HealthProbe {
 
         this.amIsAliveStatusReport = new HealthStatusReport();
         this.amPasswordGrantStatusReport = new HealthStatusReport();
-
-        this.healthStatus = new HealthStatus[2];
-        this.healthStatus[1] = amIsAliveHealthStatus;
-        this.healthStatus[2] = amPasswordGrantHealthStatus;
     }
 
     @Override

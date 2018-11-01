@@ -11,3 +11,5 @@ am:
         interval: 60000
       check:
         interval: 45000
+    identity:
+      scope: openid profile authorities acr roles
