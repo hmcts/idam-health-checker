@@ -38,10 +38,16 @@ userstore:
     authentication:
       freshness-interval: 30000
       check-interval: 10000
+    replication:
+      freshness-interval: 30000
+      check-interval: 10000
 
 tokenstore:
   healthprobe:
     search:
+      freshness-interval: 30000
+      check-interval: 10000
+    replication:
       freshness-interval: 30000
       check-interval: 10000
 

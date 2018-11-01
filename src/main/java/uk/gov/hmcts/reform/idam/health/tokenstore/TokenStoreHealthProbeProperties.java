@@ -19,4 +19,5 @@ public class TokenStoreHealthProbeProperties {
     }
 
     private TokenStoreHealthProbeProperties.Probe search;
+    private TokenStoreHealthProbeProperties.Probe replication;
 }
