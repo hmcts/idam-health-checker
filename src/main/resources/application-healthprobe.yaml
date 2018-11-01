@@ -39,6 +39,7 @@ tokenstore:
       check-interval: 10000
 
 idm:
+  root: https://dummy
   healthprobe:
     ping:
       freshness-interval: 30000

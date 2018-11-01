@@ -1,2 +1,0 @@
-ldap:
-  root: ldaps://forgerock-ds-userstore:1639
