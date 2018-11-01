@@ -14,7 +14,7 @@ public class AmHealthProbeConfiguration {
     private AmHealthProbeProperties amHealthProbeProperties;
 
     @Bean
-    public ScheduledHealthProbe amIsAliveHealthProbe(AmIsAliveHealthProbe amIsAliveHealthProbe) {
+    public ScheduledHealthProbe amIsAliveScheduledHealthProbe(AmIsAliveHealthProbe amIsAliveHealthProbe) {
         return new ScheduledHealthProbe(
                 amIsAliveHealthProbe,
                 amHealthProbeProperties.getIsAlive().getFreshnessInterval(),
@@ -22,7 +22,7 @@ public class AmHealthProbeConfiguration {
     }
 
     @Bean
-    public ScheduledHealthProbe amPasswordGrantHealthProbe(AmPasswordGrantHealthProbe amPasswordGrantHealthProbe) {
+    public ScheduledHealthProbe amPasswordGrantScheduledHealthProbe(AmPasswordGrantHealthProbe amPasswordGrantHealthProbe) {
         return new ScheduledHealthProbe(
                 amPasswordGrantHealthProbe,
                 amHealthProbeProperties.getPasswordGrant().getFreshnessInterval(),
