@@ -13,10 +13,10 @@ public class IdmHealthProbeProperties {
 
     @Getter
     @Setter
-    static class Ping {
+    static class Probe {
         private Long freshnessInterval;
         private Long checkInterval;
     }
 
-    private Ping ping;
+    private IdmHealthProbeProperties.Probe ping;
 }
