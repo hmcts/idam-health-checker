@@ -14,7 +14,7 @@ public class TokenStoreHealthProbeConfiguration {
     private TokenStoreHealthProbeProperties tokenStoreHealthProbeProperties;
 
     @Bean
-    public ScheduledHealthProbe tokenStoreSearchHealthProbe(
+    public ScheduledHealthProbe tokenStoreSearchScheduledHealthProbe(
             TokenStoreSearchHealthProbe tokenStoreSearchHealthProbe) {
         return new ScheduledHealthProbe(
                 tokenStoreSearchHealthProbe,

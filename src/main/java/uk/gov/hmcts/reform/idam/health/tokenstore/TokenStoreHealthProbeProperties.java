@@ -13,10 +13,10 @@ public class TokenStoreHealthProbeProperties {
 
     @Getter
     @Setter
-    static class Search {
+    static class Probe {
         private Long freshnessInterval;
         private Long checkInterval;
     }
 
-    private Search search;
+    private TokenStoreHealthProbeProperties.Probe search;
 }
