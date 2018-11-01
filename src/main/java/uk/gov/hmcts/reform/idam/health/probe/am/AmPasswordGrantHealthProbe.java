@@ -38,15 +38,20 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
 
     @Override
     public boolean probe() {
-        Map<String, String> passwordGrantResponse = amProvider.passwordGrantAccessToken(
-                GRANT_TYPE,
-                amHealthProbeProperties.getIdentity().getHost(),
-                authorization,
-                probeUserProperties.getUsername(),
-                probeUserProperties.getPassword(),
-                amHealthProbeProperties.getIdentity().getScope());
+        try {
+            Map<String, String> passwordGrantResponse = amProvider.passwordGrantAccessToken(
+                    GRANT_TYPE,
+                    amHealthProbeProperties.getIdentity().getHost(),
+                    authorization,
+                    probeUserProperties.getUsername(),
+                    probeUserProperties.getPassword(),
+                    amHealthProbeProperties.getIdentity().getScope());
 
-        return MapUtils.isNotEmpty(passwordGrantResponse) && passwordGrantResponse.containsKey(ACCESS_TOKEN);
+            return MapUtils.isNotEmpty(passwordGrantResponse) && passwordGrantResponse.containsKey(ACCESS_TOKEN);
+        } catch (Exception e) {
+            log.error("AM password grant: " + e.getMessage());
+        }
+        return false;
     }
 
     private String encode(String identity, String secret) {

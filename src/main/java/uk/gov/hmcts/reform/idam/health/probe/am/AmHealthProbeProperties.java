@@ -24,12 +24,8 @@ public class AmHealthProbeProperties {
     @Getter
     @Setter
     static class Identity {
-        private String username;
-        private String password;
-        private String client;
-        private String clientSecret;
-        private String scope;
         private String host;
+        private String scope;
     }
 
     private AmHealthProbeProperties.Identity identity;

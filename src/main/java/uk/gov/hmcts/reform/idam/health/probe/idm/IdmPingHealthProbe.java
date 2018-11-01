@@ -30,8 +30,13 @@ public class IdmPingHealthProbe implements HealthProbe {
 
     @Override
     public boolean probe() {
-        Map<String, String> pingResponse = idmProvider.ping(authorization);
-        return IDM_ACTIVE.equals(MapUtils.getString(pingResponse, STATE));;
+        try {
+            Map<String, String> pingResponse = idmProvider.ping(authorization);
+            return IDM_ACTIVE.equals(MapUtils.getString(pingResponse, STATE));
+        } catch (Exception e) {
+            log.error("IDM ping: " + e.getMessage());
+        }
+        return false;
     }
 
     private String encode(String identity, String secret) {

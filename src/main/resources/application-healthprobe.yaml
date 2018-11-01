@@ -44,3 +44,14 @@ idm:
     ping:
       freshness-interval: 30000
       check-interval: 10000
+
+am:
+  healthprobe:
+    isAlive:
+      freshness-interval: 30000
+      check-interval: 10000
+    passwordGrant:
+      freshness-interval: 60000
+      check-interval: 45000
+    identity:
+      scope: openid profile authorities acr roles
