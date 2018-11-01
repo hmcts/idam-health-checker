@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class OptimisticHealthProbe implements HealthProbe {
 
     @Override
-    public boolean isOkay() {
+    public boolean probe() {
         return true;
     }
 }
