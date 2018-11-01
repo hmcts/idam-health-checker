@@ -33,3 +33,9 @@ tokenstore:
     search:
       freshness-interval: 30000
       check-interval: 10000
+
+idm:
+  healthprobe:
+    ping:
+      freshness-interval: 30000
+      check-interval: 10000

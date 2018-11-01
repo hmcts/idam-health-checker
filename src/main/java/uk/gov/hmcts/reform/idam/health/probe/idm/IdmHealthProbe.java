@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.probe.idm;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,15 +16,15 @@ import java.time.temporal.ChronoUnit;
 @Slf4j
 public class IdmHealthProbe implements HealthProbe {
 
-    private final Long idmPingFreshnessInterval;
+    private final IdmHealthProbeProperties healthProbeProperties;
     private final HealthStatusReport idmPingStatusReport;
     private final IdmPingHealthStatus idmPingHealthStatus;
 
     public IdmHealthProbe(
             IdmPingHealthStatus idmPingHealthStatus,
-            @Value("#{new Long('${idm.healthprobe.ping.freshness.interval}')}") Long idmPingFreshnessInterval) {
+            IdmHealthProbeProperties healthProbeProperties) {
 
-        this.idmPingFreshnessInterval = idmPingFreshnessInterval;
+        this.healthProbeProperties = healthProbeProperties;
         this.idmPingHealthStatus = idmPingHealthStatus;
 
         this.idmPingStatusReport = new HealthStatusReport();
@@ -34,10 +33,12 @@ public class IdmHealthProbe implements HealthProbe {
     @Override
     public boolean isOkay() {
         return idmPingStatusReport.getStatus() == Status.UP
-                && LocalDateTime.now().isBefore(idmPingStatusReport.getTimestamp().plus(idmPingFreshnessInterval, ChronoUnit.MILLIS));
+                && LocalDateTime.now().isBefore(
+                        idmPingStatusReport.getTimestamp()
+                                .plus(healthProbeProperties.getPing().getFreshnessInterval(), ChronoUnit.MILLIS));
     }
 
-    @Scheduled(fixedDelayString = "${idm.healthprobe.ping.check.interval}")
+    @Scheduled(fixedDelayString = "#{@idmHealthProbeProperties.ping.checkInterval}")
     private void idmPingTask() {
         Status status = idmPingHealthStatus.determineStatus();
         idmPingStatusReport.setStatusName("idm-ping");
