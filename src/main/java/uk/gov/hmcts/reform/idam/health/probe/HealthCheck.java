@@ -9,9 +9,9 @@ import java.util.List;
 @Component
 public class HealthCheck implements HealthIndicator {
 
-    private final List<HealthProbe> healthProbeList;
+    private final List<ScheduledHealthProbe> healthProbeList;
 
-    public HealthCheck(List<HealthProbe> healthProbeList) {
+    public HealthCheck(List<ScheduledHealthProbe> healthProbeList) {
         this.healthProbeList = healthProbeList;
     }
 
@@ -22,20 +22,4 @@ public class HealthCheck implements HealthIndicator {
         }
         return Health.down().build();
     }
-
-    /*
-    private final HealthProbe healthProbe;
-
-    public HealthCheck(HealthProbe healthProbe) {
-        this.healthProbe = healthProbe;
-    }
-
-    @Override
-    public Health health() {
-        if (healthProbe.isOkay()) {
-            return Health.up().build();
-        }
-        return Health.down().build();
-    }
-    */
 }
