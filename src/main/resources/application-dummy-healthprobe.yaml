@@ -1,6 +1,0 @@
-dummy:
-  healthprobe:
-    check:
-      interval: 30000
-    freshness:
-      interval: 30000

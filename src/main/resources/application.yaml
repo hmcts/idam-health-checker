@@ -5,7 +5,6 @@ spring:
   application:
     name: idam-health-check
 
-
 management:
   endpoints:
     enabled-by-default: false
@@ -24,11 +23,11 @@ management:
 
 azure:
   application-insights:
-    instrumentation-key: dummy
-  keyvault:
-    uri: https://dummy.vault.azure.net/
-    client-id: dummy
-    client-key: dummy
+    instrumentation-key:
+#  keyvault:
+#    uri:
+#    client-id:
+#    client-key:
 
 ldap:
   root: ldaps://dummy:1639
@@ -54,6 +53,7 @@ idm:
       check-interval: 10000
 
 am:
+  root: https://dummy
   healthprobe:
     isAlive:
       freshness-interval: 30000
@@ -63,3 +63,4 @@ am:
       check-interval: 45000
     identity:
       scope: openid profile authorities acr roles
+      host: dummy
