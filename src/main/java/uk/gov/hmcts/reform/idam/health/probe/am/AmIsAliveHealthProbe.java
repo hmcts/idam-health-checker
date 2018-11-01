@@ -21,7 +21,12 @@ public class AmIsAliveHealthProbe implements HealthProbe {
 
     @Override
     public boolean probe() {
-        String isAliveResponse = amProvider.isAlive();
-        return StringUtils.contains(isAliveResponse, ALIVE);
+        try {
+            String isAliveResponse = amProvider.isAlive();
+            return StringUtils.contains(isAliveResponse, ALIVE);
+        } catch (Exception e) {
+            log.error("AM IsAlive: " + e.getMessage());
+        }
+        return false;
     }
 }
