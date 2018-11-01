@@ -6,7 +6,7 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthStatus;
 import uk.gov.hmcts.reform.idam.health.probe.Status;
-import uk.gov.hmcts.reform.idam.health.probe.env.TestUserProperties;
+import uk.gov.hmcts.reform.idam.health.probe.env.ProbeUserProperties;
 
 @Component
 @Profile("userstore")
@@ -21,7 +21,7 @@ public class UserStoreAuthenticationHealthStatus implements HealthStatus {
     private final String ldapUserFilter;
     private final String ldapUserPassword;
 
-    public UserStoreAuthenticationHealthStatus(LdapTemplate ldapTemplate, TestUserProperties testUserProperties) {
+    public UserStoreAuthenticationHealthStatus(LdapTemplate ldapTemplate, ProbeUserProperties testUserProperties) {
         this.ldapTemplate = ldapTemplate;
 
         this.ldapUserFilter = String.format(LDAP_USER_FILTER_TEMPLATE, testUserProperties.getUsername());

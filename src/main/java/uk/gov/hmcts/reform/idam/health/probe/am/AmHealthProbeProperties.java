@@ -13,12 +13,13 @@ public class AmHealthProbeProperties {
 
     @Getter
     @Setter
-    static class Ping {
+    static class Probe {
         private Long freshnessInterval;
         private Long checkInterval;
     }
 
-    private AmHealthProbeProperties.Ping ping;
+    private AmHealthProbeProperties.Probe isAlive;
+    private AmHealthProbeProperties.Probe passwordGrant;
 
     @Getter
     @Setter
