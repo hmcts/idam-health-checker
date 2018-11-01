@@ -16,7 +16,11 @@ management:
 
 azure:
   application-insights:
-    instrumentation-key: 3981751e-f34d-42e8-a4e4-062cc01d5bc0
+    instrumentation-key: dummy
+  keyvault:
+    uri: https://dummy.vault.azure.net/
+    client-id: dummy
+    client-key: dummy
 
 ldap:
   root: ldaps://dummy:1639
