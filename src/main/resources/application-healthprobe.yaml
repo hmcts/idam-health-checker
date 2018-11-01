@@ -18,6 +18,10 @@ azure:
   application-insights:
     instrumentation-key: 3981751e-f34d-42e8-a4e4-062cc01d5bc0
 
+ldap:
+  root: ldaps://dummy:1639
+  principal: CN=Directory Manager
+
 userstore:
   healthprobe:
     authentication:

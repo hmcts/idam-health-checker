@@ -1,5 +1,2 @@
 ldap:
   root: ldaps://forgerock-ds-tokenstore:1636
-  principal: CN=dummy
-  password: dummy
-  partitionSuffix:

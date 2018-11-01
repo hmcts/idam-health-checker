@@ -13,7 +13,7 @@ import uk.gov.hmcts.reform.idam.health.probe.env.TestUserProperties;
 @Slf4j
 public class UserStoreAuthenticationHealthStatus implements HealthStatus {
 
-    private static final String LDAP_PARTITION_SUFFIX = "";
+    private static final String LDAP_PARTITION_SUFFIX = "dc=reform,dc=hmcts,dc=net";
     private static final String LDAP_USER_FILTER_TEMPLATE = "(uid=%s)";
 
     private final LdapTemplate ldapTemplate;
