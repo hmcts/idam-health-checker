@@ -14,9 +14,19 @@ public class ConfigProperties {
     @Getter
     @Setter
     public static class Ldap {
+
+        @Getter
+        @Setter
+        public static class Replication {
+            private Integer missingChangesThreshold;
+            private Integer pendingUpdatesThreshold;
+        }
+
         private String root;
         private String principal;
         private String password;
+
+        private Replication replication;
     }
 
     @Getter
