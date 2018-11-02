@@ -10,8 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class ClientSecretKeyVaultCredential extends KeyVaultCredentials {
-    private String clientId;
-    private String clientKey;
+    private final String clientId;
+    private final String clientKey;
 
     public ClientSecretKeyVaultCredential(String clientId, String clientKey) {
         this.clientId = clientId;
@@ -25,12 +25,11 @@ public class ClientSecretKeyVaultCredential extends KeyVaultCredentials {
     }
 
     private static AuthenticationResult getAccessTokenFromClientCredentials(String authorization, String resource, String clientId, String clientKey) {
-        AuthenticationContext context = null;
-        AuthenticationResult result = null;
+        AuthenticationResult result;
         ExecutorService service = null;
         try {
             service = Executors.newFixedThreadPool(1);
-            context = new AuthenticationContext(authorization, false, service);
+            AuthenticationContext context = new AuthenticationContext(authorization, false, service);
             ClientCredential credentials = new ClientCredential(clientId, clientKey);
             Future<AuthenticationResult> future = context.acquireToken(resource, credentials, null);
             result = future.get();
@@ -41,7 +40,7 @@ public class ClientSecretKeyVaultCredential extends KeyVaultCredentials {
         }
 
         if (result == null) {
-            throw new RuntimeException("Authentication result was null");
+            throw new RuntimeException("Client Secret Key Vault authentication result was null");
         }
         return result;
     }

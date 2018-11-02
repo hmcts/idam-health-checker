@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.vault;
 
+import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.authentication.KeyVaultCredentials;
 import com.microsoft.azure.keyvault.models.SecretBundle;
@@ -13,8 +14,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
@@ -28,13 +28,12 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     private static final String VAULT_PROPERTIES = "vaultProperties";
 
-    List<String> vaultKeys = Arrays.asList(
-            "system-owner-username",
-            "system-owner-password",
-            "web-admin-client-secret",
-            "BINDPASSWD",
-            "appinsights-instrumentationkey"
-
+    private static final Map<String, String> vaultKeyPropertyNames = ImmutableMap.of(
+            "system-owner-username", "system.owner.username",
+            "system-owner-password", "system.owner.password",
+            "web-admin-client-secret", "web.admin.client.secret",
+            "BINDPASSWD", "ldap.password",
+            "appinsights-instrumentationkey", "azure.application-insights.instrumentation-key"
     );
 
     @Override
@@ -49,10 +48,10 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
             Properties props = new Properties();
 
-            for (String vaultKey : vaultKeys) {
-                String value = getValue(client, vaultBaseUri, vaultKey);
+            for (String vaultKey : vaultKeyPropertyNames.keySet()) {
+                String value = loadValue(client, vaultBaseUri, vaultKey);
                 if (value != null) {
-                    props.put(getPropName(vaultKey), value);
+                    props.put(vaultKeyPropertyNames.get(vaultKey), value);
                 }
             }
 
@@ -62,21 +61,12 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
         }
     }
 
-    protected String getValue(KeyVaultClient client, String vaultBaseUri, String key) {
+    protected String loadValue(KeyVaultClient client, String vaultBaseUri, String key) {
         SecretBundle secretValue = client.getSecret(vaultBaseUri, key);
         if ((secretValue != null) && (secretValue.value() != null)) {
             return secretValue.value();
         }
         return null;
-    }
-
-    protected String getPropName(String keyName) {
-        if ("bindpasswd".equalsIgnoreCase(keyName)) {
-            return "ldap.password";
-        } else if ("appinsights-instrumentationkey".equalsIgnoreCase(keyName)) {
-            return "azure.application-insights.instrumentation-key";
-        }
-        return keyName.replaceAll("-", ".");
     }
 
 }
