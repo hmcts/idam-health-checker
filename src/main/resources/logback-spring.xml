@@ -37,16 +37,12 @@
         </rollingPolicy>
     </appender>
 
+    <logger name="uk.gov.hmcts.reform.idam.health" level="debug" />
+
     <!-- LOG everything at INFO level -->
     <root level="info">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
     </root>
-
-    <!-- LOG "uk.gov.hmcts.reform.idam.healthchecker.health*" at INFO level -->
-    <logger name="uk.gov.hmcts.reform.idam.healthchecker.health" level="info" additivity="false">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </logger>
 
 </configuration>

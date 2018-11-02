@@ -28,12 +28,17 @@ public class TokenStoreSearchHealthProbe implements HealthProbe {
     @Override
     public boolean probe() {
         try {
+            log.debug("token store search probing");
             List<Object> searchResponse = ldapTemplate.search(
                     LDAP_SEARCH_IN_REPLICATION,
                     LDAP_SEARCH_ANY_OBJECT,
                     SearchControls.SUBTREE_SCOPE,
                     (AttributesMapper<Object>) attrs -> attrs.get(LDAP_CN_ATTRIBUTE).get());
-            return !searchResponse.isEmpty();
+            if (!searchResponse.isEmpty()) {
+                return true;
+            } else {
+                log.error("TokenStore Search: response is empty");
+            }
         } catch (Exception e) {
             log.error("TokenStore Search: " + e.getMessage());
         }
