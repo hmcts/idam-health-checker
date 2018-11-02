@@ -39,37 +39,37 @@ ldap:
 userstore:
   healthprobe:
     authentication:
-      freshness-interval: 30000
-      check-interval: 10000
+      freshness-interval: 5000
+      check-interval: 5000
     replication:
-      freshness-interval: 30000
-      check-interval: 10000
+      freshness-interval: 5000
+      check-interval: 5000
 
 tokenstore:
   healthprobe:
     search:
-      freshness-interval: 30000
-      check-interval: 10000
+      freshness-interval: 5000
+      check-interval: 5000
     replication:
-      freshness-interval: 30000
-      check-interval: 10000
+      freshness-interval: 5000
+      check-interval: 5000
 
 idm:
   root: https://dummy
   healthprobe:
     ping:
-      freshness-interval: 30000
-      check-interval: 10000
+      freshness-interval: 5000
+      check-interval: 5000
 
 am:
   root: https://dummy
   healthprobe:
     isAlive:
-      freshness-interval: 30000
-      check-interval: 10000
+      freshness-interval: 5000
+      check-interval: 5000
     passwordGrant:
       freshness-interval: 60000
-      check-interval: 45000
+      check-interval: 60000
     identity:
       scope: openid profile authorities acr roles
       host: dummy
