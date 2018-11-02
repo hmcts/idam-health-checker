@@ -68,7 +68,7 @@ am:
       freshness-interval: 5000
       check-interval: 5000
     passwordGrant:
-      freshness-interval: 60000
+      freshness-interval: 70000
       check-interval: 60000
     identity:
       scope: openid profile authorities acr roles
