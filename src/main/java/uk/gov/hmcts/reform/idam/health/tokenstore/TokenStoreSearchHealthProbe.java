@@ -35,7 +35,7 @@ public class TokenStoreSearchHealthProbe implements HealthProbe {
                     (AttributesMapper<Object>) attrs -> attrs.get(LDAP_CN_ATTRIBUTE).get());
             return !searchResponse.isEmpty();
         } catch (Exception e) {
-            log.error("TokenStore-Search " + e.getMessage());
+            log.error("TokenStore Search: " + e.getMessage());
         }
         return false;
     }

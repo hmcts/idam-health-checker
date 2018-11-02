@@ -38,7 +38,7 @@ public class UserStoreAuthenticationHealthProbe implements HealthProbe {
                     ldapUserPassword);
             return isAuthenticationSuccessful;
         } catch (Exception e) {
-            log.error("UserStore-Auth " + e.getMessage());
+            log.error("UserStore Auth: " + e.getMessage());
         }
         return false;
     }
