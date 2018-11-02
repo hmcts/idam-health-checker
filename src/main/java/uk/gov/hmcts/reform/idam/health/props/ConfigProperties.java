@@ -33,10 +33,4 @@ public class ConfigProperties {
     @Setter
     private Ldap ldap;
 
-    private String bindpasswd;
-
-    public void setBindpasswd(String bindPassword) {
-        this.bindpasswd = bindPassword;
-        this.ldap.password = bindPassword;
-    }
 }
