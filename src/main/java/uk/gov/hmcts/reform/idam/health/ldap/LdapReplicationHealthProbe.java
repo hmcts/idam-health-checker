@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.idam.health.ldap;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.boot.autoconfigure.ldap.LdapProperties;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
@@ -10,6 +11,7 @@ import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.ldap.query.SearchScope;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
+import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -29,11 +31,15 @@ public class LdapReplicationHealthProbe implements HealthProbe {
     private static final String NORMAL_STATUS = "normal";
 
     private final LdapTemplate ldapTemplate;
+    private final ConfigProperties.Ldap ldapProperties;
     private final ReplicationAttributeMapper replicationAttributeMapper;
 
-    public LdapReplicationHealthProbe(LdapTemplate ldapTemplate) {
+    public LdapReplicationHealthProbe(
+            LdapTemplate ldapTemplate,
+            ConfigProperties configProperties) {
         this.ldapTemplate = ldapTemplate;
         this.replicationAttributeMapper = new ReplicationAttributeMapper();
+        this.ldapProperties = configProperties.getLdap();
     }
 
     @Override
@@ -47,13 +53,24 @@ public class LdapReplicationHealthProbe implements HealthProbe {
 
             List<ReplicationInfo> replicationData = ldapTemplate.search(replicationQuery, replicationAttributeMapper);
             if (replicationData.stream().noneMatch(info -> NORMAL_STATUS.equalsIgnoreCase(info.status))) {
+                log.error("Ldap Replication: Failing status checks");
                 return false;
             }
-            return replicationData.stream().allMatch(info -> info.missingChanges == 0 && info.pendingUpdates == 0);
+            if (replicationData.stream().allMatch(this::isReplicationInGoodState)) {
+                return true;
+            } else {
+                log.error("Ldap Replication: Failing missing or pending changes");
+                return false;
+            }
         } catch (Exception e) {
-            log.error("Ldap-Repl " + e.getMessage());
+            log.error("Ldap Replication: " + e.getMessage());
         }
         return false;
+    }
+
+    private boolean isReplicationInGoodState(ReplicationInfo info) {
+        return info.missingChanges <= this.ldapProperties.getReplication().getMissingChangesThreshold()
+                && info.pendingUpdates <= this.ldapProperties.getReplication().getPendingUpdatesThreshold();
     }
 
     static class ReplicationInfo {
