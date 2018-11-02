@@ -18,6 +18,7 @@ import java.util.List;
 
 @Component
 @Slf4j
+@Profile({"tokenstore","userstore"})
 public class LdapReplicationHealthProbe implements HealthProbe {
 
     private static final String BASE_DN = "cn=Replication,cn=monitor";

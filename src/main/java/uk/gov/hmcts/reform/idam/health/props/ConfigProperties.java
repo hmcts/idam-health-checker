@@ -3,9 +3,11 @@ package uk.gov.hmcts.reform.idam.health.props;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile({"tokenstore","userstore"})
 @ConfigurationProperties
 public class ConfigProperties {
 
