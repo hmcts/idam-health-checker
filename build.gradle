@@ -3,7 +3,7 @@ plugins {
     id 'org.springframework.boot' version '2.0.6.RELEASE'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '2.0.3'
-    id 'com.jfrog.bintray' version '1.8.0'
+    id 'com.jfrog.bintray' version '1.8.1'
 }
 
 
