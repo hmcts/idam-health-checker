@@ -32,6 +32,9 @@ azure:
 ldap:
   root: ldaps://dummy:1639
   principal: CN=Directory Manager
+  replication:
+    missing-changes-threshold: 0
+    pending-updates-threshold: 0
 
 userstore:
   healthprobe:
