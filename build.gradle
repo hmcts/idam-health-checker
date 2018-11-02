@@ -88,3 +88,7 @@ test {
         exceptionFormat "full"
     }
 }
+
+bootRun {
+    systemProperties = System.properties
+}
