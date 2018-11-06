@@ -14,7 +14,10 @@ import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -53,14 +56,14 @@ public class LdapReplicationHealthProbe implements HealthProbe {
 
             List<ReplicationInfo> replicationData = ldapTemplate.search(replicationQuery, replicationAttributeMapper);
             if (replicationData.stream().noneMatch(info -> NORMAL_STATUS.equalsIgnoreCase(info.status))) {
-                log.error(TAG + "Failing status checks");
+                log.error(TAG + "Failing status checks, " + toString(summarize(replicationData)));
                 return false;
             }
             if (replicationData.stream().allMatch(this::isReplicationInGoodState)) {
-                log.info(TAG + "success");
+                log.info(TAG + "success, checked " + replicationData.size() + " results");
                 return true;
             } else {
-                log.error(TAG + "Failing missing or pending changes");
+                log.error(TAG + "Failing missing or pending changes, " + toString(summarize(replicationData)));
                 return false;
             }
         } catch (Exception e) {
@@ -72,6 +75,33 @@ public class LdapReplicationHealthProbe implements HealthProbe {
     private boolean isReplicationInGoodState(ReplicationInfo info) {
         return info.missingChanges <= this.ldapProperties.getReplication().getMissingChangesThreshold()
                 && info.pendingUpdates <= this.ldapProperties.getReplication().getPendingUpdatesThreshold();
+    }
+
+    private Map<String, Integer> summarize(List<ReplicationInfo> replicationData) {
+        Map<String, Integer> summary = new HashMap<>();
+        for (ReplicationInfo replicationDatum : replicationData) {
+            increment(summary, "status-" + replicationDatum.status, 1);
+            increment(summary, replicationDatum.status + "-missing", replicationDatum.missingChanges);
+            increment(summary, replicationDatum.status + "-pending", replicationDatum.pendingUpdates);
+        }
+        return summary;
+    }
+
+    private String toString(Map<String, Integer> summary) {
+        if (!summary.isEmpty()) {
+            return summary.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining(","));
+        }
+        return "no replication info";
+    }
+
+    private void increment(Map<String, Integer> summary, String key, int value) {
+        Integer statusCount = summary.get(key);
+        if (statusCount == null) {
+            statusCount = value;
+        } else {
+            statusCount += value;
+        }
+        summary.put(key, statusCount);
     }
 
     static class ReplicationInfo {
