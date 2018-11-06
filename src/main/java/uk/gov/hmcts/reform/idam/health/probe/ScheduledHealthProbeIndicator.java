@@ -6,10 +6,8 @@ import org.springframework.scheduling.TaskScheduler;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class ScheduledHealthProbeExecutor implements HealthProbeExecutor {
+public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
 
     private final HealthProbe healthProbe;
     private final Long freshnessInterval;
@@ -18,7 +16,7 @@ public class ScheduledHealthProbeExecutor implements HealthProbeExecutor {
     private Status status = Status.UNKNOWN;
     private LocalDateTime statusDateTime;
 
-    public ScheduledHealthProbeExecutor(HealthProbe healthProbe, TaskScheduler taskScheduler, Long freshnessInterval, Long checkInterval) {
+    public ScheduledHealthProbeIndicator(HealthProbe healthProbe, TaskScheduler taskScheduler, Long freshnessInterval, Long checkInterval) {
         this.healthProbe = healthProbe;
         this.freshnessInterval = freshnessInterval;
         this.clock = Clock.systemDefaultZone();

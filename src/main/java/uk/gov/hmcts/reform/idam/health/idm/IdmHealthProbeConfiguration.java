@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
-import uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbeExecutor;
+import uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbeIndicator;
 
 @Configuration
 @Profile("idm")
@@ -18,8 +18,8 @@ public class IdmHealthProbeConfiguration {
     private TaskScheduler taskScheduler;
 
     @Bean
-    public ScheduledHealthProbeExecutor idmPingScheduledHealthProbe(IdmPingHealthProbe idmPingHealthProbe) {
-        return new ScheduledHealthProbeExecutor(
+    public ScheduledHealthProbeIndicator idmPingScheduledHealthProbe(IdmPingHealthProbe idmPingHealthProbe) {
+        return new ScheduledHealthProbeIndicator(
                 idmPingHealthProbe,
                 taskScheduler,
                 idmHealthProbeProperties.getPing().getFreshnessInterval(),

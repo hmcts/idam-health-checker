@@ -28,11 +28,11 @@ public class ScheduledHealthProbeTest {
     @Mock
     private TaskScheduler taskScheduler;
 
-    private ScheduledHealthProbeExecutor scheduledHealthProbe;
+    private ScheduledHealthProbeIndicator scheduledHealthProbe;
 
     @Before
     public void setup() {
-        scheduledHealthProbe = new ScheduledHealthProbeExecutor(healthProbe, taskScheduler, 40000L, 30000L);
+        scheduledHealthProbe = new ScheduledHealthProbeIndicator(healthProbe, taskScheduler, 40000L, 30000L);
         verify(taskScheduler).scheduleWithFixedDelay(any(Runnable.class), anyLong());
     }
 

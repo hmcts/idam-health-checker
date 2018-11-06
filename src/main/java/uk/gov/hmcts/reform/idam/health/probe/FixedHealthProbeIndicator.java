@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
-public class FixedHealthProbeExecutor implements HealthProbeExecutor {
+public class FixedHealthProbeIndicator implements HealthProbeIndicator {
 
     private final boolean fixedValue;
 
-    public FixedHealthProbeExecutor(boolean fixedValue) {
+    public FixedHealthProbeIndicator(boolean fixedValue) {
         this.fixedValue = fixedValue;
     }
 

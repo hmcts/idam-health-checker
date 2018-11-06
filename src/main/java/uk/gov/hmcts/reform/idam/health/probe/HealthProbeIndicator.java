@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
-public interface HealthProbeExecutor {
+public interface HealthProbeIndicator {
 
     boolean isOkay();
 

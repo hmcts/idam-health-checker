@@ -10,14 +10,14 @@ public class FixedHealthConfig {
 
     @Bean
     @Profile("optimist")
-    public HealthProbeExecutor optimist() {
-        return new FixedHealthProbeExecutor(true);
+    public HealthProbeIndicator optimist() {
+        return new FixedHealthProbeIndicator(true);
     }
 
     @Bean
     @Profile("pessimist")
-    public HealthProbeExecutor pessimist() {
-        return new FixedHealthProbeExecutor(false);
+    public HealthProbeIndicator pessimist() {
+        return new FixedHealthProbeIndicator(false);
     }
 
 }
