@@ -11,6 +11,8 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 @Slf4j
 public class AmIsAliveHealthProbe implements HealthProbe {
 
+    private static final String TAG = "AM IsAlive: ";
+
     private static final String ALIVE = "ALIVE";
 
     private final AmProvider amProvider;
@@ -23,9 +25,14 @@ public class AmIsAliveHealthProbe implements HealthProbe {
     public boolean probe() {
         try {
             String isAliveResponse = amProvider.isAlive();
-            return StringUtils.contains(isAliveResponse, ALIVE);
+            if (StringUtils.contains(isAliveResponse, ALIVE)) {
+                log.info(TAG + "success");
+                return true;
+            } else {
+                log.error(TAG + "response did not contain expected value");
+            }
         } catch (Exception e) {
-            log.error("AM IsAlive: " + e.getMessage());
+            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
         }
         return false;
     }

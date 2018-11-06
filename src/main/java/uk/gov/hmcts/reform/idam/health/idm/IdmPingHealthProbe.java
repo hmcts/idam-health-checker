@@ -14,6 +14,8 @@ import java.util.Map;
 @Slf4j
 public class IdmPingHealthProbe implements HealthProbe {
 
+    private static final String TAG = "IDM Ping: ";
+
     private static final String STATE = "state";
     private static final String IDM_ACTIVE = "ACTIVE_READY";
 
@@ -32,9 +34,14 @@ public class IdmPingHealthProbe implements HealthProbe {
     public boolean probe() {
         try {
             Map<String, String> pingResponse = idmProvider.ping(authorization);
-            return IDM_ACTIVE.equals(MapUtils.getString(pingResponse, STATE));
+            if (IDM_ACTIVE.equals(MapUtils.getString(pingResponse, STATE))) {
+                log.info(TAG + "success");
+                return true;
+            } else {
+                log.error(TAG + "response did not contain expected value");
+            }
         } catch (Exception e) {
-            log.error("IDM ping: " + e.getMessage());
+            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
         }
         return false;
     }

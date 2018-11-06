@@ -29,8 +29,6 @@ dependencies {
 
     compile 'org.springframework.cloud:spring-cloud-starter-openfeign:2.0.2.RELEASE'
 
-    //compile 'com.microsoft.azure:azure-keyvault-secrets-spring-boot-starter:2.0.7'
-
     compile 'com.microsoft.azure:azure-keyvault:1.0.0'
     compile 'com.microsoft.azure:adal4j:1.5.0'
 
@@ -48,11 +46,7 @@ dependencies {
     testCompile 'org.springframework:spring-test'
 
     testCompile 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
-    testCompile 'org.hamcrest:hamcrest-core'
-    testCompile 'org.hamcrest:hamcrest-library'
-    testCompile 'org.springframework:spring-test'
 
-    testCompile 'io.github.openfeign:feign-mock:10.0.1'
 }
 
 publishing {
