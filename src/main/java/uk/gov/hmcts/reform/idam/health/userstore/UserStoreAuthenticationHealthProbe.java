@@ -32,7 +32,6 @@ public class UserStoreAuthenticationHealthProbe implements HealthProbe {
     @Override
     public boolean probe() {
         try {
-            log.debug("user store search probing");
             boolean isAuthenticationSuccessful = ldapTemplate.authenticate(
                     LDAP_PARTITION_SUFFIX,
                     ldapUserFilter,

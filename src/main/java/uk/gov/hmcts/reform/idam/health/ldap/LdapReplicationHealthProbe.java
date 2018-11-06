@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.ldap;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.boot.autoconfigure.ldap.LdapProperties;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
@@ -74,9 +72,9 @@ public class LdapReplicationHealthProbe implements HealthProbe {
     }
 
     static class ReplicationInfo {
-        private String status;
-        private Integer pendingUpdates;
-        private Integer missingChanges;
+        protected String status;
+        protected Integer pendingUpdates;
+        protected Integer missingChanges;
     }
 
     static class ReplicationAttributeMapper implements AttributesMapper<ReplicationInfo> {

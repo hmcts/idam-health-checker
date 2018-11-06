@@ -32,7 +32,11 @@ public class IdmPingHealthProbe implements HealthProbe {
     public boolean probe() {
         try {
             Map<String, String> pingResponse = idmProvider.ping(authorization);
-            return IDM_ACTIVE.equals(MapUtils.getString(pingResponse, STATE));
+            if (IDM_ACTIVE.equals(MapUtils.getString(pingResponse, STATE))) {
+                return true;
+            } else {
+                log.error("IDM ping: response did not contain expected value");
+            }
         } catch (Exception e) {
             log.error("IDM ping: " + e.getMessage());
         }

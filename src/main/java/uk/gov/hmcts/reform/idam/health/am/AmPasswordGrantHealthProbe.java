@@ -47,7 +47,11 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
                     probeUserProperties.getPassword(),
                     amHealthProbeProperties.getIdentity().getScope());
 
-            return MapUtils.isNotEmpty(passwordGrantResponse) && passwordGrantResponse.containsKey(ACCESS_TOKEN);
+            if (MapUtils.isNotEmpty(passwordGrantResponse) && passwordGrantResponse.containsKey(ACCESS_TOKEN)) {
+                return true;
+            } else {
+                log.error("AM password grant: response did not contain expected value");
+            }
         } catch (Exception e) {
             log.error("AM password grant: " + e.getMessage());
         }

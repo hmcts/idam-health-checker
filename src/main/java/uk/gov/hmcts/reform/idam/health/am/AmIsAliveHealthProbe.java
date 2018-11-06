@@ -23,7 +23,11 @@ public class AmIsAliveHealthProbe implements HealthProbe {
     public boolean probe() {
         try {
             String isAliveResponse = amProvider.isAlive();
-            return StringUtils.contains(isAliveResponse, ALIVE);
+            if (StringUtils.contains(isAliveResponse, ALIVE)) {
+                return true;
+            } else {
+                log.error("AM IsAlive: response did not contain expected value");
+            }
         } catch (Exception e) {
             log.error("AM IsAlive: " + e.getMessage());
         }
