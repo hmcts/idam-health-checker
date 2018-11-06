@@ -12,7 +12,7 @@ public class ScheduleConfig {
     @Bean
     public TaskScheduler taskScheduler(){
         ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
-        threadPoolTaskScheduler.setPoolSize(3);
+        threadPoolTaskScheduler.setPoolSize(5);
         threadPoolTaskScheduler.setThreadNamePrefix("ProbeScheduler");
         return threadPoolTaskScheduler;
     }
