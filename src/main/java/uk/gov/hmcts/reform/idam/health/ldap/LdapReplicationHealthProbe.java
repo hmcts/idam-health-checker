@@ -21,6 +21,8 @@ import java.util.List;
 @Profile({"tokenstore","userstore"})
 public class LdapReplicationHealthProbe implements HealthProbe {
 
+    private final String TAG = "LDAP Replication: ";
+
     private static final String BASE_DN = "cn=Replication,cn=monitor";
     private static final String STATUS_ATTRIBUTE = "status";
     private static final String PENDING_UPDATES_ATTRIBUTE = "pending-updates";
@@ -51,17 +53,18 @@ public class LdapReplicationHealthProbe implements HealthProbe {
 
             List<ReplicationInfo> replicationData = ldapTemplate.search(replicationQuery, replicationAttributeMapper);
             if (replicationData.stream().noneMatch(info -> NORMAL_STATUS.equalsIgnoreCase(info.status))) {
-                log.error("Ldap Replication: Failing status checks");
+                log.error(TAG + "Failing status checks");
                 return false;
             }
             if (replicationData.stream().allMatch(this::isReplicationInGoodState)) {
+                log.info(TAG + "success");
                 return true;
             } else {
-                log.error("Ldap Replication: Failing missing or pending changes");
+                log.error(TAG + "Failing missing or pending changes");
                 return false;
             }
         } catch (Exception e) {
-            log.error("Ldap Replication: " + e.getMessage());
+            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
         }
         return false;
     }

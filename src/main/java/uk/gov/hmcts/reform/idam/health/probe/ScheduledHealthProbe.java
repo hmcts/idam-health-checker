@@ -25,35 +25,6 @@ public class ScheduledHealthProbe {
         taskScheduler.scheduleWithFixedDelay(() -> refresh(), checkInterval);
     }
 
-    /*
-    public ScheduledHealthProbe(
-            HealthProbe healthProbe,
-            Long freshnessInterval,
-            Long checkInterval) {
-        this(healthProbe, freshnessInterval, checkInterval, , (probe, scheduleInterval) -> {
-            TimerTask timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    probe.refresh();
-                }
-            };
-            Timer timer = new Timer(healthProbe.getClass().getName(), true);
-            timer.scheduleAtFixedRate(timerTask, 0, scheduleInterval);
-        });
-    }
-
-    protected ScheduledHealthProbe(HealthProbe healthProbe,
-                                   Long freshnessInterval,
-                                   Long checkInterval,
-                                   Clock clock,
-                                   HealthProbeScheduling scheduling) {
-        this.healthProbe = healthProbe;
-        this.freshnessInterval = freshnessInterval;
-        this.clock = clock;
-        scheduling.schedule(this, checkInterval);
-    }
-    */
-
     public boolean isOkay() {
         return status == Status.UP
                 && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));

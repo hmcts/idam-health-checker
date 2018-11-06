@@ -12,6 +12,8 @@ import uk.gov.hmcts.reform.idam.health.props.ProbeUserProperties;
 @Slf4j
 public class UserStoreAuthenticationHealthProbe implements HealthProbe {
 
+    private final String TAG = "UserStore Auth: ";
+
     private static final String LDAP_PARTITION_SUFFIX = "dc=reform,dc=hmcts,dc=net";
     private static final String LDAP_USER_FILTER_TEMPLATE = "(uid=%s)";
 
@@ -37,12 +39,13 @@ public class UserStoreAuthenticationHealthProbe implements HealthProbe {
                     ldapUserFilter,
                     ldapUserPassword);
             if (isAuthenticationSuccessful) {
+                log.info(TAG + "success");
                 return true;
             } else {
-                log.error("UserStore Auth: authentication failed");
+                log.error(TAG + "authentication failed");
             }
         } catch (Exception e) {
-            log.error("UserStore Auth: " + e.getMessage());
+            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
         }
         return false;
     }

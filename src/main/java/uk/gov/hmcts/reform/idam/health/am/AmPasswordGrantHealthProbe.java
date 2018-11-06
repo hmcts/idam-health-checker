@@ -16,6 +16,8 @@ import java.util.Map;
 @Slf4j
 public class AmPasswordGrantHealthProbe implements HealthProbe {
 
+    private static final String TAG = "AM PasswordGrant: ";
+
     private static final String GRANT_TYPE = "password";
     private static final String ACCESS_TOKEN = "access_token";
 
@@ -48,12 +50,13 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
                     amHealthProbeProperties.getIdentity().getScope());
 
             if (MapUtils.isNotEmpty(passwordGrantResponse) && passwordGrantResponse.containsKey(ACCESS_TOKEN)) {
+                log.info(TAG + "success");
                 return true;
             } else {
-                log.error("AM password grant: response did not contain expected value");
+                log.error(TAG + "response did not contain expected value");
             }
         } catch (Exception e) {
-            log.error("AM password grant: " + e.getMessage());
+            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
         }
         return false;
     }

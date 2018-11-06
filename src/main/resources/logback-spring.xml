@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <logger name="uk.gov.hmcts.reform.idam.health" level="INFO"/>
+
     <springProfile name="live">
 
         <appender name="aiAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender">
