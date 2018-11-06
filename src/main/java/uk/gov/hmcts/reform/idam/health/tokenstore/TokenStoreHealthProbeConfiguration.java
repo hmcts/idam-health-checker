@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
 import uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe;
-import uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbe;
+import uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbeExecutor;
 
 @Configuration
 @Profile("tokenstore")
@@ -19,9 +19,9 @@ public class TokenStoreHealthProbeConfiguration {
     private TaskScheduler taskScheduler;
 
     @Bean
-    public ScheduledHealthProbe tokenStoreSearchScheduledHealthProbe(
+    public ScheduledHealthProbeExecutor tokenStoreSearchScheduledHealthProbe(
             TokenStoreSearchHealthProbe tokenStoreSearchHealthProbe) {
-        return new ScheduledHealthProbe(
+        return new ScheduledHealthProbeExecutor(
                 tokenStoreSearchHealthProbe,
                 taskScheduler,
                 tokenStoreHealthProbeProperties.getSearch().getFreshnessInterval(),
@@ -29,9 +29,9 @@ public class TokenStoreHealthProbeConfiguration {
     }
 
     @Bean
-    public ScheduledHealthProbe tokenStoreReplicationScheduledHealthProbe(
+    public ScheduledHealthProbeExecutor tokenStoreReplicationScheduledHealthProbe(
             LdapReplicationHealthProbe ldapReplicationHealthProbe) {
-        return new ScheduledHealthProbe(
+        return new ScheduledHealthProbeExecutor(
                 ldapReplicationHealthProbe,
                 taskScheduler,
                 tokenStoreHealthProbeProperties.getReplication().getFreshnessInterval(),

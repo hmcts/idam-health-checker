@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ScheduledHealthProbe {
+public class ScheduledHealthProbeExecutor implements HealthProbeExecutor {
 
     private final HealthProbe healthProbe;
     private final Long freshnessInterval;
@@ -18,13 +18,14 @@ public class ScheduledHealthProbe {
     private Status status = Status.UNKNOWN;
     private LocalDateTime statusDateTime;
 
-    public ScheduledHealthProbe(HealthProbe healthProbe, TaskScheduler taskScheduler, Long freshnessInterval, Long checkInterval) {
+    public ScheduledHealthProbeExecutor(HealthProbe healthProbe, TaskScheduler taskScheduler, Long freshnessInterval, Long checkInterval) {
         this.healthProbe = healthProbe;
         this.freshnessInterval = freshnessInterval;
         this.clock = Clock.systemDefaultZone();
         taskScheduler.scheduleWithFixedDelay(() -> refresh(), checkInterval);
     }
 
+    @Override
     public boolean isOkay() {
         return status == Status.UP
                 && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));
