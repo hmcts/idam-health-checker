@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 import uk.gov.hmcts.reform.idam.health.props.ProbeUserProperties;
 
 import javax.naming.directory.SearchControls;
+import java.util.List;
 
 @Component
 @Profile("userstore")
@@ -38,11 +39,11 @@ public class UserStoreAuthenticationHealthProbe implements HealthProbe {
     @Override
     public boolean probe() {
         try {
-            boolean userExists = !ldapTemplate.search(LDAP_PARTITION_SUFFIX,
+            List<String> testUsers = ldapTemplate.search(LDAP_PARTITION_SUFFIX,
                     ldapUserFilter,
                     SearchControls.SUBTREE_SCOPE,
-                    (AttributesMapper<Object>) attrs -> attrs.get(LDAP_CN_ATTRIBUTE).get()).isEmpty();
-            if (!userExists) {
+                    (AttributesMapper<String>) attrs -> attrs.get(LDAP_CN_ATTRIBUTE).get().toString());
+            if (testUsers.isEmpty()) {
                 log.warn(TAG + "test user does not exist");
                 return true;
             }
