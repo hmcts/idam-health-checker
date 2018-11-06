@@ -22,11 +22,11 @@ import java.util.Properties;
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
-    private static final String VAULT_BASE_URL = "azure.keyvault.uri";
-    private static final String VAULT_CLIENT_ID = "azure.keyvault.client-id";
-    private static final String VAULT_CLIENT_KEY = "azure.keyvault.client-key";
+    protected static final String VAULT_BASE_URL = "azure.keyvault.uri";
+    protected static final String VAULT_CLIENT_ID = "azure.keyvault.client-id";
+    protected static final String VAULT_CLIENT_KEY = "azure.keyvault.client-key";
 
-    private static final String VAULT_PROPERTIES = "vaultProperties";
+    protected static final String VAULT_PROPERTIES = "vaultProperties";
 
     private static final Map<String, String> vaultKeyPropertyNames = ImmutableMap.of(
             "system-owner-username", "system.owner.username",
@@ -36,6 +36,19 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
             "appinsights-instrumentationkey", "azure.application-insights.instrumentation-key"
     );
 
+    private KeyVaultClientProvider keyVaultClientProvider;
+
+    public VaultEnvironmentPostProcessor() {
+        this((clientId, clientKey) -> {
+            KeyVaultCredentials credentials = new ClientSecretKeyVaultCredential(clientId, clientKey);
+            return new KeyVaultClient(credentials);
+        });
+    }
+
+    protected VaultEnvironmentPostProcessor(KeyVaultClientProvider keyVaultClientProvider) {
+        this.keyVaultClientProvider = keyVaultClientProvider;
+    }
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String vaultBaseUri = environment.getProperty(VAULT_BASE_URL);
@@ -43,8 +56,7 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
         String vaultClientKey = environment.getProperty(VAULT_CLIENT_KEY);
         if (StringUtils.isNoneEmpty(vaultBaseUri, vaultClientId, vaultClientKey)) {
 
-            KeyVaultCredentials credentials = new ClientSecretKeyVaultCredential(vaultClientId, vaultClientKey);
-            KeyVaultClient client = new KeyVaultClient(credentials);
+            KeyVaultClient client = keyVaultClientProvider.getClient(vaultClientId, vaultClientKey);
 
             Properties props = new Properties();
 
