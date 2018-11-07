@@ -29,8 +29,8 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     protected static final String VAULT_PROPERTIES = "vaultProperties";
 
     private static final Map<String, String> vaultKeyPropertyNames = ImmutableMap.of(
-            "system-owner-username", "system.owner.username",
-            "system-owner-password", "system.owner.password",
+            "test-owner-username", "test.owner.username",
+            "test-owner-password", "test.owner.password",
             "web-admin-client-secret", "web.admin.client.secret",
             "BINDPASSWD", "ldap.password",
             "appinsights-instrumentationkey", "azure.application-insights.instrumentation-key"
@@ -63,6 +63,7 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
             for (String vaultKey : vaultKeyPropertyNames.keySet()) {
                 String value = loadValue(client, vaultBaseUri, vaultKey);
                 if (value != null) {
+                    System.out.println("Loaded vault key " + vaultKey);
                     props.put(vaultKeyPropertyNames.get(vaultKey), value);
                 }
             }
