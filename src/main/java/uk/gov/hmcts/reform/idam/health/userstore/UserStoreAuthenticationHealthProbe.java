@@ -55,7 +55,7 @@ public class UserStoreAuthenticationHealthProbe implements HealthProbe {
                 log.info(TAG + "success");
                 return true;
             } else {
-                log.error(TAG + "authentication failed");
+                log.error(TAG + "authentication failed for filter " + ldapUserFilter);
             }
         } catch (Exception e) {
             log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
