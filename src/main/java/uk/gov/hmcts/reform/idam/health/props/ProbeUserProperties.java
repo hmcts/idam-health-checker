@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties("system.owner")
+@ConfigurationProperties("test.owner")
 @Getter
 @Setter
 public class ProbeUserProperties {

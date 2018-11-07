@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <logger name="uk.gov.hmcts.reform.idam.health" level="INFO"/>
+    <logger name="uk.gov.hmcts.reform.idam.health" level="WARN"/>
 
     <springProfile name="live">
 
