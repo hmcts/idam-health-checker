@@ -43,7 +43,7 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
 
     protected void refresh() {
         boolean probeHasExpired = status == Status.UNKNOWN || LocalDateTime.now(clock)
-                .isAfter(statusDateTime.plus(Math.round((3.0/4) * freshnessInterval), ChronoUnit.MILLIS));
+                .isAfter(statusDateTime.plus(Math.round(0.75 * freshnessInterval), ChronoUnit.MILLIS));
         if (status == Status.UP && !probeHasExpired) {
             return;
         }
