@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
+import uk.gov.hmcts.reform.idam.health.probe.HealthProbeFailureHandling;
 import uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbeIndicator;
 
 @Configuration
@@ -21,6 +22,7 @@ public class IdmHealthProbeConfiguration {
     public ScheduledHealthProbeIndicator idmPingScheduledHealthProbe(IdmPingHealthProbe idmPingHealthProbe) {
         return new ScheduledHealthProbeIndicator(
                 idmPingHealthProbe,
+                HealthProbeFailureHandling.MARK_AS_DOWN,
                 taskScheduler,
                 idmHealthProbeProperties.getPing().getFreshnessInterval(),
                 idmHealthProbeProperties.getPing().getCheckInterval());

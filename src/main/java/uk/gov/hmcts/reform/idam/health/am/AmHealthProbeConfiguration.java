@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
+import uk.gov.hmcts.reform.idam.health.probe.HealthProbeFailureHandling;
 import uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbeIndicator;
 
 @Configuration
@@ -21,6 +22,7 @@ public class AmHealthProbeConfiguration {
     public ScheduledHealthProbeIndicator amIsAliveScheduledHealthProbe(AmIsAliveHealthProbe amIsAliveHealthProbe) {
         return new ScheduledHealthProbeIndicator(
                 amIsAliveHealthProbe,
+                HealthProbeFailureHandling.MARK_AS_DOWN,
                 taskScheduler,
                 amHealthProbeProperties.getIsAlive().getFreshnessInterval(),
                 amHealthProbeProperties.getIsAlive().getCheckInterval());
@@ -30,6 +32,7 @@ public class AmHealthProbeConfiguration {
     public ScheduledHealthProbeIndicator amPasswordGrantScheduledHealthProbe(AmPasswordGrantHealthProbe amPasswordGrantHealthProbe) {
         return new ScheduledHealthProbeIndicator(
                 amPasswordGrantHealthProbe,
+                HealthProbeFailureHandling.IGNORE,
                 taskScheduler,
                 amHealthProbeProperties.getPasswordGrant().getFreshnessInterval(),
                 amHealthProbeProperties.getPasswordGrant().getCheckInterval());

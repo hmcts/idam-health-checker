@@ -33,43 +33,43 @@ ldap:
   root: ldaps://dummy:1639
   principal: CN=Directory Manager
   replication:
-    missing-changes-threshold: 0
-    pending-updates-threshold: 0
+    missing-changes-threshold: 10
+    pending-updates-threshold: 10
 
 userstore:
   healthprobe:
     authentication:
-      freshness-interval: 5000
-      check-interval: 5000
+      freshness-interval: 6000
+      check-interval: 1000
     replication:
-      freshness-interval: 5000
-      check-interval: 5000
+      freshness-interval: 6000
+      check-interval: 1000
 
 tokenstore:
   healthprobe:
     search:
-      freshness-interval: 5000
-      check-interval: 5000
+      freshness-interval: 6000
+      check-interval: 1000
     replication:
-      freshness-interval: 5000
-      check-interval: 5000
+      freshness-interval: 6000
+      check-interval: 1000
 
 idm:
   root: https://dummy
   healthprobe:
     ping:
-      freshness-interval: 5000
-      check-interval: 5000
+      freshness-interval: 6000
+      check-interval: 1000
 
 am:
   root: https://dummy
   healthprobe:
     isAlive:
-      freshness-interval: 5000
-      check-interval: 5000
+      freshness-interval: 6000
+      check-interval: 1000
     passwordGrant:
-      freshness-interval: 70000
-      check-interval: 60000
+      freshness-interval: 86400000
+      check-interval: 7200000
     identity:
       scope: openid profile authorities acr roles
       host: dummy

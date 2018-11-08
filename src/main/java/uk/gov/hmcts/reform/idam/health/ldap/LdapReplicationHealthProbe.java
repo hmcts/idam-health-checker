@@ -79,11 +79,20 @@ public class LdapReplicationHealthProbe implements HealthProbe {
 
     private Map<String, Integer> summarize(List<ReplicationInfo> replicationData) {
         Map<String, Integer> summary = new HashMap<>();
+        int maxMissing = 0, maxPending = 0;
         for (ReplicationInfo replicationDatum : replicationData) {
             increment(summary, "status-" + replicationDatum.status, 1);
             increment(summary, replicationDatum.status + "-missing", replicationDatum.missingChanges);
             increment(summary, replicationDatum.status + "-pending", replicationDatum.pendingUpdates);
+            if (maxMissing < replicationDatum.missingChanges) {
+                maxMissing = replicationDatum.missingChanges;
+            }
+            if (maxPending < replicationDatum.pendingUpdates) {
+                maxPending = replicationDatum.pendingUpdates;
+            }
         }
+        summary.put("maxMissing", maxMissing);
+        summary.put("maxPending", maxPending);
         return summary;
     }
 
