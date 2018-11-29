@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.idam.health.vault;
 
 import com.google.common.collect.ImmutableMap;
+import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.keyvault.KeyVaultClient;
-import com.microsoft.azure.keyvault.authentication.KeyVaultCredentials;
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +13,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.idam.health.vault.msi.CustomAppServiceMSICredentials;
 
 import java.util.Map;
 import java.util.Properties;
@@ -23,8 +24,6 @@ import java.util.Properties;
 public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     protected static final String VAULT_BASE_URL = "azure.keyvault.uri";
-    protected static final String VAULT_CLIENT_ID = "azure.keyvault.client-id";
-    protected static final String VAULT_CLIENT_KEY = "azure.keyvault.client-key";
 
     protected static final String VAULT_PROPERTIES = "vaultProperties";
 
@@ -39,10 +38,8 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     private KeyVaultClientProvider keyVaultClientProvider;
 
     public VaultEnvironmentPostProcessor() {
-        this((clientId, clientKey) -> {
-            KeyVaultCredentials credentials = new ClientSecretKeyVaultCredential(clientId, clientKey);
-            return new KeyVaultClient(credentials);
-        });
+
+        this.keyVaultClientProvider = credentials -> new KeyVaultClient(credentials);
     }
 
     protected VaultEnvironmentPostProcessor(KeyVaultClientProvider keyVaultClientProvider) {
@@ -52,11 +49,10 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String vaultBaseUri = environment.getProperty(VAULT_BASE_URL);
-        String vaultClientId = environment.getProperty(VAULT_CLIENT_ID);
-        String vaultClientKey = environment.getProperty(VAULT_CLIENT_KEY);
-        if (StringUtils.isNoneEmpty(vaultBaseUri, vaultClientId, vaultClientKey)) {
 
-            KeyVaultClient client = keyVaultClientProvider.getClient(vaultClientId, vaultClientKey);
+        if (StringUtils.isNoneEmpty(vaultBaseUri)) {
+            CustomAppServiceMSICredentials credentials = new CustomAppServiceMSICredentials(AzureEnvironment.AZURE);
+            KeyVaultClient client = keyVaultClientProvider.getClient(credentials);
 
             Properties props = new Properties();
 
