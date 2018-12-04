@@ -29,6 +29,12 @@ azure:
 #    client-id:
 #    client-key:
 
+feign:
+  okhttp:
+    enabled: false
+  httpclient:
+    enabled: true
+
 ldap:
   root: ldaps://dummy:1639
   principal: CN=Directory Manager
