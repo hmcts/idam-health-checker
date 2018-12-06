@@ -1,7 +1,8 @@
 package uk.gov.hmcts.reform.idam.health.vault.msi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.http.*;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.util.ExponentialBackOff;
 import com.microsoft.azure.AzureEnvironment;
 import org.junit.Assert;
@@ -25,8 +26,7 @@ public class CustomAppServiceMSICredentialsTest {
         "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://vault.azure.net";
     private static final String REQUEST_HEADER_METADATA = "Metadata";
     private static final String REQUEST_HEADER_METADATA_VALUE_TRUE = "true";
-    private static final String ACCESS_TOKEN_SOME_ACCESS_TOKEN_VALUE =
-        "{\"access_token\": \"some-access-token-value\"}";
+    private static final String ACCESS_TOKEN_SOME_ACCESS_TOKEN_VALUE ="some-access-token-value";
 
     private CustomAppServiceMSICredentials customAppServiceMSICredentials;
 
@@ -34,7 +34,7 @@ public class CustomAppServiceMSICredentialsTest {
     HttpRequestFactory httpRequestFactoryMock;
 
     @Mock
-    ObjectMapper objectMapperMock;
+    JsonFactory jsonFactory;
 
     @Mock
     HttpRequest httpRequestMock;
@@ -45,7 +45,7 @@ public class CustomAppServiceMSICredentialsTest {
     @Before
     public void setup() {
         customAppServiceMSICredentials
-                = new CustomAppServiceMSICredentials(AzureEnvironment.AZURE, httpRequestFactoryMock, objectMapperMock);
+                = new CustomAppServiceMSICredentials(AzureEnvironment.AZURE, httpRequestFactoryMock, jsonFactory);
     }
 
     @Test
@@ -60,12 +60,11 @@ public class CustomAppServiceMSICredentialsTest {
 
         when(httpRequestFactoryMock.buildGetRequest(genericUrl)).thenReturn(httpRequestMock);
         when(httpRequestMock.setHeaders(headers)).thenReturn(httpRequestMock);
+        when(httpRequestMock.setParser(any(JsonObjectParser.class))).thenReturn(httpRequestMock);
         when(httpRequestMock.setUnsuccessfulResponseHandler(any())).thenReturn(httpRequestMock);
         when(httpRequestMock.setNumberOfRetries(3)).thenReturn(httpRequestMock);
         when(httpRequestMock.execute()).thenReturn(httpResponseMock);
-        when(httpResponseMock.parseAsString()).thenReturn(ACCESS_TOKEN_SOME_ACCESS_TOKEN_VALUE);
-        when(objectMapperMock.readValue(ACCESS_TOKEN_SOME_ACCESS_TOKEN_VALUE, AccessTokenRespHolder.class))
-                                                                        .thenReturn(accessTokenRespHolder);
+        when(httpResponseMock.parseAs(AccessTokenRespHolder.class)).thenReturn(accessTokenRespHolder);
 
 
         String token = customAppServiceMSICredentials.getToken("resource");

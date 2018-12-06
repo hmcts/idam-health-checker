@@ -1,12 +1,10 @@
 package uk.gov.hmcts.reform.idam.health.vault.msi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
-import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.JsonObjectParser;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.credentials.AzureTokenCredentials;
@@ -22,22 +20,22 @@ public class CustomAppServiceMSICredentials extends AzureTokenCredentials {
     private static final String REQUEST_HEADER_METADATA_VALUE_TRUE = "true";
 
     private final HttpRequestFactory httpRequestFactory;
-    private final ObjectMapper objectMapper;
+    private final JsonFactory jsonFactory;
 
 
     public CustomAppServiceMSICredentials(AzureEnvironment environment) {
         super(environment, null);
 
         this.httpRequestFactory = new NetHttpTransport().createRequestFactory();
-        this.objectMapper = new ObjectMapper();
+        this.jsonFactory = new JacksonFactory();
     }
 
     protected CustomAppServiceMSICredentials(AzureEnvironment environment,
-                                             HttpRequestFactory httpRequestFactory, ObjectMapper objectMapper) {
+                                             HttpRequestFactory httpRequestFactory, JsonFactory jsonFactory) {
         super(environment, null);
 
         this.httpRequestFactory = httpRequestFactory;
-        this.objectMapper = objectMapper;
+        this.jsonFactory = jsonFactory;
     }
 
 
@@ -45,9 +43,7 @@ public class CustomAppServiceMSICredentials extends AzureTokenCredentials {
     public String getToken(String resource) throws IOException {
 
         HttpRequest tokenRequest = buildTokenHttpRequest();
-        String rawResponse = tokenRequest.execute().parseAsString();
-        AccessTokenRespHolder accessTokenRespHolder = objectMapper
-                .readValue(rawResponse, AccessTokenRespHolder.class);
+        AccessTokenRespHolder accessTokenRespHolder = tokenRequest.execute().parseAs(AccessTokenRespHolder.class);
 
         return accessTokenRespHolder.getAccessToken();
     }
@@ -57,7 +53,8 @@ public class CustomAppServiceMSICredentials extends AzureTokenCredentials {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(REQUEST_HEADER_METADATA, REQUEST_HEADER_METADATA_VALUE_TRUE);
-        HttpRequest tokenRequest  = httpRequestFactory.buildGetRequest(genericUrl).setHeaders(headers);
+        HttpRequest tokenRequest  = httpRequestFactory.buildGetRequest(genericUrl)
+                .setHeaders(headers).setParser(new JsonObjectParser(jsonFactory));
         tokenRequest.setUnsuccessfulResponseHandler(
                 new HttpBackOffUnsuccessfulResponseHandler(getExponentialBackOff())).setNumberOfRetries(3);
 

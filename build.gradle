@@ -24,29 +24,30 @@ bootRun {
 }
 
 dependencies {
-    compile 'org.springframework.boot:spring-boot-starter-web:2.0.6.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-actuator:2.0.6.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.0.6.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:2.0.6.RELEASE'
 
-    compile 'org.springframework.cloud:spring-cloud-starter-openfeign:2.0.2.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.0.2.RELEASE'
 
-    compile 'com.microsoft.azure:azure-keyvault:1.0.0'
-    compile 'com.microsoft.azure:adal4j:1.5.0'
+    implementation 'com.microsoft.azure:azure-keyvault:1.0.0'
+    implementation 'com.microsoft.azure:adal4j:1.5.0'
     implementation 'com.google.http-client:google-http-client:1.27.0'
+    implementation 'com.google.http-client:google-http-client-jackson2:1.27.0'
 
-    compile 'org.springframework.ldap:spring-ldap-core:2.3.2.RELEASE'
-    compile 'com.microsoft.azure:applicationinsights-core:2.2.0'
-    compile 'com.microsoft.azure:applicationinsights-web:2.2.0'
-    compile 'com.microsoft.azure:applicationinsights-spring-boot-starter:1.0.1-BETA'
-    compile 'com.microsoft.azure:applicationinsights-logging-logback:2.2.0'
+    implementation 'org.springframework.ldap:spring-ldap-core:2.3.2.RELEASE'
+    implementation 'com.microsoft.azure:applicationinsights-core:2.2.0'
+    implementation 'com.microsoft.azure:applicationinsights-web:2.2.0'
+    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:1.0.1-BETA'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.2.0'
 
-    compile 'org.projectlombok:lombok:1.18.2'
+    implementation 'org.projectlombok:lombok:1.18.2'
 
-    testCompile 'org.springframework.boot:spring-boot-starter-test:2.0.6.RELEASE'
-    testCompile 'org.hamcrest:hamcrest-core'
-    testCompile 'org.hamcrest:hamcrest-library'
-    testCompile 'org.springframework:spring-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.0.6.RELEASE'
+    testImplementation 'org.hamcrest:hamcrest-core'
+    testImplementation 'org.hamcrest:hamcrest-library'
+    testImplementation 'org.springframework:spring-test'
 
-    testCompile 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
 
 }
 
