@@ -1,10 +1,11 @@
 package uk.gov.hmcts.reform.idam.health.vault;
 
 import com.microsoft.azure.keyvault.KeyVaultClient;
-import uk.gov.hmcts.reform.idam.health.vault.msi.CustomAppServiceMSICredentials;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 public interface KeyVaultClientProvider {
 
-    KeyVaultClient getClient(CustomAppServiceMSICredentials credentials);
+    KeyVaultClient getClient(ConfigurableEnvironment environment);
+
 
 }

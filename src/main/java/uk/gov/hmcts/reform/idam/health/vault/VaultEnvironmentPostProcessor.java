@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.vault;
 
 import com.google.common.collect.ImmutableMap;
-import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.idam.health.vault.msi.CustomAppServiceMSICredentials;
 
 import java.util.Map;
 import java.util.Properties;
@@ -38,8 +36,7 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     private KeyVaultClientProvider keyVaultClientProvider;
 
     public VaultEnvironmentPostProcessor() {
-
-        this.keyVaultClientProvider = credentials -> new KeyVaultClient(credentials);
+        this.keyVaultClientProvider = new KeyVaultClientProviderImpl();
     }
 
     protected VaultEnvironmentPostProcessor(KeyVaultClientProvider keyVaultClientProvider) {
@@ -49,11 +46,9 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String vaultBaseUri = environment.getProperty(VAULT_BASE_URL);
+        KeyVaultClient client = keyVaultClientProvider.getClient(environment);
 
-        if (StringUtils.isNoneEmpty(vaultBaseUri)) {
-            CustomAppServiceMSICredentials credentials = new CustomAppServiceMSICredentials(AzureEnvironment.AZURE);
-            KeyVaultClient client = keyVaultClientProvider.getClient(credentials);
-
+        if (StringUtils.isNoneEmpty(vaultBaseUri) && client != null) {
             Properties props = new Properties();
 
             for (String vaultKey : vaultKeyPropertyNames.keySet()) {

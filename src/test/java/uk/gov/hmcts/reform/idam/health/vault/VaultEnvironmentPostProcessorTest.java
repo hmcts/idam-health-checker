@@ -13,11 +13,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
-import uk.gov.hmcts.reform.idam.health.vault.msi.CustomAppServiceMSICredentials;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -55,7 +53,6 @@ public class VaultEnvironmentPostProcessorTest {
 
         postProcessor.postProcessEnvironment(configurableEnvironment, springApplication);
 
-        verify(keyVaultClientProvider, never()).getClient(any(CustomAppServiceMSICredentials.class));
         verify(configurableEnvironment, never()).getPropertySources();
     }
 
@@ -64,7 +61,7 @@ public class VaultEnvironmentPostProcessorTest {
 
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn("test-vault-url");
 
-        when(keyVaultClientProvider.getClient(any(CustomAppServiceMSICredentials.class))).thenReturn(keyVaultClient);
+        when(keyVaultClientProvider.getClient(configurableEnvironment)).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(null);
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(null);
@@ -83,7 +80,7 @@ public class VaultEnvironmentPostProcessorTest {
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn("test-vault-url");
         when(configurableEnvironment.getPropertySources()).thenReturn(propertySources);
 
-        when(keyVaultClientProvider.getClient(any(CustomAppServiceMSICredentials.class))).thenReturn(keyVaultClient);
+        when(keyVaultClientProvider.getClient(configurableEnvironment)).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(new SecretBundle().withValue("test-username"));
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(new SecretBundle().withValue("test-password"));
