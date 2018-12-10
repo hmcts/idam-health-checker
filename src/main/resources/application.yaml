@@ -28,6 +28,11 @@ azure:
 #    uri:
 #    client-id:
 #    client-key:
+  vnet:
+    url: http://169.254.169.254/metadata
+    msi:
+      path: /identity/oauth2/token
+      params: api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net
 
 ldap:
   root: ldaps://dummy:1639

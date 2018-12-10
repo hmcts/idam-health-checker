@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health;
+package uk.gov.hmcts.reform.idam.health.vault.msi;
 
 import feign.RetryableException;
 import feign.Retryer;

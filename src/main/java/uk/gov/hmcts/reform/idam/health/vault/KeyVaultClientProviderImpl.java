@@ -7,7 +7,7 @@ import feign.Target;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
-import uk.gov.hmcts.reform.idam.health.CustomRequestRetryer;
+import uk.gov.hmcts.reform.idam.health.vault.msi.CustomRequestRetryer;
 import uk.gov.hmcts.reform.idam.health.vault.msi.AccessTokenRespHolder;
 import uk.gov.hmcts.reform.idam.health.vault.msi.CustomAppServiceMSICredentials;
 import uk.gov.hmcts.reform.idam.health.vault.msi.MSIProvider;
@@ -37,23 +37,30 @@ public class KeyVaultClientProviderImpl implements KeyVaultClientProvider {
 
         try {
             AccessTokenRespHolder accessTokenRespHolder = msiProvider.getMSIAccessToken("true");
-            return new KeyVaultClient(new CustomAppServiceMSICredentials(AzureEnvironment.AZURE, msiProvider));
+            if(accessTokenRespHolder != null) {
+                return new KeyVaultClient(new CustomAppServiceMSICredentials(AzureEnvironment.AZURE, msiProvider));
+            } else {
+                return getKeyCredentialClient(environment);
+            }
 
         } catch (Exception ex) {
 
             log.error(TAG + "Managed Service Identity not enabled");
-
-            String vaultClientId = environment.getProperty(VAULT_CLIENT_ID);
-            String vaultClientKey = environment.getProperty(VAULT_CLIENT_KEY);
-
-            if(StringUtils.isNoneEmpty(vaultClientId, vaultClientId)) {
-                return new KeyVaultClient(new ClientSecretKeyVaultCredential(vaultClientId, vaultClientKey));
-            }
+            return  getKeyCredentialClient(environment);
 
         }
 
-        return null;
+    }
 
+    private KeyVaultClient getKeyCredentialClient(ConfigurableEnvironment environment) {
+        String vaultClientId = environment.getProperty(VAULT_CLIENT_ID);
+        String vaultClientKey = environment.getProperty(VAULT_CLIENT_KEY);
+
+        if(StringUtils.isNoneEmpty(vaultClientId, vaultClientId)) {
+            return new KeyVaultClient(new ClientSecretKeyVaultCredential(vaultClientId, vaultClientKey));
+        }
+
+        return null;
     }
 
 
