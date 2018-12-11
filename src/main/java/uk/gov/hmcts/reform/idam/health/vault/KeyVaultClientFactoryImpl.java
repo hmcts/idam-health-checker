@@ -35,20 +35,21 @@ public class KeyVaultClientFactoryImpl implements KeyVaultClientFactory {
     @Override
     public KeyVaultClient getClient(ConfigurableEnvironment environment) {
 
-        try {
-            AccessTokenRespHolder accessTokenRespHolder = msiProvider.getMSIAccessToken("true");
-            if(accessTokenRespHolder != null) {
-                return new KeyVaultClient(new CustomAppServiceMSICredentials(AzureEnvironment.AZURE, msiProvider));
-            } else {
-                return getKeyCredentialClient(environment);
+        KeyVaultClient client = getKeyCredentialClient(environment);
+
+        if(client == null) {
+            try {
+                AccessTokenRespHolder accessTokenRespHolder = msiProvider.getMSIAccessToken("true");
+                if(accessTokenRespHolder != null) {
+                    client = new KeyVaultClient(new CustomAppServiceMSICredentials(AzureEnvironment.AZURE, msiProvider));
+                }
+
+            } catch (Exception ex) {
+                log.error(TAG + "Managed Service Identity not enabled");
             }
-
-        } catch (Exception ex) {
-
-            log.error(TAG + "Managed Service Identity not enabled");
-            return  getKeyCredentialClient(environment);
-
         }
+
+       return client;
 
     }
 
@@ -59,6 +60,8 @@ public class KeyVaultClientFactoryImpl implements KeyVaultClientFactory {
         if(StringUtils.isNoneEmpty(vaultClientId, vaultClientId)) {
             return new KeyVaultClient(new ClientSecretKeyVaultCredential(vaultClientId, vaultClientKey));
         }
+
+        log.info(TAG + "vault clientId/clientKey not found");
 
         return null;
     }
