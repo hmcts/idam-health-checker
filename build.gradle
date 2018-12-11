@@ -28,6 +28,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator:2.0.6.RELEASE'
 
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.0.2.RELEASE'
+    implementation 'io.github.openfeign:feign-httpclient:9.7.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.6'
 
     implementation 'com.microsoft.azure:azure-keyvault:1.0.0'
     implementation 'com.microsoft.azure:adal4j:1.5.0'
@@ -35,7 +37,7 @@ dependencies {
     implementation 'org.springframework.ldap:spring-ldap-core:2.3.2.RELEASE'
     implementation 'com.microsoft.azure:applicationinsights-core:2.2.0'
     implementation 'com.microsoft.azure:applicationinsights-web:2.2.0'
-    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:1.0.1-BETA'
+    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:1.1.0-BETA'
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.2.0'
 
     implementation 'org.projectlombok:lombok:1.18.2'

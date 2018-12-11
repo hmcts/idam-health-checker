@@ -31,8 +31,13 @@ azure:
   vnet:
     url: http://169.254.169.254/metadata
     msi:
-      path: /identity/oauth2/token
-      params: api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net
+      path: /identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net
+
+feign:
+  okhttp:
+    enabled: false
+  httpclient:
+    enabled: true
 
 ldap:
   root: ldaps://dummy:1639
