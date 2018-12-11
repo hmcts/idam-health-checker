@@ -28,7 +28,7 @@ public class VaultEnvironmentPostProcessorTest {
     private SpringApplication springApplication;
 
     @Mock
-    private KeyVaultClientProvider keyVaultClientProvider;
+    private KeyVaultClientFactory keyVaultClientFactory;
 
     @Mock
     private KeyVaultClient keyVaultClient;
@@ -43,7 +43,7 @@ public class VaultEnvironmentPostProcessorTest {
 
     @Before
     public void setup() {
-        postProcessor = new VaultEnvironmentPostProcessor(keyVaultClientProvider);
+        postProcessor = new VaultEnvironmentPostProcessor(keyVaultClientFactory);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class VaultEnvironmentPostProcessorTest {
 
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn("test-vault-url");
 
-        when(keyVaultClientProvider.getClient(configurableEnvironment)).thenReturn(keyVaultClient);
+        when(keyVaultClientFactory.getClient(configurableEnvironment)).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(null);
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(null);
@@ -80,7 +80,7 @@ public class VaultEnvironmentPostProcessorTest {
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn("test-vault-url");
         when(configurableEnvironment.getPropertySources()).thenReturn(propertySources);
 
-        when(keyVaultClientProvider.getClient(configurableEnvironment)).thenReturn(keyVaultClient);
+        when(keyVaultClientFactory.getClient(configurableEnvironment)).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(new SecretBundle().withValue("test-username"));
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(new SecretBundle().withValue("test-password"));

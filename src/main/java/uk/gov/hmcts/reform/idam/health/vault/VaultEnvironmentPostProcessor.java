@@ -33,20 +33,20 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
             "appinsights-instrumentationkey", "azure.application-insights.instrumentation-key"
     );
 
-    private KeyVaultClientProvider keyVaultClientProvider;
+    private KeyVaultClientFactory keyVaultClientFactory;
 
     public VaultEnvironmentPostProcessor() {
-        this.keyVaultClientProvider = new KeyVaultClientProviderImpl();
+        this.keyVaultClientFactory = new KeyVaultClientFactoryImpl();
     }
 
-    protected VaultEnvironmentPostProcessor(KeyVaultClientProvider keyVaultClientProvider) {
-        this.keyVaultClientProvider = keyVaultClientProvider;
+    protected VaultEnvironmentPostProcessor(KeyVaultClientFactory keyVaultClientFactory) {
+        this.keyVaultClientFactory = keyVaultClientFactory;
     }
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String vaultBaseUri = environment.getProperty(VAULT_BASE_URL);
-        KeyVaultClient client = keyVaultClientProvider.getClient(environment);
+        KeyVaultClient client = keyVaultClientFactory.getClient(environment);
 
         if (StringUtils.isNoneEmpty(vaultBaseUri) && client != null) {
             Properties props = new Properties();

@@ -12,11 +12,11 @@ import uk.gov.hmcts.reform.idam.health.vault.msi.AccessTokenRespHolder;
 import uk.gov.hmcts.reform.idam.health.vault.msi.MSIProvider;
 
 import static org.mockito.Mockito.*;
-import static uk.gov.hmcts.reform.idam.health.vault.KeyVaultClientProviderImpl.VAULT_CLIENT_ID;
-import static uk.gov.hmcts.reform.idam.health.vault.KeyVaultClientProviderImpl.VAULT_CLIENT_KEY;
+import static uk.gov.hmcts.reform.idam.health.vault.KeyVaultClientFactoryImpl.VAULT_CLIENT_ID;
+import static uk.gov.hmcts.reform.idam.health.vault.KeyVaultClientFactoryImpl.VAULT_CLIENT_KEY;
 
 @RunWith(MockitoJUnitRunner.class)
-public class KeyVaultClientProviderImplTest {
+public class KeyVaultClientFactoryImplTest {
 
     @Mock
     MSIProvider msiProvider;
@@ -25,11 +25,11 @@ public class KeyVaultClientProviderImplTest {
     ConfigurableEnvironment environment;
 
 
-    KeyVaultClientProviderImpl keyVaultClientProviderImpl;
+    KeyVaultClientFactoryImpl keyVaultClientProviderImpl;
 
     @Before
     public void setup(){
-        keyVaultClientProviderImpl = new KeyVaultClientProviderImpl(msiProvider);
+        keyVaultClientProviderImpl = new KeyVaultClientFactoryImpl(msiProvider);
     }
 
 

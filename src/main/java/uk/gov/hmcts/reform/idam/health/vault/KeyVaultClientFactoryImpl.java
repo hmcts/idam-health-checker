@@ -14,7 +14,7 @@ import uk.gov.hmcts.reform.idam.health.vault.msi.MSIProvider;
 
 
 @Slf4j
-public class KeyVaultClientProviderImpl implements KeyVaultClientProvider {
+public class KeyVaultClientFactoryImpl implements KeyVaultClientFactory {
 
     private static final String TAG = "KeyVaultClient : ";
 
@@ -24,11 +24,11 @@ public class KeyVaultClientProviderImpl implements KeyVaultClientProvider {
 
     private final MSIProvider msiProvider;
 
-    public KeyVaultClientProviderImpl() {
+    public KeyVaultClientFactoryImpl() {
         this.msiProvider = getMSIProvider();
     }
 
-    protected KeyVaultClientProviderImpl(MSIProvider msiProvider) {
+    protected KeyVaultClientFactoryImpl(MSIProvider msiProvider) {
         this.msiProvider = msiProvider;
     }
 
