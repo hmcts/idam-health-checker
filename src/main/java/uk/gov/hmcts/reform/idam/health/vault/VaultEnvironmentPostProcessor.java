@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.idam.health.vault;
 
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.keyvault.KeyVaultClient;
-import com.microsoft.azure.keyvault.authentication.KeyVaultCredentials;
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +24,10 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     protected static final String VAULT_BASE_URL = "azure.keyvault.uri";
     protected static final String VAULT_CLIENT_ID = "azure.keyvault.client-id";
     protected static final String VAULT_CLIENT_KEY = "azure.keyvault.client-key";
+    protected static final String VAULT_CREDENTIAL_TYPE = "azure.keyvault.credential.type";
 
     protected static final String VAULT_PROPERTIES = "vaultProperties";
+    private static final String ACCESS_TOKEN_TYPE = "access_token";
 
     private static final Map<String, String> vaultKeyPropertyNames = ImmutableMap.of(
             "test-owner-username", "test.owner.username",
@@ -36,17 +37,24 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
             "appinsights-instrumentationkey", "azure.application-insights.instrumentation-key"
     );
 
-    private KeyVaultClientProvider keyVaultClientProvider;
+    private final KeyVaultClientProvider provider;
 
     public VaultEnvironmentPostProcessor() {
-        this((clientId, clientKey) -> {
-            KeyVaultCredentials credentials = new ClientSecretKeyVaultCredential(clientId, clientKey);
-            return new KeyVaultClient(credentials);
+        this(new KeyVaultClientProvider() {
+            @Override
+            public KeyVaultClient getClient(String credentialType, String clientId, String clientKey) {
+                if (ACCESS_TOKEN_TYPE.equals(credentialType)) {
+                    return new KeyVaultClient(new AccessTokenKeyVaultCredential());
+                } else if (StringUtils.isNoneEmpty(clientId, clientKey)) {
+                    return new KeyVaultClient(new ClientSecretKeyVaultCredential(clientId, clientKey));
+                }
+                return null;
+            }
         });
     }
 
-    protected VaultEnvironmentPostProcessor(KeyVaultClientProvider keyVaultClientProvider) {
-        this.keyVaultClientProvider = keyVaultClientProvider;
+    public VaultEnvironmentPostProcessor(KeyVaultClientProvider provider) {
+        this.provider = provider;
     }
 
     @Override
@@ -54,9 +62,11 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
         String vaultBaseUri = environment.getProperty(VAULT_BASE_URL);
         String vaultClientId = environment.getProperty(VAULT_CLIENT_ID);
         String vaultClientKey = environment.getProperty(VAULT_CLIENT_KEY);
-        if (StringUtils.isNoneEmpty(vaultBaseUri, vaultClientId, vaultClientKey)) {
+        String vaultCredentialType = environment.getProperty(VAULT_CREDENTIAL_TYPE);
 
-            KeyVaultClient client = keyVaultClientProvider.getClient(vaultClientId, vaultClientKey);
+        KeyVaultClient client = provider.getClient(vaultCredentialType, vaultClientId, vaultClientKey);
+
+        if ((StringUtils.isNotEmpty(vaultBaseUri)) && (client != null)) {
 
             Properties props = new Properties();
 

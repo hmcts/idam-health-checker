@@ -56,10 +56,11 @@ public class VaultEnvironmentPostProcessorTest {
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn(null);
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_ID)).thenReturn(null);
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_KEY)).thenReturn(null);
+        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CREDENTIAL_TYPE)).thenReturn(null);
 
         postProcessor.postProcessEnvironment(configurableEnvironment, springApplication);
 
-        verify(keyVaultClientProvider, never()).getClient(anyString(), anyString());
+        verify(keyVaultClientProvider, never()).getClient(anyString(), anyString(), anyString());
         verify(configurableEnvironment, never()).getPropertySources();
     }
 
@@ -69,8 +70,9 @@ public class VaultEnvironmentPostProcessorTest {
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn("test-vault-url");
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_ID)).thenReturn("test-vault-id");
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_KEY)).thenReturn("test-vault-key");
+        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CREDENTIAL_TYPE)).thenReturn("test-credential-type");
 
-        when(keyVaultClientProvider.getClient("test-vault-id", "test-vault-key")).thenReturn(keyVaultClient);
+        when(keyVaultClientProvider.getClient("test-credential-type","test-vault-id", "test-vault-key")).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(null);
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(null);
@@ -89,9 +91,10 @@ public class VaultEnvironmentPostProcessorTest {
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn("test-vault-url");
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_ID)).thenReturn("test-vault-id");
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_KEY)).thenReturn("test-vault-key");
+        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CREDENTIAL_TYPE)).thenReturn("test-credential-type");
         when(configurableEnvironment.getPropertySources()).thenReturn(propertySources);
 
-        when(keyVaultClientProvider.getClient("test-vault-id", "test-vault-key")).thenReturn(keyVaultClient);
+        when(keyVaultClientProvider.getClient("test-credential-type", "test-vault-id", "test-vault-key")).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(new SecretBundle().withValue("test-username"));
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(new SecretBundle().withValue("test-password"));
