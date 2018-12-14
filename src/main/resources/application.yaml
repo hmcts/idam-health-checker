@@ -39,8 +39,10 @@ ldap:
   root: ldaps://dummy:1639
   principal: CN=Directory Manager
   replication:
-    missing-changes-threshold: 10
-    pending-updates-threshold: 10
+    # missing-changes-threshold: 10
+    # pending-updates-threshold: 10
+    missing-updates-threshold: 999
+    approximate-delay-threshold: 120000
 
 userstore:
   healthprobe:

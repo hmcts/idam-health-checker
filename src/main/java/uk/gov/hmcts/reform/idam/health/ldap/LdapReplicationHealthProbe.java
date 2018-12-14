@@ -31,17 +31,11 @@ public class LdapReplicationHealthProbe implements HealthProbe {
     private static final String PENDING_UPDATES_ATTRIBUTE = "pending-updates";
     private static final String MISSING_CHANGES_ATTRIBUTE = "missing-changes";
     private static final String APPROXIMATE_DELAY_ATTRIBUTE = "approximate-delay";
+    private static final String SENT_UPDATES_ATTRIBUTE = "sent-updates";
     private static final String RECEIVED_UPDATES_ATTRIBUTE = "received-updates";
     private static final String REPLAYED_UPDATES_ATTRIBUTE = "replayed-updates";
     private static final String REPLICATION_FILTER = "(&(objectClass=*)(domain-name=dc=reform,dc=hmcts,dc=net))";
     private static final String NORMAL_STATUS = "normal";
-
-    private static final List<String> EXCLUDED_CNS = new ArrayList<>();
-    static {
-        EXCLUDED_CNS.add("cn=monitor");
-        EXCLUDED_CNS.add("cn=Replication");
-        EXCLUDED_CNS.add("cn=dc_reform_dc_hmcts_dc_net");
-    }
 
     private final LdapTemplate ldapTemplate;
     private final ConfigProperties.Ldap ldapProperties;
@@ -61,38 +55,50 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             LdapQuery replicationQuery = LdapQueryBuilder.query()
                     .base(BASE_DN)
                     .searchScope(SearchScope.SUBTREE)
-                    .attributes(STATUS_ATTRIBUTE, PENDING_UPDATES_ATTRIBUTE, MISSING_CHANGES_ATTRIBUTE, APPROXIMATE_DELAY_ATTRIBUTE, RECEIVED_UPDATES_ATTRIBUTE, REPLAYED_UPDATES_ATTRIBUTE)
+                    .attributes(STATUS_ATTRIBUTE,
+                            PENDING_UPDATES_ATTRIBUTE,
+                            MISSING_CHANGES_ATTRIBUTE,
+                            APPROXIMATE_DELAY_ATTRIBUTE,
+                            SENT_UPDATES_ATTRIBUTE,
+                            RECEIVED_UPDATES_ATTRIBUTE,
+                            REPLAYED_UPDATES_ATTRIBUTE)
                     .filter(REPLICATION_FILTER);
 
             List<ReplicationInfo> replicationDataList = ldapTemplate.search(replicationQuery, replicationContextMapper);
 
             boolean result = true;
-            for (ReplicationInfo replicationData : replicationDataList) {
-                if (replicationData.changelog) {
+            for (ReplicationInfo record : replicationDataList) {
+                if (record.changelog) {
                     continue;
                 }
 
-                if (replicationData.infoRecordType == InfoRecordType.SELF_DIR) {
+                if (record.recordType == ReplicationRecordType.LOCAL_DS) {
 
-                    if ((replicationData.status != null) && (NORMAL_STATUS.equals(replicationData.status))) {
-                        log.error(TAG + "Failing status checks, " + replicationData.toString());
+                    if (!updatesAreBeingReplayed(record)) {
+                        log.error(TAG + record.recordType + " Failing replay check, " + record.toString());
                         result = false;
+                    } else if ((record.status != null) && (!NORMAL_STATUS.equalsIgnoreCase(record.status))) {
+                        log.warn(TAG + record.recordType + " Unexpected status, " + record.toString());
                     } else {
-                        log.info(TAG + replicationData.infoRecordType + " okay, " + replicationData.toString());
+                        log.info(TAG + record.recordType + " okay, " + record.toString());
                     }
 
-                } else if (replicationData.infoRecordType != InfoRecordType.UNKNOWN) {
+                } else if (record.recordType == ReplicationRecordType.LOCAL_RS_CONN_DS) {
 
-                    if (!isReplicationInGoodState(replicationData)) {
-                        log.error(TAG + "Failing good state checks, " + replicationData.toString());
+                    if (!updatesAreOnTime(record)) {
+                        log.error(TAG + record.recordType + " Failing delay check, " + record.toString());
                         result = false;
                     } else {
-                        log.info(TAG + replicationData.infoRecordType + " okay, " + replicationData.toString());
+                        log.info(TAG + record.recordType + " okay, " + record.toString());
                     }
 
-                } else {
+                } else if ((record.recordType != ReplicationRecordType.UNKNOWN) && (log.isInfoEnabled())) {
 
-                    log.warn(TAG + "Unknown replication record, " + replicationData.toString());
+                    log.info(TAG + record.recordType + " okay, " + record.toString());
+
+                } else if (log.isDebugEnabled()) {
+
+                    log.debug(TAG + "Unknown replication record type, " + record.toString());
 
                 }
 
@@ -105,16 +111,27 @@ public class LdapReplicationHealthProbe implements HealthProbe {
         return false;
     }
 
-    private boolean isReplicationInGoodState(ReplicationInfo info) {
-        return info.missingChanges <= this.ldapProperties.getReplication().getMissingChangesThreshold()
-                && info.pendingUpdates <= this.ldapProperties.getReplication().getPendingUpdatesThreshold();
+    private boolean updatesAreBeingReplayed(ReplicationInfo info) {
+        if ((info.receivedUpdates >= 0) &&
+                (info.replayedUpdates >= 0) &&
+                (Math.abs(info.receivedUpdates - info.replayedUpdates) > this.ldapProperties.getReplication().getMissingUpdatesThreshold())) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean updatesAreOnTime(ReplicationInfo info) {
+        if ((info.approximateDelay >= 0) &&
+                (info.approximateDelay > this.ldapProperties.getReplication().getApproximateDelayThreshold())) {
+            return false;
+        }
+        return true;
     }
 
     static class ReplicationInfo {
-        protected InfoRecordType infoRecordType;
+        protected ReplicationRecordType recordType;
         protected String dn;
         protected boolean changelog;
-        protected List<String> cn;
         protected String connectedReplicationServer;
         protected String connectedDirectoryServer;
         protected String directoryServer;
@@ -123,6 +140,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
         protected Integer pendingUpdates;
         protected Integer missingChanges;
         protected Integer approximateDelay;
+        protected Integer sentUpdates;
         protected Integer receivedUpdates;
         protected Integer replayedUpdates;
 
@@ -130,16 +148,16 @@ public class LdapReplicationHealthProbe implements HealthProbe {
         public String toString() {
             List<String> display = new ArrayList<>();
             if (replicationServer != null) {
-                display.add("repl-server:" + replicationServer);
+                display.add("rs:" + replicationServer);
             }
             if (directoryServer != null) {
-                display.add("dir-server:" + directoryServer);
+                display.add("ds:" + directoryServer);
             }
             if (connectedReplicationServer != null) {
-                display.add("repl-connected:" + connectedReplicationServer);
+                display.add("connected-rs:" + connectedReplicationServer);
             }
             if (connectedDirectoryServer != null) {
-                display.add("dir-connected:" + connectedDirectoryServer);
+                display.add("connected-ds:" + connectedDirectoryServer);
             }
             if (display.isEmpty()) {
                 display.add("dn:" + dn);
@@ -147,6 +165,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             display.add("status:" + status);
             display.add("pending:" + pendingUpdates);
             display.add("missing:" + missingChanges);
+            display.add("sent:" + sentUpdates);
             display.add("received:" + receivedUpdates);
             display.add("replayed:" + replayedUpdates);
             display.add("delay:" + approximateDelay);
@@ -154,8 +173,8 @@ public class LdapReplicationHealthProbe implements HealthProbe {
         }
     }
 
-    enum InfoRecordType {
-        SELF_REPL, SELF_DIR, SELF_BOTH, OTHER_REPL, OTHER_DIR, OTHER_BOTH, UNKNOWN;
+    enum ReplicationRecordType {
+        LOCAL_RS, LOCAL_DS, LOCAL_RS_CONN_DS, REMOTE_CONN_RS, REMOTE_CONN_RS_CONN_DS, UNKNOWN;
     }
 
     static class ReplicationContextMapper implements ContextMapper<ReplicationInfo> {
@@ -168,6 +187,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             String pendingUpdatesAttribute = context.getStringAttribute(PENDING_UPDATES_ATTRIBUTE);
             String missingChangesAttribute = context.getStringAttribute(MISSING_CHANGES_ATTRIBUTE);
             String approximateDelay = context.getStringAttribute(APPROXIMATE_DELAY_ATTRIBUTE);
+            String sentUpdates = context.getStringAttribute(SENT_UPDATES_ATTRIBUTE);
             String receivedUpdates = context.getStringAttribute(RECEIVED_UPDATES_ATTRIBUTE);
             String replayedUpdates = context.getStringAttribute(REPLAYED_UPDATES_ATTRIBUTE);
 
@@ -176,28 +196,23 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             String connectedDirectoryServer = null;
             String replicationServer = null;
             String directoryServer = null;
-            List<String> usefulCn = new ArrayList<>();
             for(Enumeration<String> e = dn.getAll(); e.hasMoreElements();) {
                 String value = e.nextElement();
-                if (!EXCLUDED_CNS.contains(value)) {
-                    if (value.startsWith("cn=Changelog")) {
-                        changelog = true;
-                    } else if (value.startsWith("cn=Connected replication server")) {
-                        connectedReplicationServer = value.split("\\) ")[1];
-                    } else if (value.startsWith("cn=Connected directory server")) {
-                        connectedDirectoryServer = value.split("\\) ")[1];
-                    } else if (value.startsWith("cn=Directory server")) {
-                        directoryServer = value.split("\\) ")[1];
-                    } else if (value.startsWith("cn=Replication server")) {
-                        replicationServer = value.split("\\) ")[1];
-                    }
-                    usefulCn.add(value);
+                if (value.startsWith("cn=Changelog")) {
+                    changelog = true;
+                } else if (value.startsWith("cn=Connected replication server")) {
+                    connectedReplicationServer = value.split("\\) ")[1];
+                } else if (value.startsWith("cn=Connected directory server")) {
+                    connectedDirectoryServer = value.split("\\) ")[1];
+                } else if (value.startsWith("cn=Directory server")) {
+                    directoryServer = value.split("\\) ")[1];
+                } else if (value.startsWith("cn=Replication server")) {
+                    replicationServer = value.split("\\) ")[1];
                 }
             }
 
             ReplicationInfo result = new ReplicationInfo();
             result.dn = dn.toString();
-            result.cn = usefulCn;
             result.connectedReplicationServer = connectedReplicationServer;
             result.connectedDirectoryServer = connectedDirectoryServer;
             result.directoryServer = directoryServer;
@@ -207,9 +222,10 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             result.pendingUpdates = toInt(pendingUpdatesAttribute);
             result.missingChanges = toInt(missingChangesAttribute);
             result.approximateDelay = toInt(approximateDelay);
+            result.sentUpdates = toInt(sentUpdates);
             result.receivedUpdates = toInt(receivedUpdates);
             result.replayedUpdates = toInt(replayedUpdates);
-            result.infoRecordType = getType(replicationServer, directoryServer, connectedReplicationServer, connectedDirectoryServer);
+            result.recordType = getType(replicationServer, directoryServer, connectedReplicationServer, connectedDirectoryServer);
 
             return result;
         }
@@ -218,21 +234,21 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             return value == null ? -1 : Integer.valueOf(value);
         }
 
-        public InfoRecordType getType(String replServer, String dirServer, String connectedReplServer, String connectedDirServer) {
+        public ReplicationRecordType getType(String replServer, String dirServer, String connectedReplServer, String connectedDirServer) {
             if (StringUtils.isNoneEmpty(connectedReplServer, connectedDirServer)) {
-                return InfoRecordType.OTHER_BOTH;
+                return ReplicationRecordType.REMOTE_CONN_RS_CONN_DS;
             } else if (StringUtils.isNotEmpty(connectedReplServer)) {
-                return InfoRecordType.OTHER_REPL;
-            } else if (StringUtils.isNotEmpty(connectedDirServer)) {
-                return InfoRecordType.OTHER_DIR;
+                return ReplicationRecordType.REMOTE_CONN_RS;
+            } else if ((StringUtils.isNotEmpty(connectedDirServer)) && (StringUtils.isNotEmpty(replServer))) {
+                return ReplicationRecordType.LOCAL_RS_CONN_DS;
             } else if (StringUtils.isNoneEmpty(replServer, dirServer)) {
-                return InfoRecordType.SELF_BOTH;
+                return ReplicationRecordType.UNKNOWN;
             } else if (StringUtils.isNotEmpty(replServer)) {
-                return InfoRecordType.SELF_REPL;
+                return ReplicationRecordType.LOCAL_RS;
             } else if (StringUtils.isNotEmpty(dirServer)) {
-                return InfoRecordType.SELF_DIR;
+                return ReplicationRecordType.LOCAL_DS;
             } else {
-                return InfoRecordType.UNKNOWN;
+                return ReplicationRecordType.UNKNOWN;
             }
         }
     }

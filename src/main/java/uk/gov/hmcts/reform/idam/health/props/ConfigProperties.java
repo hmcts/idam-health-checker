@@ -18,8 +18,10 @@ public class ConfigProperties {
         @Getter
         @Setter
         public static class Replication {
-            private Integer missingChangesThreshold;
-            private Integer pendingUpdatesThreshold;
+            // private Integer missingChangesThreshold;
+            // private Integer pendingUpdatesThreshold;
+            private Integer approximateDelayThreshold;
+            private Integer missingUpdatesThreshold;
         }
 
         private String root;

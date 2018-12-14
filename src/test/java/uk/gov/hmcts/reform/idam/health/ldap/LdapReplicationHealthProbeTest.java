@@ -17,6 +17,8 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe.ReplicationRecordType.LOCAL_DS;
+import static uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe.ReplicationRecordType.LOCAL_RS_CONN_DS;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LdapReplicationHealthProbeTest {
@@ -35,8 +37,10 @@ public class LdapReplicationHealthProbeTest {
     @Before
     public void setup() {
         when(configProperties.getLdap()).thenReturn(ldapProperties);
-        when(ldapProperties.getReplication().getMissingChangesThreshold()).thenReturn(0);
-        when(ldapProperties.getReplication().getPendingUpdatesThreshold()).thenReturn(0);
+        //when(ldapProperties.getReplication().getMissingChangesThreshold()).thenReturn(0);
+        //when(ldapProperties.getReplication().getPendingUpdatesThreshold()).thenReturn(0);
+        when(ldapProperties.getReplication().getMissingUpdatesThreshold()).thenReturn(0);
+        when(ldapProperties.getReplication().getApproximateDelayThreshold()).thenReturn(0);
         probe = new LdapReplicationHealthProbe(ldapTemplate, configProperties);
     }
 
@@ -46,7 +50,7 @@ public class LdapReplicationHealthProbeTest {
         searchResult.add(replicationInfo("normal", 0, 0));
         searchResult.add(replicationInfo("normal", 0, 0));
 
-        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationAttributeMapper.class))).thenReturn(searchResult);
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
         assertThat(probe.probe(), is(true));
     }
 
@@ -56,7 +60,7 @@ public class LdapReplicationHealthProbeTest {
         searchResult.add(replicationInfo("unexpected", 0, 0));
         searchResult.add(replicationInfo("normal", 0, 0));
 
-        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationAttributeMapper.class))).thenReturn(searchResult);
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
         assertThat(probe.probe(), is(true));
     }
 
@@ -66,27 +70,87 @@ public class LdapReplicationHealthProbeTest {
         searchResult.add(replicationInfo("unexpected", 0, 0));
         searchResult.add(replicationInfo("unexpected", 0, 0));
 
-        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationAttributeMapper.class))).thenReturn(searchResult);
-        assertThat(probe.probe(), is(false));
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
+        assertThat(probe.probe(), is(true));
     }
 
     @Test
-    public void testProbe_failOneMissing() {
+    public void testProbe_successOneMissing() {
         List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
         searchResult.add(replicationInfo("normal", 1, 0));
         searchResult.add(replicationInfo("unexpected", 0, 0));
 
-        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationAttributeMapper.class))).thenReturn(searchResult);
-        assertThat(probe.probe(), is(false));
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
+        assertThat(probe.probe(), is(true));
     }
 
     @Test
-    public void testProbe_failOnePending() {
+    public void testProbe_successOnePending() {
         List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
         searchResult.add(replicationInfo("normal", 0, 1));
         searchResult.add(replicationInfo("unexpected", 0, 0));
 
-        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationAttributeMapper.class))).thenReturn(searchResult);
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
+        assertThat(probe.probe(), is(true));
+    }
+
+    @Test
+    public void testProbe_successLocalDSReplayUpdatesOkay() {
+        List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
+        searchResult.add(replicationInfo(LOCAL_DS, "normal", 1000, 1000, 0));
+        searchResult.add(replicationInfo("unexpected", 0, 0));
+
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
+        assertThat(probe.probe(), is(true));
+    }
+
+    @Test
+    public void testProbe_failLocalDSReplayUpdatesMissing() {
+        List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
+        searchResult.add(replicationInfo(LOCAL_DS, "normal", 1000, 1, 0));
+        searchResult.add(replicationInfo("unexpected", 0, 0));
+
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
+        assertThat(probe.probe(), is(false));
+    }
+
+    @Test
+    public void testProbe_failLocalDSReplayUpdatesUnexpected() {
+        List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
+        searchResult.add(replicationInfo(LOCAL_DS, "normal", 1, 1000, 0));
+        searchResult.add(replicationInfo("unexpected", 0, 0));
+
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
+        assertThat(probe.probe(), is(false));
+    }
+
+    @Test
+    public void testProbe_successLocalDSReplayUpdatesOkayUnexpectedStatus() {
+        List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
+        searchResult.add(replicationInfo(LOCAL_DS, "unexpected", 1000, 1000, 0));
+        searchResult.add(replicationInfo("unexpected", 0, 0));
+
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
+        assertThat(probe.probe(), is(true));
+    }
+
+    @Test
+    public void testProbe_successLocalRSConnDSApproximateDelayOkay() {
+        List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
+        searchResult.add(replicationInfo(LOCAL_RS_CONN_DS, null, 1000, 1000, 0));
+        searchResult.add(replicationInfo("unexpected", 0, 0));
+
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
+        assertThat(probe.probe(), is(true));
+    }
+
+    @Test
+    public void testProbe_failLocalRSConnDSApproximateDelayExceeded() {
+        List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
+        searchResult.add(replicationInfo(LOCAL_RS_CONN_DS, null, 1000, 1000, 1));
+        searchResult.add(replicationInfo("unexpected", 0, 0));
+
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
         assertThat(probe.probe(), is(false));
     }
 
@@ -95,6 +159,18 @@ public class LdapReplicationHealthProbeTest {
         info.status = status;
         info.missingChanges = missing;
         info.pendingUpdates = pending;
+        return info;
+    }
+
+    protected LdapReplicationHealthProbe.ReplicationInfo replicationInfo(LdapReplicationHealthProbe.ReplicationRecordType recordType, String status, int receivedUpdates, int replayedUpdates, int approximateDelay) {
+        LdapReplicationHealthProbe.ReplicationInfo info = new LdapReplicationHealthProbe.ReplicationInfo();
+        info.recordType = recordType;
+        info.status = status;
+        info.missingChanges = -1;
+        info.pendingUpdates = -1;
+        info.receivedUpdates = receivedUpdates;
+        info.replayedUpdates = replayedUpdates;
+        info.approximateDelay = approximateDelay;
         return info;
     }
 
