@@ -34,7 +34,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
     private static final String SENT_UPDATES_ATTRIBUTE = "sent-updates";
     private static final String RECEIVED_UPDATES_ATTRIBUTE = "received-updates";
     private static final String REPLAYED_UPDATES_ATTRIBUTE = "replayed-updates";
-    private static final String REPLICATION_FILTER = "(&(objectClass=*)(domain-name=dc=reform,dc=hmcts,dc=net))";
+    private static final String REPLICATION_FILTER = "(&(objectClass=*)(domain-name=dc=reform,dc=hmcts,dc=net)(!(cn=Changelog*)))";
     private static final String NORMAL_STATUS = "normal";
 
     private final LdapTemplate ldapTemplate;
@@ -68,9 +68,6 @@ public class LdapReplicationHealthProbe implements HealthProbe {
 
             boolean result = true;
             for (ReplicationInfo record : replicationDataList) {
-                if (record.changelog) {
-                    continue;
-                }
 
                 if (record.recordType == ReplicationRecordType.LOCAL_DS) {
 
@@ -198,9 +195,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             String directoryServer = null;
             for(Enumeration<String> e = dn.getAll(); e.hasMoreElements();) {
                 String value = e.nextElement();
-                if (value.startsWith("cn=Changelog")) {
-                    changelog = true;
-                } else if (value.startsWith("cn=Connected replication server")) {
+                if (value.startsWith("cn=Connected replication server")) {
                     connectedReplicationServer = value.split("\\) ")[1];
                 } else if (value.startsWith("cn=Connected directory server")) {
                     connectedDirectoryServer = value.split("\\) ")[1];
