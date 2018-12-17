@@ -45,6 +45,7 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
                 .setUri(tokenEndpoint)
                 .setHeader(METADATA_HEADER, Boolean.TRUE.toString())
                 .build();
+
         return client.execute(request, new TokenResponseHandler());
     }
 
@@ -58,11 +59,13 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
             if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
                 throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
             }
+
             HttpEntity entity = response.getEntity();
             String json = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+
             ObjectNode node = mapper.readValue(json, ObjectNode.class);
             if (node.has(ACCESS_TOKEN_KEY)) {
-                return mapper.writeValueAsString(node.get(ACCESS_TOKEN_KEY));
+                return node.get(ACCESS_TOKEN_KEY).asText();
             }
 
             // TODO should probably throw an exception
