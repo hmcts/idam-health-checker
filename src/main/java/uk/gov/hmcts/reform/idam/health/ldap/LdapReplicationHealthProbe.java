@@ -92,6 +92,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
                     case LOCAL_RS:
                         if (changesAreMissing(record)) {
                             log.error(TAG + record.recordType + " Failing missing changes check, " + record.toString());
+                            result = false;
                         } else if (log.isInfoEnabled()) {
                             log.info(TAG + record.recordType + " okay, " + record.toString());
                         }
@@ -139,8 +140,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
     }
 
     private boolean changesAreMissing(ReplicationInfo record) {
-        return (record.missingChanges < 0) ||
-                (record.missingChanges <= this.ldapProperties.getReplication().getMissingUpdatesThreshold());
+        return (record.missingChanges > this.ldapProperties.getReplication().getMissingUpdatesThreshold());
     }
 
     @EqualsAndHashCode

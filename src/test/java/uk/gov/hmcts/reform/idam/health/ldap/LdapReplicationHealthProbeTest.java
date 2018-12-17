@@ -18,6 +18,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe.ReplicationRecordType.LOCAL_DS;
+import static uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe.ReplicationRecordType.LOCAL_RS;
 import static uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe.ReplicationRecordType.LOCAL_RS_CONN_DS;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -137,7 +138,7 @@ public class LdapReplicationHealthProbeTest {
     @Test
     public void testProbe_successLocalRSConnDSApproximateDelayOkay() {
         List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
-        searchResult.add(replicationInfo(LOCAL_RS_CONN_DS, null, 1000, 1000, 0));
+        searchResult.add(replicationInfo(LOCAL_RS_CONN_DS, (String) null, 1000, 1000, 0));
         searchResult.add(replicationInfo("unexpected", 0, 0));
 
         when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
@@ -147,8 +148,17 @@ public class LdapReplicationHealthProbeTest {
     @Test
     public void testProbe_failLocalRSConnDSApproximateDelayExceeded() {
         List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
-        searchResult.add(replicationInfo(LOCAL_RS_CONN_DS, null, 1000, 1000, 1));
+        searchResult.add(replicationInfo(LOCAL_RS_CONN_DS, (String) null, 1000, 1000, 1));
         searchResult.add(replicationInfo("unexpected", 0, 0));
+
+        when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
+        assertThat(probe.probe(), is(false));
+    }
+
+    @Test
+    public void testProbe_failLocalRSMissingChanges() {
+        List<LdapReplicationHealthProbe.ReplicationInfo> searchResult = new ArrayList<>();
+        searchResult.add(replicationInfo(LOCAL_RS, null, 1000, -1, -1, -1, 0));
 
         when(ldapTemplate.search(any(LdapQuery.class), any(LdapReplicationHealthProbe.ReplicationContextMapper.class))).thenReturn(searchResult);
         assertThat(probe.probe(), is(false));
@@ -163,11 +173,22 @@ public class LdapReplicationHealthProbeTest {
     }
 
     protected LdapReplicationHealthProbe.ReplicationInfo replicationInfo(LdapReplicationHealthProbe.ReplicationRecordType recordType, String status, int receivedUpdates, int replayedUpdates, int approximateDelay) {
+        return replicationInfo(recordType, status, -1, -1, receivedUpdates, replayedUpdates, approximateDelay);
+    }
+
+    private LdapReplicationHealthProbe.ReplicationInfo replicationInfo(
+            LdapReplicationHealthProbe.ReplicationRecordType recordType,
+            String status,
+            int missingChanges,
+            int pendingUpdates,
+            int receivedUpdates,
+            int replayedUpdates,
+            int approximateDelay) {
         LdapReplicationHealthProbe.ReplicationInfo info = new LdapReplicationHealthProbe.ReplicationInfo();
         info.recordType = recordType;
         info.status = status;
-        info.missingChanges = -1;
-        info.pendingUpdates = -1;
+        info.missingChanges = missingChanges;
+        info.pendingUpdates = pendingUpdates;
         info.receivedUpdates = receivedUpdates;
         info.replayedUpdates = replayedUpdates;
         info.approximateDelay = approximateDelay;
