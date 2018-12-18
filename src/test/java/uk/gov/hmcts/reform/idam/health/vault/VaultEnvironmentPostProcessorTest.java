@@ -5,7 +5,6 @@ import com.microsoft.azure.keyvault.models.SecretBundle;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -57,10 +56,11 @@ public class VaultEnvironmentPostProcessorTest {
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_ID)).thenReturn(null);
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_KEY)).thenReturn(null);
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CREDENTIAL_TYPE)).thenReturn(null);
+        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_MSI_URL)).thenReturn(null);
 
         postProcessor.postProcessEnvironment(configurableEnvironment, springApplication);
 
-        verify(keyVaultClientProvider, never()).getClient(anyString(), anyString(), anyString());
+        verify(keyVaultClientProvider, never()).getClient(anyString(), anyString(), anyString(), anyString());
         verify(configurableEnvironment, never()).getPropertySources();
     }
 
@@ -71,8 +71,9 @@ public class VaultEnvironmentPostProcessorTest {
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_ID)).thenReturn("test-vault-id");
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_KEY)).thenReturn("test-vault-key");
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CREDENTIAL_TYPE)).thenReturn("test-credential-type");
+        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_MSI_URL)).thenReturn("http://some/url");
 
-        when(keyVaultClientProvider.getClient("test-credential-type","test-vault-id", "test-vault-key")).thenReturn(keyVaultClient);
+        when(keyVaultClientProvider.getClient("test-credential-type","test-vault-id", "test-vault-key", "http://some/url")).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(null);
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(null);
@@ -92,9 +93,10 @@ public class VaultEnvironmentPostProcessorTest {
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_ID)).thenReturn("test-vault-id");
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_KEY)).thenReturn("test-vault-key");
         when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CREDENTIAL_TYPE)).thenReturn("test-credential-type");
+        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_MSI_URL)).thenReturn("http://some/url");
         when(configurableEnvironment.getPropertySources()).thenReturn(propertySources);
 
-        when(keyVaultClientProvider.getClient("test-credential-type", "test-vault-id", "test-vault-key")).thenReturn(keyVaultClient);
+        when(keyVaultClientProvider.getClient("test-credential-type", "test-vault-id", "test-vault-key", "http://some/url")).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(new SecretBundle().withValue("test-username"));
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(new SecretBundle().withValue("test-password"));
@@ -112,7 +114,5 @@ public class VaultEnvironmentPostProcessorTest {
         assertThat(propertySource.getProperty("web.admin.client.secret"), is("test-secret"));
         assertThat(propertySource.getProperty("ldap.password"), is("test-ldappass"));
         assertThat(propertySource.getProperty("azure.application-insights.instrumentation-key"), is("test-instrumentation"));
-
     }
-
 }

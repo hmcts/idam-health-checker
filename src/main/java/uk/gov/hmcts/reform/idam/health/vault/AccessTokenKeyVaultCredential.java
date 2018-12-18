@@ -22,16 +22,10 @@ import java.nio.charset.StandardCharsets;
 
 public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
 
-    private static final String MSI_URL = "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net";
-
     private final static String METADATA_HEADER = "Metadata";
     private final static String ACCESS_TOKEN_KEY = "access_token";
 
     private final String tokenEndpoint;
-
-    public AccessTokenKeyVaultCredential() {
-        this(MSI_URL);
-    }
 
     public AccessTokenKeyVaultCredential(String tokenEndpoint) {
         super(AzureEnvironment.AZURE, null);

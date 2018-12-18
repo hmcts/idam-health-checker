@@ -25,6 +25,7 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     protected static final String VAULT_CLIENT_ID = "azure.keyvault.client-id";
     protected static final String VAULT_CLIENT_KEY = "azure.keyvault.client-key";
     protected static final String VAULT_CREDENTIAL_TYPE = "azure.keyvault.credential.type";
+    protected static final String VAULT_MSI_URL = "azure.keyvault.msi.url";
 
     protected static final String VAULT_PROPERTIES = "vaultProperties";
     private static final String ACCESS_TOKEN_TYPE = "access_token";
@@ -42,9 +43,9 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     public VaultEnvironmentPostProcessor() {
         this(new KeyVaultClientProvider() {
             @Override
-            public KeyVaultClient getClient(String credentialType, String clientId, String clientKey) {
+            public KeyVaultClient getClient(String credentialType, String clientId, String clientKey, String msiUrl) {
                 if (ACCESS_TOKEN_TYPE.equals(credentialType)) {
-                    return new KeyVaultClient(new AccessTokenKeyVaultCredential());
+                    return new KeyVaultClient(new AccessTokenKeyVaultCredential(msiUrl));
                 } else if (StringUtils.isNoneEmpty(clientId, clientKey)) {
                     return new KeyVaultClient(new ClientSecretKeyVaultCredential(clientId, clientKey));
                 }
@@ -63,8 +64,9 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
         String vaultClientId = environment.getProperty(VAULT_CLIENT_ID);
         String vaultClientKey = environment.getProperty(VAULT_CLIENT_KEY);
         String vaultCredentialType = environment.getProperty(VAULT_CREDENTIAL_TYPE);
+        String vaultMsiUrl = environment.getProperty(VAULT_MSI_URL);
 
-        KeyVaultClient client = provider.getClient(vaultCredentialType, vaultClientId, vaultClientKey);
+        KeyVaultClient client = provider.getClient(vaultCredentialType, vaultClientId, vaultClientKey, vaultMsiUrl);
 
         if ((StringUtils.isNotEmpty(vaultBaseUri)) && (client != null)) {
 
