@@ -13,7 +13,6 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
@@ -34,7 +33,7 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
 
     @Override
     public String getToken(String resource) throws IOException {
-        HttpClient client = HttpClientBuilder.create().setRetryHandler(new DefaultHttpRequestRetryHandler()).build();
+        HttpClient client = HttpClientBuilder.create().disableAutomaticRetries().build();
         HttpUriRequest request = RequestBuilder.get()
                 .setUri(tokenEndpoint)
                 .setHeader(METADATA_HEADER, Boolean.TRUE.toString())
@@ -62,8 +61,7 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
                 return node.get(ACCESS_TOKEN_KEY).asText();
             }
 
-            // TODO should probably throw an exception
-            return null;
+            throw new HttpResponseException(statusLine.getStatusCode(), "No access_token parameter present in response");
         }
     }
 
