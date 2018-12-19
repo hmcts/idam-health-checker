@@ -43,10 +43,10 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
         this(new KeyVaultClientProvider() {
             @Override
             public KeyVaultClient getClient(String clientId, String clientKey, String msiUrl) {
-                if (StringUtils.isNotEmpty(msiUrl)) {
-                    return new KeyVaultClient(new AccessTokenKeyVaultCredential(msiUrl));
-                } else if (StringUtils.isNoneEmpty(clientId, clientKey)) {
+                if (StringUtils.isNoneEmpty(clientId, clientKey)) {
                     return new KeyVaultClient(new ClientSecretKeyVaultCredential(clientId, clientKey));
+                } else if (StringUtils.isNotEmpty(msiUrl)) {
+                    return new KeyVaultClient(new AccessTokenKeyVaultCredential(msiUrl));
                 }
                 return null;
             }
