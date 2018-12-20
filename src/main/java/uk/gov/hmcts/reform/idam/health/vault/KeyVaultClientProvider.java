@@ -4,6 +4,6 @@ import com.microsoft.azure.keyvault.KeyVaultClient;
 
 public interface KeyVaultClientProvider {
 
-    KeyVaultClient getClient(String clientId, String clientKey, String msiUrl);
+    KeyVaultClient getClient(KeyVaultConfig keyVaultConfig);
 
 }

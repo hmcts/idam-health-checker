@@ -12,7 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
-import static uk.gov.hmcts.reform.idam.health.vault.VaultEnvironmentPostProcessor.VAULT_BASE_URL;
+import static uk.gov.hmcts.reform.idam.health.vault.KeyVaultConfig.VAULT_BASE_URL;
 import static uk.gov.hmcts.reform.idam.health.vault.DummyVaultServer.VAULT_PROPERTIES;
 
 @RunWith(SpringRunner.class)

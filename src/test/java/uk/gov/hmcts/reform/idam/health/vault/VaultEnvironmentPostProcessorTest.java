@@ -16,7 +16,8 @@ import org.springframework.core.env.PropertySource;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,26 +53,26 @@ public class VaultEnvironmentPostProcessorTest {
     @Test
     public void testPostProcessEnvironment_WithoutVaultProperties() {
 
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn(null);
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_ID)).thenReturn(null);
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_KEY)).thenReturn(null);
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_MSI_URL)).thenReturn(null);
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_BASE_URL)).thenReturn(null);
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_CLIENT_ID)).thenReturn(null);
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_CLIENT_KEY)).thenReturn(null);
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_MSI_URL)).thenReturn(null);
 
         postProcessor.postProcessEnvironment(configurableEnvironment, springApplication);
 
-        verify(keyVaultClientProvider, never()).getClient(anyString(), anyString(), anyString());
+        assertNull(keyVaultClientProvider.getClient(any(KeyVaultConfig.class)));
         verify(configurableEnvironment, never()).getPropertySources();
     }
 
     @Test
     public void testPostProcessEnvironment_WithoutVaultKeyValues() {
 
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn("test-vault-url");
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_ID)).thenReturn("test-vault-id");
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_KEY)).thenReturn("test-vault-key");
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_MSI_URL)).thenReturn("http://some/url");
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_BASE_URL)).thenReturn("test-vault-url");
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_CLIENT_ID)).thenReturn("test-vault-id");
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_CLIENT_KEY)).thenReturn("test-vault-key");
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_MSI_URL)).thenReturn("http://some/url");
 
-        when(keyVaultClientProvider.getClient("test-vault-id", "test-vault-key", "http://some/url")).thenReturn(keyVaultClient);
+        when(keyVaultClientProvider.getClient(any(KeyVaultConfig.class))).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(null);
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(null);
@@ -87,13 +88,13 @@ public class VaultEnvironmentPostProcessorTest {
     @Test
     public void testPostProcessEnvironment_WithAllVaultKeyValues() {
 
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_BASE_URL)).thenReturn("test-vault-url");
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_ID)).thenReturn("test-vault-id");
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_CLIENT_KEY)).thenReturn("test-vault-key");
-        when(configurableEnvironment.getProperty(VaultEnvironmentPostProcessor.VAULT_MSI_URL)).thenReturn("http://some/url");
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_BASE_URL)).thenReturn("test-vault-url");
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_CLIENT_ID)).thenReturn("test-vault-id");
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_CLIENT_KEY)).thenReturn("test-vault-key");
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_MSI_URL)).thenReturn("http://some/url");
         when(configurableEnvironment.getPropertySources()).thenReturn(propertySources);
 
-        when(keyVaultClientProvider.getClient("test-vault-id", "test-vault-key", "http://some/url")).thenReturn(keyVaultClient);
+        when(keyVaultClientProvider.getClient(any(KeyVaultConfig.class))).thenReturn(keyVaultClient);
 
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(new SecretBundle().withValue("test-username"));
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(new SecretBundle().withValue("test-password"));
