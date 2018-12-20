@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.vault;
+package uk.gov.hmcts.reform.idam.health.vault.credential;
 
 import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.credentials.AzureTokenCredentials;
@@ -6,6 +6,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
+import uk.gov.hmcts.reform.idam.health.vault.TokenResponseHandler;
 
 import java.io.IOException;
 

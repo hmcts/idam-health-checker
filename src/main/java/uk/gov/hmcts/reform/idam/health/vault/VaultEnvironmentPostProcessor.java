@@ -12,6 +12,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.idam.health.vault.credential.AccessTokenKeyVaultCredential;
+import uk.gov.hmcts.reform.idam.health.vault.credential.ClientSecretKeyVaultCredential;
 
 import java.util.Map;
 import java.util.Properties;

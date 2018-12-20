@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.vault;
+package uk.gov.hmcts.reform.idam.health.vault.credential;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
