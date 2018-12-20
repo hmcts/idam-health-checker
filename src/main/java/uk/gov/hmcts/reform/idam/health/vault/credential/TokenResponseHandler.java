@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.vault;
+package uk.gov.hmcts.reform.idam.health.vault.credential;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;

@@ -2,15 +2,8 @@ package uk.gov.hmcts.reform.idam.health.vault.credential;
 
 import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.credentials.AzureTokenCredentials;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.protocol.HttpContext;
-import uk.gov.hmcts.reform.idam.health.vault.TokenResponseHandler;
-
 import java.io.IOException;
 
 public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
@@ -32,25 +25,12 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
 
     @Override
     public String getToken(String resource) throws IOException {
-        HttpClient client = HttpClientBuilder.create().setServiceUnavailableRetryStrategy(
-                new ServiceUnavailableRetryStrategy() {
-                    @Override
-                    public boolean retryRequest(final HttpResponse response, final int executionCount, final HttpContext context) {
-                        int statusCode = response.getStatusLine().getStatusCode();
-                        return statusCode == 500 && executionCount < maxRetries;
-                    }
-
-                    @Override
-                    public long getRetryInterval() {
-                        return retryInterval;
-                    }
-                }).build();
 
         HttpUriRequest request = RequestBuilder.get()
                 .setUri(tokenEndpoint)
                 .setHeader(METADATA_HEADER, Boolean.TRUE.toString())
                 .build();
 
-        return client.execute(request, TokenResponseHandler.getInstance());
+        return HttpClientManager.getInstance(maxRetries, retryInterval).execute(request, TokenResponseHandler.getInstance());
     }
 }
