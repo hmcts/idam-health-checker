@@ -19,6 +19,8 @@ public class TokenResponseHandler implements ResponseHandler<String> {
 
     private static volatile TokenResponseHandler instance;
 
+    private static final ObjectMapper mapper = new ObjectMapper();
+
     private TokenResponseHandler() {
     }
 
@@ -44,7 +46,6 @@ public class TokenResponseHandler implements ResponseHandler<String> {
         HttpEntity entity = response.getEntity();
         String json = EntityUtils.toString(entity, StandardCharsets.UTF_8);
 
-        ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.readValue(json, ObjectNode.class);
         if (node.has(ACCESS_TOKEN_KEY)) {
             return node.get(ACCESS_TOKEN_KEY).asText();
