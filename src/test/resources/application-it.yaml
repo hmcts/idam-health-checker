@@ -30,6 +30,10 @@ azure:
     #    client-key:
     msi:
       url: http://localhost:9999/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net
+      error:
+        retry:
+          max-number: 5
+          interval-millis: 200
 
 feign:
   okhttp:

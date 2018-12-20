@@ -21,6 +21,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.idam.health.vault.KeyVaultConfig.DEFAULT_VAULT_ERROR_MAX_RETRIES;
+import static uk.gov.hmcts.reform.idam.health.vault.KeyVaultConfig.DEFAULT_VAULT_ERROR_RETRY_INTERVAL_MILLIS;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VaultEnvironmentPostProcessorTest {
@@ -48,6 +50,9 @@ public class VaultEnvironmentPostProcessorTest {
     @Before
     public void setup() {
         postProcessor = new VaultEnvironmentPostProcessor(keyVaultClientProvider);
+
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_ERROR_MAX_RETRIES, DEFAULT_VAULT_ERROR_MAX_RETRIES)).thenReturn("3");
+        when(configurableEnvironment.getProperty(KeyVaultConfig.VAULT_ERROR_RETRY_INTERVAL_MILLIS, DEFAULT_VAULT_ERROR_RETRY_INTERVAL_MILLIS)).thenReturn("1000");
     }
 
     @Test
