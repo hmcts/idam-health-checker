@@ -2,8 +2,14 @@ package uk.gov.hmcts.reform.idam.health.vault.credential;
 
 import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.credentials.AzureTokenCredentials;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpContext;
+
 import java.io.IOException;
 
 public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
@@ -12,17 +18,27 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
 
     private final String tokenEndpoint;
 
-    private final int maxRetries;
-
-    private final int retryInterval;
+    private final HttpClient httpClient;
 
     private static final TokenResponseHandler tokenResponseHandler = new TokenResponseHandler();
 
-    public AccessTokenKeyVaultCredential(String tokenEndpoint, int  maxRetries, int retryInterval) {
+    public AccessTokenKeyVaultCredential(String tokenEndpoint, int maxRetries, int retryInterval) {
         super(AzureEnvironment.AZURE, null);
         this.tokenEndpoint = tokenEndpoint;
-        this.maxRetries = maxRetries;
-        this.retryInterval = retryInterval;
+        this.httpClient = HttpClientBuilder.create().setServiceUnavailableRetryStrategy(
+            new ServiceUnavailableRetryStrategy() {
+                @Override
+                public boolean retryRequest(final HttpResponse response,
+                                            final int executionCount, final HttpContext context) {
+                    int statusCode = response.getStatusLine().getStatusCode();
+                    return statusCode == 500 && executionCount < maxRetries;
+                }
+
+                @Override
+                public long getRetryInterval() {
+                    return retryInterval;
+                }
+            }).build();
     }
 
     @Override
@@ -33,6 +49,6 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
                 .setHeader(METADATA_HEADER, Boolean.TRUE.toString())
                 .build();
 
-        return HttpClientManager.getInstance(maxRetries, retryInterval).execute(request, tokenResponseHandler);
+        return httpClient.execute(request, tokenResponseHandler);
     }
 }
