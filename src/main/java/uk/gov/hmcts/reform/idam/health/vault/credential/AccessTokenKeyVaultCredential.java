@@ -16,6 +16,8 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
 
     private final int retryInterval;
 
+    private static final TokenResponseHandler tokenResponseHandler = new TokenResponseHandler();
+
     public AccessTokenKeyVaultCredential(String tokenEndpoint, int  maxRetries, int retryInterval) {
         super(AzureEnvironment.AZURE, null);
         this.tokenEndpoint = tokenEndpoint;
@@ -31,6 +33,6 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
                 .setHeader(METADATA_HEADER, Boolean.TRUE.toString())
                 .build();
 
-        return HttpClientManager.getInstance(maxRetries, retryInterval).execute(request, TokenResponseHandler.getInstance());
+        return HttpClientManager.getInstance(maxRetries, retryInterval).execute(request, tokenResponseHandler);
     }
 }

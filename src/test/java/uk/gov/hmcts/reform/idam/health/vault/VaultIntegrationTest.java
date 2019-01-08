@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.collect.ImmutableMap;
+import org.apache.http.HttpStatus;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,14 +67,14 @@ public class VaultIntegrationTest {
     @BeforeClass
     public static void setup() {
         wireMockServer = new WireMockServer(options()
-                .port(9999)
+                .port(DUMMY_VAULT_SERVER_PORT)
                 .extensions(ExampleTransformer.class));
         wireMockServer.start();
 
         configureFor("localhost", DUMMY_VAULT_SERVER_PORT);
         stubFor(get(urlPathMatching("/metadata/identity/oauth2/.*"))
                 .willReturn(aResponse()
-                        .withStatus(200)
+                        .withStatus(HttpStatus.SC_OK)
                         .withHeader("Content-Type", "application/json")
                         .withBody(TOKEN_RESPONSE)));
 
