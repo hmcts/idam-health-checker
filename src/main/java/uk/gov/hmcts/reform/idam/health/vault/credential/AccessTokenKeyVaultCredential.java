@@ -31,7 +31,7 @@ public class AccessTokenKeyVaultCredential extends AzureTokenCredentials {
                 public boolean retryRequest(final HttpResponse response,
                                             final int executionCount, final HttpContext context) {
                     int statusCode = response.getStatusLine().getStatusCode();
-                    return statusCode == 500 && executionCount < maxRetries;
+                    return (statusCode / 100) == 5 && executionCount < maxRetries;
                 }
 
                 @Override
