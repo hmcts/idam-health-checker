@@ -50,6 +50,7 @@ public class FileFreshnessProbe implements HealthProbe {
         }
 
         return false;
+        
     }
 
     @VisibleForTesting
