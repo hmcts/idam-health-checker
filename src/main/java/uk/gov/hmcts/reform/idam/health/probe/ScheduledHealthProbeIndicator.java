@@ -51,10 +51,17 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         boolean probeResult = this.healthProbe.probe();
 
         if (probeResult || failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
+            if (log.isInfoEnabled()) {
+                if (probeResult && this.status == Status.DOWN) {
+                    log.info("{}: Status changing from DOWN to UP", this.healthProbe.getName());
+                } else if (!probeResult && this.status == Status.UP) {
+                    log.info("{}: Status changing from UP to DOWN", this.healthProbe.getName());
+                }
+            }
             this.status = probeResult ? Status.UP : Status.DOWN;
             this.statusDateTime = LocalDateTime.now(clock);
         } else if (failureHandling == HealthProbeFailureHandling.IGNORE) {
-            log.warn(this.healthProbe.getName() + " DOWN state ignored");
+            log.warn("{}: DOWN state ignored", this.healthProbe.getName());
         }
     }
 
