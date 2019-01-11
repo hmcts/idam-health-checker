@@ -27,7 +27,7 @@ public class FileFreshnessProbe implements HealthProbe {
         this.probeName = probeName;
         this.checkPath = Paths.get(path);
         this.fileExpiryMs = fileExpiryMs;
-        this.fileSystemInfo = new DefaultFileSystemInfo();
+        this.fileSystemInfo = new FileSystemInfo();
         this.clock = Clock.systemDefaultZone();
     }
 
@@ -38,8 +38,12 @@ public class FileFreshnessProbe implements HealthProbe {
             if (fileSystemInfo.exists(checkPath)) {
 
                 LocalDateTime updateTime = fileSystemInfo.lastModifiedTime(checkPath);
-                log.info("{}: Path {} modified at {}", probeName, checkPath, updateTime);
-                return LocalDateTime.now(clock).isBefore(updateTime.plus(fileExpiryMs, ChronoUnit.MILLIS));
+                if (LocalDateTime.now(clock).isBefore(updateTime.plus(fileExpiryMs, ChronoUnit.MILLIS))) {
+                    log.debug("{}: Path {} modified at {}", probeName, checkPath, updateTime);
+                    return true;
+                } else {
+                    log.warn("{}: Path {} modified at {}", probeName, checkPath, updateTime);
+                }
 
             } else {
                 log.warn("{}: Nothing at path {}", probeName, checkPath);
@@ -68,19 +72,12 @@ public class FileFreshnessProbe implements HealthProbe {
         return probeName;
     }
 
-    public interface FileSystemInfo {
-        boolean exists(Path path);
-        LocalDateTime lastModifiedTime(Path path) throws IOException;
-    }
+    public class FileSystemInfo {
 
-    private class DefaultFileSystemInfo implements FileSystemInfo {
-
-        @Override
         public boolean exists(Path path) {
             return Files.exists(path);
         }
 
-        @Override
         public LocalDateTime lastModifiedTime(Path path) throws IOException {
             return LocalDateTime.ofInstant(Files.getLastModifiedTime(path).toInstant(), ZoneId.systemDefault());
         }

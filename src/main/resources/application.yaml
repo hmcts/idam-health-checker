@@ -85,3 +85,18 @@ am:
     identity:
       scope: openid profile authorities acr roles
       host: dummy
+
+backup:
+  healthprobe:
+    full:
+      name: FullBackup
+      freshness-interval: 93600000
+      check-interval: 300000
+      path: /opt/opendj/bak/full/userRoot/backup.info
+      expiry-interval: 93600000
+    incremental:
+      name: IncrementalBackup
+      freshness-interval: 360000
+      check-interval: 120000
+      path: /opt/opendj/bak/incremental/userRoot/backup.info
+      expiry-interval: 420000
