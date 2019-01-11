@@ -24,10 +24,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static uk.gov.hmcts.reform.idam.health.vault.KeyVaultConfig.VAULT_BASE_URL;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-
+import static uk.gov.hmcts.reform.idam.health.vault.EnvironmentKeyVaultConfigBuilder.VAULT_BASE_URL;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = VaultEnvironmentPostProcessor.class)
