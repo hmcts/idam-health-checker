@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.vault.credential;
+package uk.gov.hmcts.reform.vault.credential;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -34,6 +34,7 @@ public class TokenResponseHandler implements ResponseHandler<String> {
             return node.get(ACCESS_TOKEN_KEY).asText();
         }
 
-        throw new HttpResponseException(HttpStatus.SC_INTERNAL_SERVER_ERROR, "No access_token parameter present in response");
+        throw new HttpResponseException(HttpStatus.SC_INTERNAL_SERVER_ERROR,
+            "No access_token parameter present in response");
     }
 }

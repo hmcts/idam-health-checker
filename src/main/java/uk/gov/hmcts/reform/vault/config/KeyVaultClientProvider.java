@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.vault;
+package uk.gov.hmcts.reform.vault.config;
 
 import com.microsoft.azure.keyvault.KeyVaultClient;
 
