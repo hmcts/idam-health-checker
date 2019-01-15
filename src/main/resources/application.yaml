@@ -24,16 +24,16 @@ management:
 azure:
   application-insights:
     instrumentation-key:
-#  keyvault:
+  keyvault:
 #    uri:
 #    client-id:
 #    client-key:
-#    msi:
-#      url: http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net
-#      error:
-#        retry:
-#          max-number: 3
-#          interval-millis: 0
+    msi:
+      url: http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net
+      error:
+        retry:
+          max-number: 3
+          interval-millis: 200
 
 feign:
   okhttp:
