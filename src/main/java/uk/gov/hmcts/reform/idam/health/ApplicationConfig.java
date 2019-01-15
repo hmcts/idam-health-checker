@@ -45,7 +45,6 @@ public class ApplicationConfig {
             @Override
             public boolean process(Telemetry telemetry) {
                 if (telemetry instanceof RequestTelemetry) {
-                    RequestTelemetry requestTelemetry = (RequestTelemetry) telemetry;
                     if (!((RequestTelemetry) telemetry).isSuccess()) {
                         return false;
                     }
