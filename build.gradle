@@ -8,7 +8,7 @@ plugins {
 
 
 group = 'uk.gov.hmcts.reform'
-version = '1.1.1'
+version = '1.2'
 sourceCompatibility = 1.8
 
 repositories {
@@ -49,6 +49,7 @@ dependencies {
 
     testCompile 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
 
+    testCompile "com.github.tomakehurst:wiremock:2.19.0"
 }
 
 publishing {

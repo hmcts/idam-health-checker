@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.idam.health.vault;
+package uk.gov.hmcts.reform.vault.credential;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
@@ -24,7 +24,8 @@ public class ClientSecretKeyVaultCredential extends KeyVaultCredentials {
         return token.getAccessToken();
     }
 
-    private static AuthenticationResult getAccessTokenFromClientCredentials(String authorization, String resource, String clientId, String clientKey) {
+    private static AuthenticationResult getAccessTokenFromClientCredentials(String authorization,
+            String resource, String clientId, String clientKey) {
         AuthenticationResult result;
         ExecutorService service = null;
         try {

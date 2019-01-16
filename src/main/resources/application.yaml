@@ -24,10 +24,16 @@ management:
 azure:
   application-insights:
     instrumentation-key:
-#  keyvault:
+  keyvault:
 #    uri:
 #    client-id:
 #    client-key:
+    msi:
+      url: http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net
+      error:
+        retry:
+          max-number: 3
+          interval-millis: 200
 
 feign:
   okhttp:
@@ -79,3 +85,18 @@ am:
     identity:
       scope: openid profile authorities acr roles
       host: dummy
+
+backup:
+  healthprobe:
+    full:
+      name: FullBackup
+      freshness-interval: 93600000
+      check-interval: 300000
+      path: /opt/opendj/bak/full/userRoot/backup.info
+      expiry-interval: 93600000
+    incremental:
+      name: IncrementalBackup
+      freshness-interval: 360000
+      check-interval: 120000
+      path: /opt/opendj/bak/incremental/userRoot/backup.info
+      expiry-interval: 420000
