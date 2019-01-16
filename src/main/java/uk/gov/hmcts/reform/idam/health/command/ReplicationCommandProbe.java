@@ -11,7 +11,7 @@ import java.util.List;
 public class ReplicationCommandProbe extends CommandProbe {
 
     private static final String SPACE = " ";
-    private static final String RESULT_DELIM = " : ";
+    private static final String RESULT_DELIM = "\t";
     private static final String REFORM_HMCTS_NET = "dc=reform,dc=hmcts,dc=net";
 
     public ReplicationCommandProbe(String probeName, String commandTemplate, String adminPassword, String hostname) {

@@ -63,9 +63,11 @@ public class CommandProbe implements HealthProbe {
         int exitCode = process.waitFor();
         assert exitCode == 0;
         if (CollectionUtils.isNotEmpty(commandOutput)) {
+            if (CollectionUtils.isNotEmpty(commandErrors)) {
+                log.warn("{}: Error from command; {}", getName(), String.join(", ", commandErrors));
+            }
             return commandOutput;
-        }
-        if (CollectionUtils.isNotEmpty(commandErrors)) {
+        } else if (CollectionUtils.isNotEmpty(commandErrors)) {
             log.error("{}: Error from command; {}", getName(), String.join(", ", commandErrors));
         }
         return null;
