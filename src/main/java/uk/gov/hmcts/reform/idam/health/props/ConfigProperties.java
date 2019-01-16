@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"tokenstore","userstore"})
+@Profile({"tokenstore","userstore", "replication"})
 @ConfigurationProperties
 public class ConfigProperties {
 
@@ -18,8 +18,6 @@ public class ConfigProperties {
         @Getter
         @Setter
         public static class Replication {
-            // private Integer missingChangesThreshold;
-            // private Integer pendingUpdatesThreshold;
             private Integer approximateDelayThreshold;
             private Integer missingUpdatesThreshold;
         }

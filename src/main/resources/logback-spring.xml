@@ -3,6 +3,7 @@
 
     <logger name="uk.gov.hmcts.reform.idam.health" level="WARN"/>
     <logger name="uk.gov.hmcts.reform.idam.health.ldap" level="INFO"/>
+    <logger name="uk.gov.hmcts.reform.idam.health.command.ReplicationCommandProbe" level="INFO"/>
 
     <springProfile name="live">
 
