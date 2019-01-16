@@ -43,7 +43,7 @@ public class CommandProbe implements HealthProbe {
 
     protected boolean handleResponse(List<String> response) {
         if (CollectionUtils.isNotEmpty(response)) {
-            log.info("Result: {}", String.join(", ", response));
+            log.info("{}: Result; {}", getName(), String.join(", ", response));
             return true;
         }
         return false;
