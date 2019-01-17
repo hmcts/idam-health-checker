@@ -16,7 +16,7 @@ public class ReplicationInfo {
     private String dsID;
     private String rsId;
     private String rsPort;
-    private String missingChanges;
+    private Integer missingChanges;
     private String ageOfMissingChanges;
     private String securityEnabled;
 

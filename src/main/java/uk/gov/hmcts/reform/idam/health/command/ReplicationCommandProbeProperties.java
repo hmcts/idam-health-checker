@@ -18,7 +18,8 @@ public class ReplicationCommandProbeProperties {
         private Long freshnessInterval;
         private Long checkInterval;
         private String template;
-        private String hostname;
+        private String hostIdentity;
+        private Long missingUpdatesThreshold;
     }
 
     private ReplicationCommandProbeProperties.Probe command;

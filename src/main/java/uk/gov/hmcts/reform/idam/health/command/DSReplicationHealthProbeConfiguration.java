@@ -23,7 +23,8 @@ public class DSReplicationHealthProbeConfiguration {
                         commandProbeProperties.getCommand().getName(),
                         commandProbeProperties.getCommand().getTemplate(),
                         configProperties.getLdap().getPassword(),
-                        commandProbeProperties.getCommand().getHostname()
+                        commandProbeProperties.getCommand().getHostIdentity(),
+                        commandProbeProperties.getCommand().getMissingUpdatesThreshold()
                 ),
                 HealthProbeFailureHandling.IGNORE,
                 taskScheduler,

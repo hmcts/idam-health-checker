@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 public class ReplicationCommandProbe implements HealthProbe {
@@ -18,34 +19,41 @@ public class ReplicationCommandProbe implements HealthProbe {
 
     private final String probeName;
     private final String[] command;
+    private final String hostIdentity;
+    private final Long missingUpdatesThreshold;
 
     private CommandRunner runner = new CommandRunner();
 
-    public ReplicationCommandProbe(String probeName, String commandTemplate, String adminPassword, String hostname) {
+    public ReplicationCommandProbe(String probeName, String commandTemplate, String adminPassword, String hostIdentity, Long missingUpdatesThreshold) {
         this.probeName = probeName;
-        this.command = buildCommand(commandTemplate, adminPassword, hostname);
+        this.command = buildCommand(commandTemplate, adminPassword);
+        this.hostIdentity = hostIdentity;
+        this.missingUpdatesThreshold = missingUpdatesThreshold;
     }
 
     @Override
     public boolean probe() {
         try {
             ReplicationStatus status = run(command);
-            if (CollectionUtils.isNotEmpty(status.getReplicationInfoList())) {
+            if (status.getHostReplicationInfo() != null) {
 
-                for (ReplicationInfo replicationInfo : status.getReplicationInfoList()) {
-                    log.info("{}: {}", getName(), replicationInfo);
+                boolean result = true;
+                log.info("{}: Host replication info: {}", getName(), status.getHostReplicationInfo());
+                if (CollectionUtils.isNotEmpty(status.getReplicationInfoList())) {
+                    // TODO compare host against others
+                    status.getReplicationInfoList().stream().forEach(ri -> log.info("{}: Replicated host: {}", getName(), ri));
+                } else {
+                    result = verifyHostReplication(status.getHostReplicationInfo());
                 }
+                return result;
 
+            } else if ((CollectionUtils.isNotEmpty(status.getReplicationInfoList()))) {
+                status.getReplicationInfoList().stream().forEach(ri -> log.info("{}: {}", getName(), ri));
                 if (CollectionUtils.isNotEmpty(status.getErrors())) {
-                    for (String message : status.getErrors()) {
-                        log.warn("{}: {}", getName(), message);
-                    }
+                    log.warn("{}: {}", getName(), String.join(", ", status.getErrors()));
                 }
-
             } else if (CollectionUtils.isNotEmpty(status.getErrors())) {
-                for (String message : status.getErrors()) {
-                    log.error("{}: {}", getName(), message);
-                }
+                log.error("{}: {}", getName(), String.join(", ", status.getErrors()));
             } else {
                 log.error("Command completed with no replication info present");
             }
@@ -60,27 +68,32 @@ public class ReplicationCommandProbe implements HealthProbe {
         return probeName;
     }
 
+    protected boolean verifyHostReplication(ReplicationInfo replicationInfo) {
+        if ((replicationInfo.getMissingChanges() != null) &&
+                (replicationInfo.getMissingChanges() <= missingUpdatesThreshold)) {
+            return false;
+        }
+        return true;
+    }
+
     @VisibleForTesting
     void setCommandRunner(CommandRunner commandRunner) {
         this.runner = commandRunner;
     }
 
-    protected ReplicationStatus run(String[] command) throws IOException, InterruptedException {
+    protected ReplicationStatus run(String[] command) throws IOException, InterruptedException, ExecutionException {
         ReplicationStatus status = new ReplicationStatus();
-        runner.run(command, new ReplicationStatusCommandListener(status));
+        runner.run(command, new ReplicationStatusCommandListener(status, hostIdentity));
         return status;
     }
 
-    protected static String[] buildCommand(String commandTemplate, String adminPassword, String hostname) {
-        if (StringUtils.isNoneEmpty(commandTemplate, adminPassword, hostname)) {
-            log.info("Configuring with command {} and values from properties", commandTemplate);
-            return String.format(commandTemplate, adminPassword, hostname).split(SPACE);
+    protected static String[] buildCommand(String commandTemplate, String adminPassword) {
+        if (StringUtils.isNoneEmpty(commandTemplate, adminPassword)) {
+            log.info("Configuring with command {} and password value from properties", commandTemplate);
+            return String.format(commandTemplate, adminPassword).split(SPACE);
         } else if (commandTemplate != null) {
             if (StringUtils.isEmpty(adminPassword)) {
                 log.warn("No value for admin password");
-            }
-            if (StringUtils.isEmpty(hostname)) {
-                log.warn("No value for hostname");
             }
             log.info("Configuring with command {}", commandTemplate);
             return commandTemplate.split(SPACE);
@@ -93,13 +106,18 @@ public class ReplicationCommandProbe implements HealthProbe {
     protected class ReplicationStatusCommandListener implements CommandRunner.CommandListener {
 
         private final ReplicationStatus status;
+        private final String hostIdentity;
 
         @Override
         public void receive(String value) {
             if (value.startsWith(REFORM_HMCTS_NET)) {
                 ReplicationInfo info = convert(value);
                 if (info != null) {
-                    status.getReplicationInfoList().add(info);
+                    if (StringUtils.startsWith(info.getHostName(), hostIdentity)) {
+                        status.setHostReplicationInfo(info);
+                    } else {
+                        status.getReplicationInfoList().add(info);
+                    }
                 }
             }
         }
@@ -121,7 +139,10 @@ public class ReplicationCommandProbe implements HealthProbe {
                 info.setDsID(StringUtils.trimToNull(parts[i++]));
                 info.setRsId(StringUtils.trimToNull(parts[i++]));
                 info.setRsPort(StringUtils.trimToNull(parts[i++]));
-                info.setMissingChanges(StringUtils.trimToNull(parts[i++]));
+                String missingChanges = StringUtils.trimToNull(parts[i++]);
+                if (missingChanges != null) {
+                    info.setMissingChanges(Integer.parseInt(missingChanges));
+                }
                 info.setAgeOfMissingChanges(StringUtils.trimToNull(parts[i++]));
                 info.setSecurityEnabled(StringUtils.trimToNull(parts[i++]));
                 return info;

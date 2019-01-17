@@ -11,6 +11,7 @@ import java.util.List;
 public class ReplicationStatus {
 
     private List<String> errors = new ArrayList<>();
+    private ReplicationInfo hostReplicationInfo;
     private List<ReplicationInfo> replicationInfoList = new ArrayList<>();
 
 }

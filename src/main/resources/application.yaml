@@ -107,5 +107,6 @@ replication:
       name: ReplicationCommand
       freshness-interval: 180000
       check-interval: 60000
-      template: /opt/opendj/bin/dsreplication status -X --adminUID amadmin --adminPassword %s --hostname %s --port 4444 -s -n
-      hostname: forgerock-ds-userstore-1
+      template: /opt/opendj/bin/dsreplication status -X --adminUID amadmin --adminPassword %s --port 4444 -s -n
+      host-identity: forgerock-ds-userstore-1
+      missing-updates-threshold: 999
