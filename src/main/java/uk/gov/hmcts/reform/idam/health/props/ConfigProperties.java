@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"tokenstore","userstore", "replication"})
+@Profile({"tokenstore","userstore","replication"})
 @ConfigurationProperties
 public class ConfigProperties {
 

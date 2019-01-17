@@ -100,3 +100,12 @@ backup:
       check-interval: 120000
       path: /opt/opendj/bak/incremental/userRoot/backup.info
       expiry-interval: 420000
+
+replication:
+  healthprobe:
+    command:
+      name: ReplicationCommand
+      freshness-interval: 180000
+      check-interval: 60000
+      template: /opt/opendj/bin/dsreplication status -X --adminUID amadmin --adminPassword %s --hostname %s --port 4444 -s -n
+      hostname: forgerock-ds-userstore-1
