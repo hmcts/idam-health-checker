@@ -113,7 +113,8 @@ public class ReplicationCommandProbe implements HealthProbe {
                 if (value.startsWith(REFORM_HMCTS_NET)) {
                     ReplicationInfo info = convert(value);
                     if (info != null) {
-                        if (StringUtils.startsWith(info.getHostName(), probeProperties.getCommand().getHostIdentity())) {
+                        if ((StringUtils.isNotEmpty(probeProperties.getCommand().getHostIdentity()) &&
+                                StringUtils.startsWith(info.getHostName(), probeProperties.getCommand().getHostIdentity()))) {
                             status.setHostReplicationInfo(info);
                         } else {
                             status.getReplicationInfoList().add(info);
