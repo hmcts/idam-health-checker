@@ -45,7 +45,7 @@ ldap:
   root: ldaps://dummy:1639
   principal: CN=Directory Manager
   replication:
-    missing-updates-threshold: 999
+    missing-updates-threshold: 10000000
     approximate-delay-threshold: 120000
 
 userstore:
@@ -105,9 +105,9 @@ replication:
   healthprobe:
     command:
       name: ReplicationCommand
-      freshness-interval: 180000
+      freshness-interval: 360000
       check-interval: 60000
       template: /opt/opendj/bin/dsreplication status -X --adminUID amadmin --adminPassword %s --port 4444 -s -n
-      host-identity: forgerock-ds-userstore-1
+      host-identity:
       missing-updates-threshold: 999
       command-timeout: 20000

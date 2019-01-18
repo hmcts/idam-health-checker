@@ -7,10 +7,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbeFailureHandling;
 import uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbeIndicator;
-import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
 @Configuration
-@Profile("replication")
+@Profile({"userstore","tokenstore","replication"})
 public class DSReplicationHealthProbeConfiguration {
 
     @Autowired

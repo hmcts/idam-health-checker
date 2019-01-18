@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Component
-@Profile("replication")
+@Profile({"userstore","tokenstore","replication"})
 @Slf4j
 public class ReplicationCommandProbe implements HealthProbe {
 
