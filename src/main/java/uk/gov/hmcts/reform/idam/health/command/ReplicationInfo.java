@@ -11,7 +11,7 @@ public class ReplicationInfo {
 
     private String suffix;
     private String hostName;
-    private String entries;
+    private Integer entries;
     private String replicationEnabled;
     private String dsID;
     private String rsId;

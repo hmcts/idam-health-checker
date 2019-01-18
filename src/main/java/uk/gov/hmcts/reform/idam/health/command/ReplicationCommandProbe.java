@@ -1,15 +1,20 @@
 package uk.gov.hmcts.reform.idam.health.command;
 
-import com.google.common.annotations.VisibleForTesting;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
+import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+@Component
+@Profile("replication")
 @Slf4j
 public class ReplicationCommandProbe implements HealthProbe {
 
@@ -17,31 +22,34 @@ public class ReplicationCommandProbe implements HealthProbe {
     private static final String RESULT_DELIM = "\t";
     private static final String REFORM_HMCTS_NET = "dc=reform,dc=hmcts,dc=net";
 
-    private final String probeName;
-    private final String[] command;
-    private final String hostIdentity;
-    private final Long missingUpdatesThreshold;
+    private final ConfigProperties configProperties;
+    private final ReplicationCommandProbeProperties probeProperties;
+    private final TextCommandRunner textCommandRunner;
 
-    private CommandRunner runner = new CommandRunner();
+    private String[] command;
 
-    public ReplicationCommandProbe(String probeName, String commandTemplate, String adminPassword, String hostIdentity, Long missingUpdatesThreshold) {
-        this.probeName = probeName;
-        this.command = buildCommand(commandTemplate, adminPassword);
-        this.hostIdentity = hostIdentity;
-        this.missingUpdatesThreshold = missingUpdatesThreshold;
+    public ReplicationCommandProbe(ConfigProperties configProperties, ReplicationCommandProbeProperties probeProperties, TextCommandRunner textCommandRunner) {
+        this.configProperties = configProperties;
+        this.probeProperties = probeProperties;
+        this.textCommandRunner = textCommandRunner;
     }
 
     @Override
     public boolean probe() {
         try {
-            ReplicationStatus status = run(command);
+            ReplicationStatus status = run(getCommand());
             if (status.getHostReplicationInfo() != null) {
 
                 boolean result = true;
                 log.info("{}: Host replication info: {}", getName(), status.getHostReplicationInfo());
                 if (CollectionUtils.isNotEmpty(status.getReplicationInfoList())) {
-                    // TODO compare host against others
                     status.getReplicationInfoList().stream().forEach(ri -> log.info("{}: Replicated host: {}", getName(), ri));
+                    if (!verifyHostReplication(status.getHostReplicationInfo())) {
+                        result = false;
+                    }
+                    if (!compareReplication(status.getHostReplicationInfo(), status.getReplicationInfoList())) {
+                        result = false;
+                    }
                 } else {
                     result = verifyHostReplication(status.getHostReplicationInfo());
                 }
@@ -65,26 +73,89 @@ public class ReplicationCommandProbe implements HealthProbe {
 
     @Override
     public String getName() {
-        return probeName;
+        return probeProperties.getCommand().getName();
+    }
+
+    public String[] getCommand() {
+        if (command == null) {
+            command = buildCommand(probeProperties.getCommand().getTemplate(), configProperties.getLdap().getPassword());
+        }
+        return command;
     }
 
     protected boolean verifyHostReplication(ReplicationInfo replicationInfo) {
-        if ((replicationInfo.getMissingChanges() != null) &&
-                (replicationInfo.getMissingChanges() <= missingUpdatesThreshold)) {
+        if ((probeProperties.getCommand().getMissingUpdatesThreshold() != null) &&
+                (replicationInfo.getMissingChanges() != null) &&
+                (replicationInfo.getMissingChanges() > probeProperties.getCommand().getMissingUpdatesThreshold())) {
             return false;
         }
         return true;
     }
 
-    @VisibleForTesting
-    void setCommandRunner(CommandRunner commandRunner) {
-        this.runner = commandRunner;
+    private boolean compareReplication(ReplicationInfo hostReplicationInfo, List<ReplicationInfo> replicationInfoList) {
+        if ((probeProperties.getCommand().getEntryDifferenceThreshold() != null) &&
+                (hostReplicationInfo.getEntries() != null)) {
+            Integer maxNoEntries = replicationInfoList.stream().max(Comparator.comparingInt(ReplicationInfo::getEntries)).get().getEntries();
+            if ((maxNoEntries != null) &&
+                    (hostReplicationInfo.getEntries() < maxNoEntries) &&
+                    (hostReplicationInfo.getEntries() < maxNoEntries - probeProperties.getCommand().getEntryDifferenceThreshold())) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    protected ReplicationStatus run(String[] command) throws IOException, InterruptedException, ExecutionException {
+    protected ReplicationStatus run(String[] command) throws InterruptedException, ExecutionException, IOException {
+        TextCommandRunner.Response response = textCommandRunner.execute(command, probeProperties.getCommand().getCommandTimeout());
         ReplicationStatus status = new ReplicationStatus();
-        runner.run(command, new ReplicationStatusCommandListener(status, hostIdentity));
+        if (CollectionUtils.isNotEmpty(response.getOutput())) {
+            for (String value : response.getOutput()) {
+                if (value.startsWith(REFORM_HMCTS_NET)) {
+                    ReplicationInfo info = convert(value);
+                    if (info != null) {
+                        if (StringUtils.startsWith(info.getHostName(), probeProperties.getCommand().getHostIdentity())) {
+                            status.setHostReplicationInfo(info);
+                        } else {
+                            status.getReplicationInfoList().add(info);
+                        }
+                    }
+                }
+            }
+        }
+        if (CollectionUtils.isNotEmpty(response.getErrors())) {
+            for (String error : response.getErrors()) {
+                status.getErrors().add(error);
+            }
+        }
         return status;
+    }
+
+    protected ReplicationInfo convert(String value) {
+        String[] parts = value.split(RESULT_DELIM);
+        if (parts.length == 10) {
+            ReplicationInfo info = new ReplicationInfo();
+            int i = 0;
+            info.setSuffix(StringUtils.trimToNull(parts[i++]));
+            info.setHostName(StringUtils.trimToNull(parts[i++]));
+            String entries = StringUtils.trimToNull(parts[i++]);
+            if (entries != null) {
+                info.setEntries(Integer.parseInt(entries));
+            } else {
+                info.setEntries(-1);
+            }
+            info.setReplicationEnabled(StringUtils.trimToNull(parts[i++]));
+            info.setDsID(StringUtils.trimToNull(parts[i++]));
+            info.setRsId(StringUtils.trimToNull(parts[i++]));
+            info.setRsPort(StringUtils.trimToNull(parts[i++]));
+            String missingChanges = StringUtils.trimToNull(parts[i++]);
+            if (missingChanges != null) {
+                info.setMissingChanges(Integer.parseInt(missingChanges));
+            }
+            info.setAgeOfMissingChanges(StringUtils.trimToNull(parts[i++]));
+            info.setSecurityEnabled(StringUtils.trimToNull(parts[i++]));
+            return info;
+        }
+        return null;
     }
 
     protected static String[] buildCommand(String commandTemplate, String adminPassword) {
@@ -100,55 +171,6 @@ public class ReplicationCommandProbe implements HealthProbe {
         }
         log.warn("command template is null");
         return null;
-    }
-
-    @AllArgsConstructor
-    protected class ReplicationStatusCommandListener implements CommandRunner.CommandListener {
-
-        private final ReplicationStatus status;
-        private final String hostIdentity;
-
-        @Override
-        public void receive(String value) {
-            if (value.startsWith(REFORM_HMCTS_NET)) {
-                ReplicationInfo info = convert(value);
-                if (info != null) {
-                    if (StringUtils.startsWith(info.getHostName(), hostIdentity)) {
-                        status.setHostReplicationInfo(info);
-                    } else {
-                        status.getReplicationInfoList().add(info);
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void error(String value) {
-            status.getErrors().add(value);
-        }
-
-        protected ReplicationInfo convert(String value) {
-            String[] parts = value.split(RESULT_DELIM);
-            if (parts.length == 10) {
-                ReplicationInfo info = new ReplicationInfo();
-                int i = 0;
-                info.setSuffix(StringUtils.trimToNull(parts[i++]));
-                info.setHostName(StringUtils.trimToNull(parts[i++]));
-                info.setEntries(StringUtils.trimToNull(parts[i++]));
-                info.setReplicationEnabled(StringUtils.trimToNull(parts[i++]));
-                info.setDsID(StringUtils.trimToNull(parts[i++]));
-                info.setRsId(StringUtils.trimToNull(parts[i++]));
-                info.setRsPort(StringUtils.trimToNull(parts[i++]));
-                String missingChanges = StringUtils.trimToNull(parts[i++]);
-                if (missingChanges != null) {
-                    info.setMissingChanges(Integer.parseInt(missingChanges));
-                }
-                info.setAgeOfMissingChanges(StringUtils.trimToNull(parts[i++]));
-                info.setSecurityEnabled(StringUtils.trimToNull(parts[i++]));
-                return info;
-            }
-            return null;
-        }
     }
 
 }

@@ -16,20 +16,17 @@ public class DSReplicationHealthProbeConfiguration {
     @Autowired
     private TaskScheduler taskScheduler;
 
+    @Autowired
+    private ReplicationCommandProbeProperties probeProperties;
+
     @Bean
-    public ScheduledHealthProbeIndicator replicationMonitor(ConfigProperties configProperties, ReplicationCommandProbeProperties commandProbeProperties) {
+    public ScheduledHealthProbeIndicator replicationMonitor(ReplicationCommandProbe probe) {
         return new ScheduledHealthProbeIndicator(
-                new ReplicationCommandProbe(
-                        commandProbeProperties.getCommand().getName(),
-                        commandProbeProperties.getCommand().getTemplate(),
-                        configProperties.getLdap().getPassword(),
-                        commandProbeProperties.getCommand().getHostIdentity(),
-                        commandProbeProperties.getCommand().getMissingUpdatesThreshold()
-                ),
+                probe,
                 HealthProbeFailureHandling.IGNORE,
                 taskScheduler,
-                commandProbeProperties.getCommand().getFreshnessInterval(),
-                commandProbeProperties.getCommand().getCheckInterval()
+                probeProperties.getCommand().getFreshnessInterval(),
+                probeProperties.getCommand().getCheckInterval()
         );
     }
 

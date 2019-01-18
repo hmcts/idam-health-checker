@@ -20,6 +20,8 @@ public class ReplicationCommandProbeProperties {
         private String template;
         private String hostIdentity;
         private Long missingUpdatesThreshold;
+        private Long entryDifferenceThreshold;
+        private Long commandTimeout;
     }
 
     private ReplicationCommandProbeProperties.Probe command;

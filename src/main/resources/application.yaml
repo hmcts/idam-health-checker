@@ -110,3 +110,4 @@ replication:
       template: /opt/opendj/bin/dsreplication status -X --adminUID amadmin --adminPassword %s --port 4444 -s -n
       host-identity: forgerock-ds-userstore-1
       missing-updates-threshold: 999
+      command-timeout: 20000
