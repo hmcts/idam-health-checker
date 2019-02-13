@@ -7,7 +7,6 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,9 +21,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReplicationCommandProbeTest {
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ConfigProperties configProperties;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ReplicationCommandProbeProperties probeProperties;
