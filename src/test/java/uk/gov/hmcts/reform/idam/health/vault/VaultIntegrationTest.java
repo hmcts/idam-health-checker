@@ -45,6 +45,7 @@ public class VaultIntegrationTest {
             .put("test-owner-password", "PasswOrd")
             .put("web-admin-client-secret", "secret")
             .put("BINDPASSWD", "ABCDE")
+            .put("adminUID", "admin123")
             .put("adminPassword", "passw0rd12345")
             .put("appinsights-instrumentationkey", "ABCDE12345")
             .build();
@@ -101,6 +102,7 @@ public class VaultIntegrationTest {
         final String userPwd = env.getProperty("test.owner.password");
         final String webAdmin = env.getProperty("web.admin.client.secret");
         final String ldapPwd = env.getProperty("ldap.password");
+        final String replicationUser = env.getProperty("replication.healthprobe.command.user");
         final String replicationPwd = env.getProperty("replication.healthprobe.command.password");
         final String instrumentationKey = env.getProperty("azure.application-insights.instrumentation-key");
 
@@ -108,6 +110,7 @@ public class VaultIntegrationTest {
         assertEquals(VAULT_PROPERTIES.get("test-owner-password"), userPwd);
         assertEquals(VAULT_PROPERTIES.get("web-admin-client-secret"), webAdmin);
         assertEquals(VAULT_PROPERTIES.get("BINDPASSWD"), ldapPwd);
+        assertEquals(VAULT_PROPERTIES.get("adminUID"), replicationUser);
         assertEquals(VAULT_PROPERTIES.get("adminPassword"), replicationPwd);
         assertEquals(VAULT_PROPERTIES.get("appinsights-instrumentationkey"), instrumentationKey);
     }

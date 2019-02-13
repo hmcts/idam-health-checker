@@ -15,6 +15,7 @@ public class ReplicationCommandProbeProperties {
     @Setter
     static class Probe {
         private String name;
+        private String user;
         private String password;
         private Long freshnessInterval;
         private Long checkInterval;
