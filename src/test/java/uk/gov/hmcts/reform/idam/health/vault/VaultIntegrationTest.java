@@ -40,12 +40,14 @@ public class VaultIntegrationTest {
 
     private static WireMockServer wireMockServer;
 
-    protected static final Map<String, String> VAULT_PROPERTIES = ImmutableMap.of(
-            "test-owner-username", "phil.space",
-            "test-owner-password", "PasswOrd",
-            "web-admin-client-secret", "secret",
-            "BINDPASSWD", "ABCDE",
-            "appinsights-instrumentationkey", "ABCDE12345");
+    protected static final Map<String, String> VAULT_PROPERTIES = ImmutableMap.<String, String>builder()
+            .put("test-owner-username", "phil.space")
+            .put("test-owner-password", "PasswOrd")
+            .put("web-admin-client-secret", "secret")
+            .put("BINDPASSWD", "ABCDE")
+            .put("adminPassword", "passw0rd12345")
+            .put("appinsights-instrumentationkey", "ABCDE12345")
+            .build();
 
     private final static String TOKEN_RESPONSE = "{\n"+
             "\t\"access_token\": \"eyJ0eXAiOiJKV1...hQ5J4_hoQ\",\n"+
@@ -99,12 +101,14 @@ public class VaultIntegrationTest {
         final String userPwd = env.getProperty("test.owner.password");
         final String webAdmin = env.getProperty("web.admin.client.secret");
         final String ldapPwd = env.getProperty("ldap.password");
+        final String replicationPwd = env.getProperty("replication.healthprobe.command.password");
         final String instrumentationKey = env.getProperty("azure.application-insights.instrumentation-key");
 
         assertEquals(VAULT_PROPERTIES.get("test-owner-username"), username);
         assertEquals(VAULT_PROPERTIES.get("test-owner-password"), userPwd);
         assertEquals(VAULT_PROPERTIES.get("web-admin-client-secret"), webAdmin);
         assertEquals(VAULT_PROPERTIES.get("BINDPASSWD"), ldapPwd);
+        assertEquals(VAULT_PROPERTIES.get("adminPassword"), replicationPwd);
         assertEquals(VAULT_PROPERTIES.get("appinsights-instrumentationkey"), instrumentationKey);
     }
 

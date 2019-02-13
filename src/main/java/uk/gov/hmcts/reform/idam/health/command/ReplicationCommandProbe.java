@@ -78,7 +78,7 @@ public class ReplicationCommandProbe implements HealthProbe {
 
     public String[] getCommand() {
         if (command == null) {
-            command = buildCommand(probeProperties.getCommand().getTemplate(), configProperties.getLdap().getPassword());
+            command = buildCommand(probeProperties.getCommand().getTemplate(), probeProperties.getCommand().getPassword());
         }
         return command;
     }

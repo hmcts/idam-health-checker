@@ -27,13 +27,13 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     protected static final String VAULT_PROPERTIES = "vaultProperties";
 
-    private static final Map<String, String> vaultKeyPropertyNames = ImmutableMap.of(
-            "test-owner-username", "test.owner.username",
-            "test-owner-password", "test.owner.password",
-            "web-admin-client-secret", "web.admin.client.secret",
-            "BINDPASSWD", "ldap.password",
-            "appinsights-instrumentationkey", "azure.application-insights.instrumentation-key"
-    );
+    private static final Map<String, String> vaultKeyPropertyNames = ImmutableMap.<String, String>builder()
+            .put("test-owner-username", "test.owner.username")
+            .put("test-owner-password", "test.owner.password")
+            .put("web-admin-client-secret", "web.admin.client.secret")
+            .put("BINDPASSWD", "ldap.password")
+            .put("adminPassword", "replication.healthprobe.command.password")
+            .put("appinsights-instrumentationkey", "azure.application-insights.instrumentation-key").build();
 
     private final KeyVaultClientProvider provider;
 

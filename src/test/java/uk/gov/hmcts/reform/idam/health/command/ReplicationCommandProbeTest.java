@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.idam.health.command;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +37,7 @@ public class ReplicationCommandProbeTest {
 
     @Before
     public void setup() {
-        when(configProperties.getLdap().getPassword()).thenReturn("test-password");
+        when(probeProperties.getCommand().getPassword()).thenReturn("test-password");
         when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s");
         when(probeProperties.getCommand().getHostIdentity()).thenReturn("test-host");
         when(probeProperties.getCommand().getCommandTimeout()).thenReturn(20000L);
