@@ -107,7 +107,7 @@ replication:
       name: ReplicationCommand
       freshness-interval: 360000
       check-interval: 60000
-      template: /opt/opendj/bin/dsreplication status -X --adminUID amadmin --adminPassword %s --port 4444 -s -n
+      template: /opt/opendj/bin/dsreplication status -X --adminUID %s --adminPassword %s --port 4444 -s -n
       host-identity:
       missing-updates-threshold: 999
       command-timeout: 20000

@@ -78,7 +78,7 @@ public class ReplicationCommandProbe implements HealthProbe {
 
     public String[] getCommand() {
         if (command == null) {
-            command = buildCommand(probeProperties.getCommand().getTemplate(), configProperties.getLdap().getPassword());
+            command = buildCommand(probeProperties.getCommand().getTemplate(), probeProperties.getCommand().getUser(), probeProperties.getCommand().getPassword());
         }
         return command;
     }
@@ -159,13 +159,16 @@ public class ReplicationCommandProbe implements HealthProbe {
         return null;
     }
 
-    protected static String[] buildCommand(String commandTemplate, String adminPassword) {
-        if (StringUtils.isNoneEmpty(commandTemplate, adminPassword)) {
+    protected static String[] buildCommand(String commandTemplate, String adminUID, String adminPassword) {
+        if (StringUtils.isNoneEmpty(commandTemplate, adminUID, adminPassword)) {
             log.info("Configuring with command {} and password value from properties", commandTemplate);
-            return String.format(commandTemplate, adminPassword).split(SPACE);
+            return String.format(commandTemplate, adminUID, adminPassword).split(SPACE);
         } else if (commandTemplate != null) {
             if (StringUtils.isEmpty(adminPassword)) {
                 log.warn("No value for admin password");
+            }
+            if (StringUtils.isEmpty(adminUID)) {
+                log.warn("No value for admin user ID");
             }
             log.info("Configuring with command {}", commandTemplate);
             return commandTemplate.split(SPACE);
