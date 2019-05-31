@@ -19,6 +19,7 @@ public class DSReplicationHealthProbeConfiguration {
     private ReplicationCommandProbeProperties probeProperties;
 
     @Bean
+    @Profile("!single")
     public ScheduledHealthProbeIndicator replicationMonitor(ReplicationCommandProbe probe) {
         return new ScheduledHealthProbeIndicator(
                 probe,
