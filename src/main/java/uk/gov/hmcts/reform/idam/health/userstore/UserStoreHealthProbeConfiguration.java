@@ -31,6 +31,7 @@ public class UserStoreHealthProbeConfiguration {
     }
 
     @Bean
+    @Profile("!single")
     public ScheduledHealthProbeIndicator userStoreReplicationScheduledHealthProbe(
             LdapReplicationHealthProbe ldapReplicationHealthProbe) {
         return new ScheduledHealthProbeIndicator(
