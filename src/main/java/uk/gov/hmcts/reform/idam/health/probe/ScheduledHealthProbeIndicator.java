@@ -38,7 +38,8 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
             return this.healthProbe.probe();
         }
         return status == Status.UP
-                && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));
+                && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS))
+                && failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN;
     }
 
     protected void refresh() {
