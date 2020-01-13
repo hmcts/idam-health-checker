@@ -29,7 +29,7 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         this.failureHandling = failureHandling;
         this.freshnessInterval = freshnessInterval;
         this.clock = Clock.systemDefaultZone();
-        taskScheduler.scheduleWithFixedDelay(() -> refresh(), checkInterval);
+        taskScheduler.scheduleWithFixedDelay(this::refresh, checkInterval);
     }
 
     @Override
@@ -37,9 +37,13 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         if (status == Status.UNKNOWN) {
             return this.healthProbe.probe();
         }
-        return status == Status.UP
-                && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS))
-                && failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN;
+
+        if (failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN){
+            return status == Status.UP
+                    && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));
+        } else {
+            return true;
+        }
     }
 
     protected void refresh() {
