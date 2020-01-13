@@ -42,6 +42,7 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
             return status == Status.UP
                     && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));
         } else {
+            log.warn("{}: status evaluation ignored for this type of probe. failureHandling: {}", this.healthProbe.getName(), failureHandling.toString());
             return true;
         }
     }
@@ -56,17 +57,22 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         boolean probeResult = this.healthProbe.probe();
 
         if (probeResult || failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
-            if (log.isInfoEnabled()) {
-                if ((probeResult) && (this.status != Status.UP)) {
-                    log.info("{}: Status changing from {} to UP", this.healthProbe.getName(), this.status);
-                } else if ((!probeResult) && (this.status == Status.UP)) {
-                    log.info("{}: Status changing from UP to DOWN", this.healthProbe.getName());
-                }
-            }
+            printLogMessage(probeResult);
+
             this.status = probeResult ? Status.UP : Status.DOWN;
             this.statusDateTime = LocalDateTime.now(clock);
         } else if (failureHandling == HealthProbeFailureHandling.IGNORE) {
             log.warn("{}: DOWN state ignored", this.healthProbe.getName());
+        }
+    }
+
+    private void printLogMessage(boolean probeResult) {
+        if (log.isInfoEnabled()) {
+            if ((probeResult) && (this.status != Status.UP)) {
+                log.info("{}: Status changing from {} to UP", this.healthProbe.getName(), this.status);
+            } else if ((!probeResult) && (this.status == Status.UP)) {
+                log.info("{}: Status changing from UP to DOWN", this.healthProbe.getName());
+            }
         }
     }
 
