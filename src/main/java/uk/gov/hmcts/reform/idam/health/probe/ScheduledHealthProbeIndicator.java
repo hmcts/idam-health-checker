@@ -34,10 +34,11 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
 
     @Override
     public boolean isOkay() {
-        if (failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN){
-            if (status == Status.UNKNOWN) {
-                return this.healthProbe.probe();
-            }
+        if (status == Status.UNKNOWN) {
+            return this.healthProbe.probe() || failureHandling == HealthProbeFailureHandling.IGNORE;
+        }
+
+        if (failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
             return status == Status.UP
                     && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));
         } else {
@@ -56,22 +57,15 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         boolean probeResult = this.healthProbe.probe();
 
         if (probeResult || failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
-            printLogMessage(probeResult);
+            Status newStatus = probeResult ? Status.UP : Status.DOWN;
+            if (log.isInfoEnabled() && this.status != newStatus) {
+                log.info("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
+            }
 
-            this.status = probeResult ? Status.UP : Status.DOWN;
+            this.status = newStatus;
             this.statusDateTime = LocalDateTime.now(clock);
         } else if (failureHandling == HealthProbeFailureHandling.IGNORE) {
             log.warn("{}: DOWN state ignored", this.healthProbe.getName());
-        }
-    }
-
-    private void printLogMessage(boolean probeResult) {
-        if (log.isInfoEnabled()) {
-            if ((probeResult) && (this.status != Status.UP)) {
-                log.info("{}: Status changing from {} to UP", this.healthProbe.getName(), this.status);
-            } else if ((!probeResult) && (this.status == Status.UP)) {
-                log.info("{}: Status changing from UP to DOWN", this.healthProbe.getName());
-            }
         }
     }
 
