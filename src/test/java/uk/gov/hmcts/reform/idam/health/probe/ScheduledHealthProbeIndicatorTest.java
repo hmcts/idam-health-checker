@@ -105,4 +105,12 @@ public class ScheduledHealthProbeIndicatorTest {
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
         verify(healthProbe, times(2)).probe();
     }
+
+    @Test
+    public void testIsOkay_alwaysTrueWhenIgnoreProbe() {
+        assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+        ignoringScheduledHealthProbe.refresh();
+        assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+        verify(healthProbe, times(1)).probe();
+    }
 }

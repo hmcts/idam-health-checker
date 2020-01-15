@@ -34,15 +34,14 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
 
     @Override
     public boolean isOkay() {
-        if (status == Status.UNKNOWN) {
-            return this.healthProbe.probe();
-        }
-
         if (failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN){
+            if (status == Status.UNKNOWN) {
+                return this.healthProbe.probe();
+            }
             return status == Status.UP
                     && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));
         } else {
-            log.warn("{}: status evaluation ignored for this type of probe. failureHandling: {}", this.healthProbe.getName(), failureHandling.toString());
+            log.warn("{}: status evaluation ignored for this type of probe. failureHandling: {}, status: {}", healthProbe.getName(), failureHandling, status);
             return true;
         }
     }
