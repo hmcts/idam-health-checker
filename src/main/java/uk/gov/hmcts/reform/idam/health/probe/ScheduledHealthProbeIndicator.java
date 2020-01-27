@@ -42,7 +42,7 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
             return status == Status.UP
                     && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));
         } else {
-            log.warn("{}: status evaluation ignored for this type of probe. failureHandling: {}, status: {}", healthProbe.getName(), failureHandling, status);
+            log.info("{}: status evaluation ignored for this type of probe. failureHandling: {}, status: {}", healthProbe.getName(), failureHandling, status);
             return true;
         }
     }
