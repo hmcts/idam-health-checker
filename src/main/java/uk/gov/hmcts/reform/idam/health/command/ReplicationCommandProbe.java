@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.command;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -9,9 +10,14 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Component
 @Profile({"userstore","tokenstore","replication"})
@@ -44,17 +50,9 @@ public class ReplicationCommandProbe implements HealthProbe {
                 log.info("{}: Host replication info: {}", getName(), status.getHostReplicationInfo());
                 if (CollectionUtils.isNotEmpty(status.getReplicationInfoList())) {
                     status.getReplicationInfoList().stream().forEach(ri -> log.info("{}: Replicated host: {}", getName(), ri));
-                    if (!verifyHostReplication(status.getHostReplicationInfo())) {
-                        result = false;
-                    }
-                    if (!compareReplication(status.getHostReplicationInfo(), status.getReplicationInfoList())) {
-                        result = false;
-                    }
-                } else {
-                    result = verifyHostReplication(status.getHostReplicationInfo());
+                    result = compareReplication(status.getHostReplicationInfo(), status.getReplicationInfoList());
                 }
                 return result;
-
             } else if ((CollectionUtils.isNotEmpty(status.getReplicationInfoList()))) {
                 status.getReplicationInfoList().stream().forEach(ri -> log.info("{}: {}", getName(), ri));
                 if (CollectionUtils.isNotEmpty(status.getErrors())) {
@@ -83,26 +81,24 @@ public class ReplicationCommandProbe implements HealthProbe {
         return command;
     }
 
-    protected boolean verifyHostReplication(ReplicationInfo replicationInfo) {
-        if ((probeProperties.getCommand().getMissingUpdatesThreshold() != null) &&
-                (replicationInfo.getMissingChanges() != null) &&
-                (replicationInfo.getMissingChanges() > probeProperties.getCommand().getMissingUpdatesThreshold())) {
-            return false;
+    private boolean compareReplication(@NonNull ReplicationInfo hostReplicationInfo, @NonNull List<ReplicationInfo> replicationInfoList) {
+        Long entryDifferenceThreshold = probeProperties.getCommand().getEntryDifferenceThreshold();
+        if (entryDifferenceThreshold != null && hostReplicationInfo.getEntries() != null) {
+            Set<Integer> entries = replicationInfoList.stream().map(ReplicationInfo::getEntries).collect(Collectors.toSet());
+            entries.add(hostReplicationInfo.getEntries());
+            return entryDifferenceThreshold >= calculateDifferenceBetweenEntries(entries);
         }
         return true;
     }
 
-    private boolean compareReplication(ReplicationInfo hostReplicationInfo, List<ReplicationInfo> replicationInfoList) {
-        if ((probeProperties.getCommand().getEntryDifferenceThreshold() != null) &&
-                (hostReplicationInfo.getEntries() != null)) {
-            Integer maxNoEntries = replicationInfoList.stream().max(Comparator.comparingInt(ReplicationInfo::getEntries)).get().getEntries();
-            if ((maxNoEntries != null) &&
-                    (hostReplicationInfo.getEntries() < maxNoEntries) &&
-                    (hostReplicationInfo.getEntries() < maxNoEntries - probeProperties.getCommand().getEntryDifferenceThreshold())) {
-                return false;
-            }
+    int calculateDifferenceBetweenEntries(@NonNull Set<Integer> entries) {
+        if (entries.size() < 2) {
+            return 0;
+        } else {
+            ArrayList<Integer> integers = new ArrayList<>(entries);
+            Collections.sort(integers);
+            return integers.get(integers.size() - 1) - integers.get(0);
         }
-        return true;
     }
 
     protected ReplicationStatus run(String[] command) throws InterruptedException, ExecutionException, IOException {
@@ -133,7 +129,7 @@ public class ReplicationCommandProbe implements HealthProbe {
 
     protected ReplicationInfo convert(String value) {
         String[] parts = value.split(RESULT_DELIM);
-        if (parts.length == 10) {
+        if (parts.length == 9) {
             ReplicationInfo info = new ReplicationInfo();
             int i = 0;
             info.setSuffix(StringUtils.trimToNull(parts[i++]));
@@ -148,12 +144,7 @@ public class ReplicationCommandProbe implements HealthProbe {
             info.setDsID(StringUtils.trimToNull(parts[i++]));
             info.setRsId(StringUtils.trimToNull(parts[i++]));
             info.setRsPort(StringUtils.trimToNull(parts[i++]));
-            String missingChanges = StringUtils.trimToNull(parts[i++]);
-            if (missingChanges != null) {
-                info.setMissingChanges(Integer.parseInt(missingChanges));
-            }
-            info.setAgeOfMissingChanges(StringUtils.trimToNull(parts[i++]));
-            info.setSecurityEnabled(StringUtils.trimToNull(parts[i++]));
+            info.setSecurityEnabled(StringUtils.trimToNull(parts[i]));
             return info;
         }
         return null;
