@@ -8,6 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 
@@ -105,4 +106,26 @@ public class ScheduledHealthProbeIndicatorTest {
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
         verify(healthProbe, times(2)).probe();
     }
+
+    @Test
+    public void testIsOkay_alwaysSuccessWhenIgnoreProbe() {
+        when(healthProbe.probe()).thenReturn(false);
+        assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+        when(healthProbe.probe()).thenReturn(true);
+        assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+        ignoringScheduledHealthProbe.refresh();
+        assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+        verify(healthProbe, times(3)).probe();
+    }
+
+    @Test
+    public void testIsOkay_successWhenNotFreshAndIgnore() {
+        when(healthProbe.probe()).thenReturn(true);
+        ignoringScheduledHealthProbe.refresh();
+        assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+        ignoringScheduledHealthProbe.changeClock(Clock.offset(Clock.systemDefaultZone(),Duration.ofHours(24)));
+        ignoringScheduledHealthProbe.refresh();
+        assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+    }
+
 }
