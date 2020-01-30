@@ -109,5 +109,5 @@ replication:
       check-interval: 60000
       template: /opt/opendj/bin/dsreplication status -X --adminUID %s --adminPassword %s --port 4444 -s -n
       host-identity:
-      missing-updates-threshold: 999
+      delay-threshold: 999
       command-timeout: 20000

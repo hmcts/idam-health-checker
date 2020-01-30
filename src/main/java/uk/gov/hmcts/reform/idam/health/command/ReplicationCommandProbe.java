@@ -84,9 +84,9 @@ public class ReplicationCommandProbe implements HealthProbe {
     }
 
     protected boolean verifyHostReplication(ReplicationInfo replicationInfo) {
-        if ((probeProperties.getCommand().getMissingUpdatesThreshold() != null) &&
-                (replicationInfo.getMissingChanges() != null) &&
-                (replicationInfo.getMissingChanges() > probeProperties.getCommand().getMissingUpdatesThreshold())) {
+        if ((probeProperties.getCommand().getDelayThreshold() != null) &&
+                (replicationInfo.getDelay() != null) &&
+                (replicationInfo.getDelay() > probeProperties.getCommand().getDelayThreshold())) {
             return false;
         }
         return true;
@@ -133,7 +133,7 @@ public class ReplicationCommandProbe implements HealthProbe {
 
     protected ReplicationInfo convert(String value) {
         String[] parts = value.split(RESULT_DELIM);
-        if (parts.length == 10) {
+        if (parts.length == 9) {
             ReplicationInfo info = new ReplicationInfo();
             int i = 0;
             info.setSuffix(StringUtils.trimToNull(parts[i++]));
@@ -150,9 +150,8 @@ public class ReplicationCommandProbe implements HealthProbe {
             info.setRsPort(StringUtils.trimToNull(parts[i++]));
             String missingChanges = StringUtils.trimToNull(parts[i++]);
             if (missingChanges != null) {
-                info.setMissingChanges(Integer.parseInt(missingChanges));
+                info.setDelay(Integer.parseInt(missingChanges));
             }
-            info.setAgeOfMissingChanges(StringUtils.trimToNull(parts[i++]));
             info.setSecurityEnabled(StringUtils.trimToNull(parts[i++]));
             return info;
         }
