@@ -38,8 +38,6 @@ public class LdapReplicationHealthProbeTest {
     @Before
     public void setup() {
         when(configProperties.getLdap()).thenReturn(ldapProperties);
-        //when(ldapProperties.getReplication().getMissingChangesThreshold()).thenReturn(0);
-        //when(ldapProperties.getReplication().getPendingUpdatesThreshold()).thenReturn(0);
         when(ldapProperties.getReplication().getMissingUpdatesThreshold()).thenReturn(0);
         when(ldapProperties.getReplication().getApproximateDelayThreshold()).thenReturn(0);
         probe = new LdapReplicationHealthProbe(ldapTemplate, configProperties);
