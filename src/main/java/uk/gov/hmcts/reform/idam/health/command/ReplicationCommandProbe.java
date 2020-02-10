@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
-import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -22,14 +21,12 @@ public class ReplicationCommandProbe implements HealthProbe {
     private static final String RESULT_DELIM = "\t";
     private static final String REFORM_HMCTS_NET = "dc=reform,dc=hmcts,dc=net";
 
-    private final ConfigProperties configProperties;
     private final ReplicationCommandProbeProperties probeProperties;
     private final TextCommandRunner textCommandRunner;
 
     private String[] command;
 
-    public ReplicationCommandProbe(ConfigProperties configProperties, ReplicationCommandProbeProperties probeProperties, TextCommandRunner textCommandRunner) {
-        this.configProperties = configProperties;
+    public ReplicationCommandProbe(ReplicationCommandProbeProperties probeProperties, TextCommandRunner textCommandRunner) {
         this.probeProperties = probeProperties;
         this.textCommandRunner = textCommandRunner;
     }

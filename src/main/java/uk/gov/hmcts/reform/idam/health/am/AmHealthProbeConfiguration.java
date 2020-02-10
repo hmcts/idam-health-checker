@@ -32,7 +32,7 @@ public class AmHealthProbeConfiguration {
     public ScheduledHealthProbeIndicator amPasswordGrantScheduledHealthProbe(AmPasswordGrantHealthProbe amPasswordGrantHealthProbe) {
         return new ScheduledHealthProbeIndicator(
                 amPasswordGrantHealthProbe,
-                HealthProbeFailureHandling.IGNORE,
+                HealthProbeFailureHandling.MARK_AS_DOWN,
                 taskScheduler,
                 amHealthProbeProperties.getPasswordGrant().getFreshnessInterval(),
                 amHealthProbeProperties.getPasswordGrant().getCheckInterval());

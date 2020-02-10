@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
 import javax.naming.Name;
-import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -30,15 +29,15 @@ public class LdapReplicationHealthProbe implements HealthProbe {
     private static final String TAG = "LDAP Replication: ";
 
     private static final String BASE_DN = "cn=Replication,cn=monitor";
-    private static final String STATUS_ATTRIBUTE = "status";
-    private static final String PENDING_UPDATES_ATTRIBUTE = "pending-updates";
-    private static final String MISSING_CHANGES_ATTRIBUTE = "missing-changes";
-    private static final String APPROXIMATE_DELAY_ATTRIBUTE = "approximate-delay";
-    private static final String SENT_UPDATES_ATTRIBUTE = "sent-updates";
-    private static final String RECEIVED_UPDATES_ATTRIBUTE = "received-updates";
-    private static final String REPLAYED_UPDATES_ATTRIBUTE = "replayed-updates";
-    private static final String REPLICATION_FILTER = "(&(objectClass=*)(domain-name=dc=reform,dc=hmcts,dc=net)(!(cn=Changelog*)))";
-    private static final String NORMAL_STATUS = "normal";
+    private static final String STATUS_ATTRIBUTE = "ds-mon-status";
+    private static final String PENDING_UPDATES_ATTRIBUTE = "ds-mon-updates-outbound-queue";
+    private static final String MISSING_CHANGES_ATTRIBUTE = "ds-mon-missing-changes";
+    private static final String APPROXIMATE_DELAY_ATTRIBUTE = "ds-mon-approximate-delay";
+    private static final String SENT_UPDATES_ATTRIBUTE = "ds-mon-sent-updates";
+    private static final String RECEIVED_UPDATES_ATTRIBUTE = "ds-mon-assured-sr-received-updates-acked";
+    private static final String REPLAYED_UPDATES_ATTRIBUTE = "ds-mon-replayed-updates";
+    private static final String REPLICATION_FILTER = "(&(objectClass=*)(ds-mon-domain-name=dc=reform,dc=hmcts,dc=net)(!(cn=Changelog*)))";
+    private static final String NORMAL_STATUS = "Normal";
 
     private final LdapTemplate ldapTemplate;
     private final ConfigProperties.Ldap ldapProperties;
