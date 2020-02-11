@@ -103,10 +103,12 @@ public class ReplicationCommandProbe implements HealthProbe {
     }
 
     protected ReplicationStatus run(String[] command) throws InterruptedException, ExecutionException, IOException {
+        log.debug("Pulling replication command response...");
         TextCommandRunner.Response response = textCommandRunner.execute(command, probeProperties.getCommand().getCommandTimeout());
         ReplicationStatus status = new ReplicationStatus();
         if (CollectionUtils.isNotEmpty(response.getOutput())) {
             for (String value : response.getOutput()) {
+                log.debug("Response value: " + value);
                 if (value.startsWith(REFORM_HMCTS_NET)) {
                     ReplicationInfo info = convert(value);
                     if (info != null) {
@@ -145,11 +147,11 @@ public class ReplicationCommandProbe implements HealthProbe {
             info.setDsID(StringUtils.trimToNull(parts[i++]));
             info.setRsId(StringUtils.trimToNull(parts[i++]));
             info.setRsPort(StringUtils.trimToNull(parts[i++]));
-            String missingChanges = StringUtils.trimToNull(parts[i++]);
-            if (missingChanges != null) {
-                info.setDelay(Integer.parseInt(missingChanges));
+            String delay = StringUtils.trimToNull(parts[i++]);
+            if (delay != null) {
+                info.setDelay(delay.equals("N/A") ? 0 : Integer.parseInt(delay));
             }
-            info.setSecurityEnabled(StringUtils.trimToNull(parts[i++]));
+            info.setSecurityEnabled(StringUtils.trimToNull(parts[i]));
             return info;
         }
         return null;
