@@ -59,7 +59,11 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         if (probeResult || failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
             Status newStatus = probeResult ? Status.UP : Status.DOWN;
             if (log.isInfoEnabled() && this.status != newStatus) {
-                log.info("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
+                if (Status.DOWN.equals(newStatus)) {
+                    log.error("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
+                } else {
+                    log.info("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
+                }
             }
 
             this.status = newStatus;

@@ -24,7 +24,9 @@ public class AmIsAliveHealthProbe implements HealthProbe {
     @Override
     public boolean probe() {
         try {
+            System.out.println("amProvider.isAlive()");
             String isAliveResponse = amProvider.isAlive();
+            System.out.println(isAliveResponse);
             if (StringUtils.contains(isAliveResponse, ALIVE)) {
                 log.info(TAG + "success");
                 return true;
@@ -32,7 +34,9 @@ public class AmIsAliveHealthProbe implements HealthProbe {
                 log.error(TAG + "response did not contain expected value");
             }
         } catch (Exception e) {
-            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
+            String msg = TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]";
+            log.error(msg);
+            System.out.println(msg);
         }
         return false;
     }

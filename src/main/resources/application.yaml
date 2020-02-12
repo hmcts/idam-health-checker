@@ -46,7 +46,7 @@ ldap:
   principal: CN=Directory Manager
   replication:
     missing-updates-threshold: 10000000
-    approximate-delay-threshold: 120000
+    delay-threshold: 120000
 
 userstore:
   healthprobe:

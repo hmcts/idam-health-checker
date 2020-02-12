@@ -18,7 +18,7 @@ public class ConfigProperties {
         @Getter
         @Setter
         public static class Replication {
-            private Integer approximateDelayThreshold;
+            private Integer delayThreshold;
             private Integer missingUpdatesThreshold;
         }
 

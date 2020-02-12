@@ -40,7 +40,7 @@ public interface AmProvider {
     String isAlive();
 
     @PostMapping(
-            value = "/oauth2/access_token?realm=hmcts",
+            value = "/openam/oauth2/realms/hmcts/access_token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     Map<String, String> accessToken(@RequestHeader("Authorization") String auth,

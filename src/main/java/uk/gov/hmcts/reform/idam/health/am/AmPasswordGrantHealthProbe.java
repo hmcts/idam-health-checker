@@ -41,6 +41,7 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
     @Override
     public boolean probe() {
         try {
+            System.out.println("amProvider.passwordGrantAccessToken");
             Map<String, String> passwordGrantResponse = amProvider.passwordGrantAccessToken(
                     GRANT_TYPE,
                     amHealthProbeProperties.getIdentity().getHost(),
@@ -48,7 +49,7 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
                     probeUserProperties.getUsername(),
                     probeUserProperties.getPassword(),
                     amHealthProbeProperties.getIdentity().getScope());
-
+            System.out.println(passwordGrantResponse);
             if (MapUtils.isNotEmpty(passwordGrantResponse) && passwordGrantResponse.containsKey(ACCESS_TOKEN)) {
                 log.info(TAG + "success");
                 return true;
@@ -56,7 +57,9 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
                 log.error(TAG + "response did not contain expected value");
             }
         } catch (Exception e) {
-            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
+            String msg = TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]";
+            log.error(msg);
+            System.out.println(msg);
         }
         return false;
     }
