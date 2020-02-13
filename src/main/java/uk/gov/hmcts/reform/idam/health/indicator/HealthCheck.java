@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbeIndicator;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 @Component
 public class HealthCheck implements HealthIndicator {
@@ -18,9 +21,21 @@ public class HealthCheck implements HealthIndicator {
 
     @Override
     public Health health() {
-        if (healthProbeList.stream().allMatch(HealthProbeIndicator::isOkay)) {
-            return Health.up().build();
+        final Health.Builder builder;
+        List<HealthProbeIndicator> patients = healthProbeList.stream().filter(
+                indicator -> !indicator.isOkay()).collect(Collectors.toList());
+        if (patients.isEmpty()) {
+            builder = Health.up();
+        } else {
+            builder = Health.down();
+            patients.stream().forEach(indicator -> {
+                        String details = indicator.getDetails();
+                        if (details != null) {
+                            builder.withDetail(indicator.getClass().getName(), details);
+                        }});
         }
-        return Health.down().build();
+        return builder
+                .withDetail("v", defaultIfEmpty(getClass().getPackage().getImplementationVersion(), "2.0.2"))
+                .build();
     }
 }

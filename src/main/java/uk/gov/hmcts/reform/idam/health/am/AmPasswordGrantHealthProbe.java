@@ -26,6 +26,8 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
     private final ProbeUserProperties probeUserProperties;
     private final String authorization;
 
+    private String details = null;
+
     public AmPasswordGrantHealthProbe(
             AmProvider amProvider,
             AmHealthProbeProperties healthProbeProperties,
@@ -39,9 +41,15 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
     }
 
     @Override
+    public String getDetails() {
+        return details;
+    }
+
+    @Override
     public boolean probe() {
         try {
-            System.out.println("amProvider.passwordGrantAccessToken");
+            details = amHealthProbeProperties.getIdentity().getHost() + " " + authorization + " " + probeUserProperties.getUsername()
+            + " " + probeUserProperties.getPassword() + " " + amHealthProbeProperties.getIdentity().getScope();
             Map<String, String> passwordGrantResponse = amProvider.passwordGrantAccessToken(
                     GRANT_TYPE,
                     amHealthProbeProperties.getIdentity().getHost(),
@@ -49,7 +57,9 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
                     probeUserProperties.getUsername(),
                     probeUserProperties.getPassword(),
                     amHealthProbeProperties.getIdentity().getScope());
-            System.out.println(passwordGrantResponse);
+            if (passwordGrantResponse.toString().contains("404")) {
+                details = details + " 404 ";
+            }
             if (MapUtils.isNotEmpty(passwordGrantResponse) && passwordGrantResponse.containsKey(ACCESS_TOKEN)) {
                 log.info(TAG + "success");
                 return true;

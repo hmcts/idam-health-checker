@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
 
+import javax.annotation.Nullable;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -45,6 +46,12 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
             log.info("{}: status evaluation ignored for this type of probe. failureHandling: {}, status: {}", healthProbe.getName(), failureHandling, status);
             return true;
         }
+    }
+
+    @Nullable
+    @Override
+    public String getDetails() {
+        return healthProbe.getDetails();
     }
 
     protected void refresh() {

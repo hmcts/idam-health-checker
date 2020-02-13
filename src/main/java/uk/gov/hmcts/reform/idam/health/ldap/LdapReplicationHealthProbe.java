@@ -213,7 +213,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             String statusAttribute = context.getStringAttribute(STATUS_ATTRIBUTE);
             String pendingUpdatesAttribute = context.getStringAttribute(PENDING_UPDATES_ATTRIBUTE);
             String missingChangesAttribute = context.getStringAttribute(MISSING_CHANGES_ATTRIBUTE);
-            String approximateDelay = context.getStringAttribute(CURRENT_DELAY);
+            String currentDelay = context.getStringAttribute(CURRENT_DELAY);
             String sentUpdates = context.getStringAttribute(SENT_UPDATES_ATTRIBUTE);
             String receivedUpdates = context.getStringAttribute(RECEIVED_UPDATES_ATTRIBUTE);
             String replayedUpdates = context.getStringAttribute(REPLAYED_UPDATES_ATTRIBUTE);
@@ -244,7 +244,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             result.status = statusAttribute;
             result.pendingUpdates = toInt(pendingUpdatesAttribute);
             result.missingChanges = toInt(missingChangesAttribute);
-            result.currentDelay = toInt(approximateDelay);
+            result.currentDelay = toInt(currentDelay);
             result.sentUpdates = toInt(sentUpdates);
             result.receivedUpdates = toInt(receivedUpdates);
             result.replayedUpdates = parseReplayedUpdates(replayedUpdates);
