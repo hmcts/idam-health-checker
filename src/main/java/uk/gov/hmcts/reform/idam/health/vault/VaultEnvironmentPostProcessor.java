@@ -71,7 +71,6 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
             for (String vaultKey : vaultKeyPropertyNames.keySet()) {
                 String value = loadValue(client, keyVaultConfig.getVaultBaseUrl(), vaultKey);
                 if (value != null) {
-                    System.out.println("Loaded vault key: " + vaultKey);
                     props.put(vaultKeyPropertyNames.get(vaultKey), value);
                 }
             }

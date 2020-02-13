@@ -69,7 +69,6 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
         } catch (Exception e) {
             String msg = TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]";
             log.error(msg);
-            System.out.println(msg);
         }
         return false;
     }

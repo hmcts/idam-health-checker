@@ -28,9 +28,7 @@ public class AmIsAliveHealthProbe implements HealthProbe {
     @Override
     public boolean probe() {
         try {
-            System.out.println("amProvider.isAlive()");
             String isAliveResponse = amProvider.isAlive();
-            System.out.println(isAliveResponse);
             if (StringUtils.contains(isAliveResponse, ALIVE)) {
                 log.info(TAG + "success");
                 return true;
