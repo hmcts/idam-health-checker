@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 @Profile("am")
 @Slf4j
-public class AmPasswordGrantHealthProbe implements HealthProbe {
+public class AmPasswordGrantHealthProbe extends HealthProbe {
 
     private static final String TAG = "AM PasswordGrant: ";
 
@@ -26,8 +26,6 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
     private final ProbeUserProperties probeUserProperties;
     private final String authorization;
 
-    private String details = null;
-
     public AmPasswordGrantHealthProbe(
             AmProvider amProvider,
             AmHealthProbeProperties healthProbeProperties,
@@ -38,11 +36,6 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
         this.probeUserProperties = probeUserProperties;
 
         this.authorization = "Basic " + encode(agentProperties.getName(), agentProperties.getSecret());
-    }
-
-    @Override
-    public String getDetails() {
-        return details;
     }
 
     @Override
@@ -59,14 +52,10 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
                 log.info(TAG + "success");
                 return true;
             } else {
-                String msg = TAG + "response did not contain expected value";
-                log.error(msg);
-                details = msg;
+                setDetails(TAG + "response did not contain expected value");
             }
         } catch (Exception e) {
-            String msg = TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]";
-            log.error(msg);
-            details = msg;
+            setDetails(TAG + e.getMessage());
         }
         return false;
     }

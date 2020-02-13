@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @Profile({"tokenstore", "userstore", "ldap"})
-public class LdapReplicationHealthProbe implements HealthProbe {
+public class LdapReplicationHealthProbe extends HealthProbe {
 
     private static final String TAG = "LDAP Replication: ";
 

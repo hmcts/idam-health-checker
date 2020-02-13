@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 @Component
 @Profile({"userstore","tokenstore","replication"})
 @Slf4j
-public class ReplicationCommandProbe implements HealthProbe {
+public class ReplicationCommandProbe extends HealthProbe {
 
     private static final String SPACE = " ";
     private static final String RESULT_DELIM = "\t";

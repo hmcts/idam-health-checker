@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 @Profile("tokenstore")
 @Slf4j
-public class TokenStoreSearchHealthProbe implements HealthProbe {
+public class TokenStoreSearchHealthProbe extends HealthProbe {
 
     private final String TAG = "TokenStore Search: ";
 

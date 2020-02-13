@@ -14,7 +14,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
 @Slf4j
-public class FileFreshnessProbe implements HealthProbe {
+public class FileFreshnessProbe extends HealthProbe {
 
     private final String probeName;
     private final Path checkPath;

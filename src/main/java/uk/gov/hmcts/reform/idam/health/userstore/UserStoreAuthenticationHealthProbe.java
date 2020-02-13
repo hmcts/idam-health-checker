@@ -14,7 +14,7 @@ import java.util.List;
 @Component
 @Profile("userstore")
 @Slf4j
-public class UserStoreAuthenticationHealthProbe implements HealthProbe {
+public class UserStoreAuthenticationHealthProbe extends HealthProbe {
 
     private static final String LDAP_CN_ATTRIBUTE = "cn";
     private final String TAG = "UserStore Auth: ";

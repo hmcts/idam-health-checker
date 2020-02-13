@@ -1,17 +1,29 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
+import lombok.extern.slf4j.Slf4j;
+
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface HealthProbe {
+@Slf4j
+public abstract class HealthProbe {
 
-    boolean probe();
+    private String details;
 
-    default String getName() {
+    abstract public boolean probe();
+
+    @Nonnull
+    public String getName() {
         return this.getClass().getSimpleName();
-    };
+    }
 
     @Nullable
-    default String getDetails() {
-        return null;
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(@Nullable String details) {
+        log.info(details + " [" + getName() + "]");
+        this.details = details;
     }
 }

@@ -6,20 +6,16 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
-import javax.annotation.Nullable;
-
 @Component
 @Profile("am")
 @Slf4j
-public class AmIsAliveHealthProbe implements HealthProbe {
+public class AmIsAliveHealthProbe extends HealthProbe {
 
     private static final String TAG = "AM IsAlive: ";
 
     private static final String ALIVE = "ALIVE";
 
     private final AmProvider amProvider;
-
-    private String details = null;
 
     public AmIsAliveHealthProbe(AmProvider amProvider) {
         this.amProvider = amProvider;
@@ -33,21 +29,11 @@ public class AmIsAliveHealthProbe implements HealthProbe {
                 log.info(TAG + "success");
                 return true;
             } else {
-                String msg = TAG + "response did not contain expected value";
-                log.error(msg);
-                details = msg;
+                setDetails(TAG + "response did not contain expected value");
             }
         } catch (Exception e) {
-            String msg = TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]";
-            log.error(msg);
-            details = msg;
+            setDetails(TAG + e.getMessage());
         }
         return false;
-    }
-
-    @Nullable
-    @Override
-    public String getDetails() {
-        return details;
     }
 }
