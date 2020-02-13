@@ -64,6 +64,12 @@ publishing {
     }
 }
 
+jar {
+    manifest {
+        attributes('Main-Class': 'uk.gov.hmcts.reform.idam.health.HealthCheckApplication', 'Implementation-Version': version )
+    }
+}
+
 bintray {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
