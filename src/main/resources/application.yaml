@@ -15,7 +15,7 @@ management:
   endpoint:
     health:
       enabled: true
-      show-details: "ALWAYS"
+#      show-details: "ALWAYS"
     metrics:
       enabled: true
   health:
