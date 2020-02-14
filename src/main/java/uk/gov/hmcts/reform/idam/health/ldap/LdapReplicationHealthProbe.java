@@ -74,7 +74,7 @@ public class LdapReplicationHealthProbe extends HealthProbe {
                     .filter(REPLICATION_FILTER);
 
             List<ReplicationInfo> replicationDataList = ldapTemplate.search(replicationQuery, replicationContextMapper);
-            log.debug(replicationDataList.stream().map(ReplicationInfo::toString).collect(Collectors.joining()));
+            log.debug(replicationDataList.stream().map(ReplicationInfo::toString).collect(Collectors.joining(" ")));
 
             if (CollectionUtils.isEqualCollection(replicationInfoState, replicationDataList)) {
                 return probeState;
@@ -258,7 +258,7 @@ public class LdapReplicationHealthProbe extends HealthProbe {
                 try {
                     return new JsonParser().parse(replayedUpdates).getAsJsonObject().get("count").getAsInt();
                 } catch (JsonParseException | IllegalStateException e) {
-                    log.error("JSON expected but got this: " + replayedUpdates, e);
+                    log.error("JSON expected but got this: {} [{}]", replayedUpdates, e.getMessage());
                 }
             }
             return -1;

@@ -110,7 +110,7 @@ public class ReplicationCommandProbe extends HealthProbe {
         ReplicationStatus status = new ReplicationStatus();
         if (CollectionUtils.isNotEmpty(response.getOutput())) {
             for (String value : response.getOutput()) {
-                log.debug("Response value: " + value);
+                log.debug("Response value: {}", value);
                 if (value.startsWith(REFORM_HMCTS_NET)) {
                     ReplicationInfo info = convert(value);
                     if (info != null) {
@@ -136,24 +136,23 @@ public class ReplicationCommandProbe extends HealthProbe {
         String[] parts = value.split(RESULT_DELIM);
         if (parts.length == 9) {
             ReplicationInfo info = new ReplicationInfo();
-            int i = 0;
-            info.setSuffix(StringUtils.trimToNull(parts[i++]));
-            info.setHostName(StringUtils.trimToNull(parts[i++]));
-            String entries = StringUtils.trimToNull(parts[i++]);
+            info.setSuffix(StringUtils.trimToNull(parts[0]));
+            info.setHostName(StringUtils.trimToNull(parts[1]));
+            String entries = StringUtils.trimToNull(parts[2]);
             if (entries != null) {
                 info.setEntries(Integer.parseInt(entries));
             } else {
                 info.setEntries(-1);
             }
-            info.setReplicationEnabled(StringUtils.trimToNull(parts[i++]));
-            info.setDsID(StringUtils.trimToNull(parts[i++]));
-            info.setRsId(StringUtils.trimToNull(parts[i++]));
-            info.setRsPort(StringUtils.trimToNull(parts[i++]));
-            String delay = StringUtils.trimToNull(parts[i++]);
+            info.setReplicationEnabled(StringUtils.trimToNull(parts[3]));
+            info.setDsID(StringUtils.trimToNull(parts[4]));
+            info.setRsId(StringUtils.trimToNull(parts[5]));
+            info.setRsPort(StringUtils.trimToNull(parts[6]));
+            String delay = StringUtils.trimToNull(parts[7]);
             if (delay != null) {
                 info.setDelay(delay.equals("N/A") ? 0 : Integer.parseInt(delay));
             }
-            info.setSecurityEnabled(StringUtils.trimToNull(parts[i]));
+            info.setSecurityEnabled(StringUtils.trimToNull(parts[8]));
             return info;
         }
         return null;
