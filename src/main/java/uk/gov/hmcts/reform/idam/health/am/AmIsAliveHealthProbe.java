@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 @Component
 @Profile("am")
 @Slf4j
-public class AmIsAliveHealthProbe implements HealthProbe {
+public class AmIsAliveHealthProbe extends HealthProbe {
 
     private static final String TAG = "AM IsAlive: ";
 
@@ -29,10 +29,10 @@ public class AmIsAliveHealthProbe implements HealthProbe {
                 log.info(TAG + "success");
                 return true;
             } else {
-                log.error(TAG + "response did not contain expected value");
+                setDetails(TAG + "response did not contain expected value");
             }
         } catch (Exception e) {
-            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
+            setDetails(TAG + e.getMessage());
         }
         return false;
     }

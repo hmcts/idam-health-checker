@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.ldap;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -15,16 +17,18 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
+import javax.annotation.Nullable;
 import javax.naming.Name;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-@Profile({"tokenstore", "userstore"})
-public class LdapReplicationHealthProbe implements HealthProbe {
+@Profile({"tokenstore", "userstore", "ldap"})
+public class LdapReplicationHealthProbe extends HealthProbe {
 
     private static final String TAG = "LDAP Replication: ";
 
@@ -32,7 +36,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
     private static final String STATUS_ATTRIBUTE = "ds-mon-status";
     private static final String PENDING_UPDATES_ATTRIBUTE = "ds-mon-updates-outbound-queue";
     private static final String MISSING_CHANGES_ATTRIBUTE = "ds-mon-missing-changes";
-    private static final String APPROXIMATE_DELAY_ATTRIBUTE = "ds-mon-approximate-delay";
+    private static final String CURRENT_DELAY = "ds-mon-current-delay";
     private static final String SENT_UPDATES_ATTRIBUTE = "ds-mon-sent-updates";
     private static final String RECEIVED_UPDATES_ATTRIBUTE = "ds-mon-assured-sr-received-updates-acked";
     private static final String REPLAYED_UPDATES_ATTRIBUTE = "ds-mon-replayed-updates";
@@ -63,13 +67,14 @@ public class LdapReplicationHealthProbe implements HealthProbe {
                     .attributes(STATUS_ATTRIBUTE,
                             PENDING_UPDATES_ATTRIBUTE,
                             MISSING_CHANGES_ATTRIBUTE,
-                            APPROXIMATE_DELAY_ATTRIBUTE,
+                            CURRENT_DELAY,
                             SENT_UPDATES_ATTRIBUTE,
                             RECEIVED_UPDATES_ATTRIBUTE,
                             REPLAYED_UPDATES_ATTRIBUTE)
                     .filter(REPLICATION_FILTER);
 
             List<ReplicationInfo> replicationDataList = ldapTemplate.search(replicationQuery, replicationContextMapper);
+            log.debug(replicationDataList.stream().map(ReplicationInfo::toString).collect(Collectors.joining(" ")));
 
             if (CollectionUtils.isEqualCollection(replicationInfoState, replicationDataList)) {
                 return probeState;
@@ -134,8 +139,8 @@ public class LdapReplicationHealthProbe implements HealthProbe {
     }
 
     private boolean updatesAreOnTime(ReplicationInfo info) {
-        return (info.approximateDelay < 0) ||
-                (info.approximateDelay <= this.ldapProperties.getReplication().getApproximateDelayThreshold());
+        return (info.currentDelay < 0) ||
+                (info.currentDelay <= this.ldapProperties.getReplication().getDelayThreshold());
     }
 
     private boolean changesAreMissing(ReplicationInfo record) {
@@ -153,7 +158,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
         String status;
         Integer pendingUpdates;
         Integer missingChanges;
-        Integer approximateDelay;
+        Integer currentDelay;
         Integer sentUpdates;
         Integer receivedUpdates;
         Integer replayedUpdates;
@@ -182,7 +187,7 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             display.add("sent:" + sentUpdates);
             display.add("received:" + receivedUpdates);
             display.add("replayed:" + replayedUpdates);
-            display.add("delay:" + approximateDelay);
+            display.add("delay:" + currentDelay);
             return String.join(",", display);
         }
     }
@@ -203,10 +208,12 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             DirContextAdapter context = (DirContextAdapter) ctx;
             Name dn = context.getDn();
 
+            log.debug(context.toString());
+
             String statusAttribute = context.getStringAttribute(STATUS_ATTRIBUTE);
             String pendingUpdatesAttribute = context.getStringAttribute(PENDING_UPDATES_ATTRIBUTE);
             String missingChangesAttribute = context.getStringAttribute(MISSING_CHANGES_ATTRIBUTE);
-            String approximateDelay = context.getStringAttribute(APPROXIMATE_DELAY_ATTRIBUTE);
+            String currentDelay = context.getStringAttribute(CURRENT_DELAY);
             String sentUpdates = context.getStringAttribute(SENT_UPDATES_ATTRIBUTE);
             String receivedUpdates = context.getStringAttribute(RECEIVED_UPDATES_ATTRIBUTE);
             String replayedUpdates = context.getStringAttribute(REPLAYED_UPDATES_ATTRIBUTE);
@@ -237,17 +244,33 @@ public class LdapReplicationHealthProbe implements HealthProbe {
             result.status = statusAttribute;
             result.pendingUpdates = toInt(pendingUpdatesAttribute);
             result.missingChanges = toInt(missingChangesAttribute);
-            result.approximateDelay = toInt(approximateDelay);
+            result.currentDelay = toInt(currentDelay);
             result.sentUpdates = toInt(sentUpdates);
             result.receivedUpdates = toInt(receivedUpdates);
-            result.replayedUpdates = toInt(replayedUpdates);
+            result.replayedUpdates = parseReplayedUpdates(replayedUpdates);
             result.recordType = getType(replicationServer, directoryServer, connectedReplicationServer, connectedDirectoryServer);
 
             return result;
         }
 
+        static int parseReplayedUpdates(@Nullable String replayedUpdates) {
+            if (replayedUpdates != null) {
+                try {
+                    return new JsonParser().parse(replayedUpdates).getAsJsonObject().get("count").getAsInt();
+                } catch (JsonParseException | IllegalStateException e) {
+                    log.error("JSON expected but got this: {} [{}]", replayedUpdates, e.getMessage());
+                }
+            }
+            return -1;
+        }
+
         Integer toInt(String value) {
-            return value == null ? -1 : Integer.valueOf(value);
+            try {
+                return value == null ? -1 : Integer.parseInt(value);
+            } catch (NumberFormatException nfe) {
+                log.error("NumberFormatException caused by: " + value);
+                return -1;
+            }
         }
 
         ReplicationRecordType getType(String replServer, String dirServer, String connectedReplServer, String connectedDirServer) {

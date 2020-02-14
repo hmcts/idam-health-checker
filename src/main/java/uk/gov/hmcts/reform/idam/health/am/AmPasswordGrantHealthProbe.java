@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 @Profile("am")
 @Slf4j
-public class AmPasswordGrantHealthProbe implements HealthProbe {
+public class AmPasswordGrantHealthProbe extends HealthProbe {
 
     private static final String TAG = "AM PasswordGrant: ";
 
@@ -48,15 +48,14 @@ public class AmPasswordGrantHealthProbe implements HealthProbe {
                     probeUserProperties.getUsername(),
                     probeUserProperties.getPassword(),
                     amHealthProbeProperties.getIdentity().getScope());
-
             if (MapUtils.isNotEmpty(passwordGrantResponse) && passwordGrantResponse.containsKey(ACCESS_TOKEN)) {
                 log.info(TAG + "success");
                 return true;
             } else {
-                log.error(TAG + "response did not contain expected value");
+                setDetails(TAG + "response did not contain expected value");
             }
         } catch (Exception e) {
-            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
+            setDetails(TAG + e.getMessage());
         }
         return false;
     }

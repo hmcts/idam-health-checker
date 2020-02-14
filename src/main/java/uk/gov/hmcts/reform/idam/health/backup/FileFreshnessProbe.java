@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +15,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
 @Slf4j
-public class FileFreshnessProbe implements HealthProbe {
+public class FileFreshnessProbe extends HealthProbe {
 
     private final String probeName;
     private final Path checkPath;
@@ -67,6 +68,7 @@ public class FileFreshnessProbe implements HealthProbe {
         this.fileSystemInfo = fileSystemInfo;
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return probeName;

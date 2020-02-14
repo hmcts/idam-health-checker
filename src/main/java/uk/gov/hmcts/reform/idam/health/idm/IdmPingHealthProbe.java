@@ -12,7 +12,7 @@ import java.util.Map;
 @Component
 @Profile("idm")
 @Slf4j
-public class IdmPingHealthProbe implements HealthProbe {
+public class IdmPingHealthProbe extends HealthProbe {
 
     private static final String TAG = "IDM Ping: ";
 

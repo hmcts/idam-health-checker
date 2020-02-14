@@ -39,7 +39,7 @@ public class LdapReplicationHealthProbeTest {
     public void setup() {
         when(configProperties.getLdap()).thenReturn(ldapProperties);
         when(ldapProperties.getReplication().getMissingUpdatesThreshold()).thenReturn(0);
-        when(ldapProperties.getReplication().getApproximateDelayThreshold()).thenReturn(0);
+        when(ldapProperties.getReplication().getDelayThreshold()).thenReturn(0);
         probe = new LdapReplicationHealthProbe(ldapTemplate, configProperties);
     }
 
@@ -162,6 +162,22 @@ public class LdapReplicationHealthProbeTest {
         assertThat(probe.probe(), is(false));
     }
 
+    @Test
+    public void testParseReplayedUpdates_happyPath() {
+        String replayedUpdates = "{\"count\":1,\"total\":22.000,\"mean_rate\":0.000,\"m1_rate\":0.000,\"m5_rate\":0.000,\"m15_rate\":0.002,\"mean\":21.955,\"min\":21.889,\"max\":22.020,\"stddev\":0.000,\"p50\":22.020,\"p75\":22.020,\"p95\":22.020,\"p98\":22.020,\"p99\":22.020,\"p999\":22.020,\"p9999\":22.020,\"p99999\":22.020}";
+        assertThat(LdapReplicationHealthProbe.ReplicationContextMapper.parseReplayedUpdates(replayedUpdates), is(1));
+    }
+
+    @Test
+    public void testParseReplayedUpdates_null() {
+        assertThat(LdapReplicationHealthProbe.ReplicationContextMapper.parseReplayedUpdates(null), is(-1));
+    }
+
+    @Test
+    public void testParseReplayedUpdates_invalid() {
+        assertThat(LdapReplicationHealthProbe.ReplicationContextMapper.parseReplayedUpdates("hello"), is(-1));
+    }
+
     protected LdapReplicationHealthProbe.ReplicationInfo replicationInfo(String status, int missing, int pending) {
         LdapReplicationHealthProbe.ReplicationInfo info = new LdapReplicationHealthProbe.ReplicationInfo();
         info.status = status;
@@ -189,7 +205,7 @@ public class LdapReplicationHealthProbeTest {
         info.pendingUpdates = pendingUpdates;
         info.receivedUpdates = receivedUpdates;
         info.replayedUpdates = replayedUpdates;
-        info.approximateDelay = approximateDelay;
+        info.currentDelay = approximateDelay;
         return info;
     }
 

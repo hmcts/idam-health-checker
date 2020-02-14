@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 @Component
 @Profile({"userstore","tokenstore","replication"})
 @Slf4j
-public class ReplicationCommandProbe implements HealthProbe {
+public class ReplicationCommandProbe extends HealthProbe {
 
     private static final String SPACE = " ";
     private static final String RESULT_DELIM = "\t";
@@ -68,6 +69,7 @@ public class ReplicationCommandProbe implements HealthProbe {
         return false;
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return probeProperties.getCommand().getName();
@@ -103,10 +105,12 @@ public class ReplicationCommandProbe implements HealthProbe {
     }
 
     protected ReplicationStatus run(String[] command) throws InterruptedException, ExecutionException, IOException {
+        log.debug("Pulling replication command response...");
         TextCommandRunner.Response response = textCommandRunner.execute(command, probeProperties.getCommand().getCommandTimeout());
         ReplicationStatus status = new ReplicationStatus();
         if (CollectionUtils.isNotEmpty(response.getOutput())) {
             for (String value : response.getOutput()) {
+                log.debug("Response value: {}", value);
                 if (value.startsWith(REFORM_HMCTS_NET)) {
                     ReplicationInfo info = convert(value);
                     if (info != null) {
@@ -132,24 +136,23 @@ public class ReplicationCommandProbe implements HealthProbe {
         String[] parts = value.split(RESULT_DELIM);
         if (parts.length == 9) {
             ReplicationInfo info = new ReplicationInfo();
-            int i = 0;
-            info.setSuffix(StringUtils.trimToNull(parts[i++]));
-            info.setHostName(StringUtils.trimToNull(parts[i++]));
-            String entries = StringUtils.trimToNull(parts[i++]);
+            info.setSuffix(StringUtils.trimToNull(parts[0]));
+            info.setHostName(StringUtils.trimToNull(parts[1]));
+            String entries = StringUtils.trimToNull(parts[2]);
             if (entries != null) {
                 info.setEntries(Integer.parseInt(entries));
             } else {
                 info.setEntries(-1);
             }
-            info.setReplicationEnabled(StringUtils.trimToNull(parts[i++]));
-            info.setDsID(StringUtils.trimToNull(parts[i++]));
-            info.setRsId(StringUtils.trimToNull(parts[i++]));
-            info.setRsPort(StringUtils.trimToNull(parts[i++]));
-            String missingChanges = StringUtils.trimToNull(parts[i++]);
-            if (missingChanges != null) {
-                info.setDelay(Integer.parseInt(missingChanges));
+            info.setReplicationEnabled(StringUtils.trimToNull(parts[3]));
+            info.setDsID(StringUtils.trimToNull(parts[4]));
+            info.setRsId(StringUtils.trimToNull(parts[5]));
+            info.setRsPort(StringUtils.trimToNull(parts[6]));
+            String delay = StringUtils.trimToNull(parts[7]);
+            if (delay != null) {
+                info.setDelay(delay.equals("N/A") ? 0 : Integer.parseInt(delay));
             }
-            info.setSecurityEnabled(StringUtils.trimToNull(parts[i++]));
+            info.setSecurityEnabled(StringUtils.trimToNull(parts[8]));
             return info;
         }
         return null;

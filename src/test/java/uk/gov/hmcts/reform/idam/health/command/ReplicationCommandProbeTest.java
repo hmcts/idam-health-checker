@@ -133,4 +133,13 @@ public class ReplicationCommandProbeTest {
         assertThat(result, is(true));
     }
 
+    @Test
+    public void testProbe_HostWithNaDelay() throws InterruptedException, ExecutionException, IOException {
+        List<String> commandOutput = Collections.singletonList("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27259\ttrue\t24501\t1265\t8989\t N/A\ttrue");
+        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
+        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        boolean result = probe.probe();
+        assertThat(result, is(true));
+    }
+
 }

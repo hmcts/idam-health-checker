@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
 
+import javax.annotation.Nullable;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -47,6 +48,12 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         }
     }
 
+    @Nullable
+    @Override
+    public String getDetails() {
+        return healthProbe.getDetails();
+    }
+
     protected void refresh() {
         boolean probeHasExpired = status == Status.UNKNOWN || LocalDateTime.now(clock)
                 .isAfter(statusDateTime.plus(Math.round(0.75 * freshnessInterval), ChronoUnit.MILLIS));
@@ -58,8 +65,12 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
 
         if (probeResult || failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
             Status newStatus = probeResult ? Status.UP : Status.DOWN;
-            if (log.isInfoEnabled() && this.status != newStatus) {
-                log.info("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
+            if (this.status != newStatus) {
+                if (Status.DOWN.equals(newStatus)) {
+                    log.error("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
+                } else {
+                    log.info("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
+                }
             }
 
             this.status = newStatus;
