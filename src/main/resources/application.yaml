@@ -55,7 +55,7 @@ userstore:
       freshness-interval: 6000
       check-interval: 1000
     replication:
-      freshness-interval: 6000
+      freshness-interval: 60000
       check-interval: 1000
 
 tokenstore:
@@ -64,7 +64,7 @@ tokenstore:
       freshness-interval: 6000
       check-interval: 1000
     replication:
-      freshness-interval: 6000
+      freshness-interval: 60000
       check-interval: 1000
 
 idm:

@@ -8,7 +8,7 @@ plugins {
 
 
 group = 'uk.gov.hmcts.reform'
-version = '2.0.3-RC2'
+version = '2.0.3'
 sourceCompatibility = 1.8
 
 repositories {
