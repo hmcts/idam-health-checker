@@ -35,7 +35,7 @@ public class HealthCheck implements HealthIndicator {
                 }});
         }
         return builder
-                .withDetail("v", defaultIfEmpty(getClass().getPackage().getImplementationVersion(), "2.0.3-RC1"))
+                .withDetail("v", defaultIfEmpty(getClass().getPackage().getImplementationVersion(), "2.0.3-RC2"))
                 .build();
     }
 }
