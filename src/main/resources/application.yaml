@@ -81,8 +81,8 @@ am:
       freshness-interval: 6000
       check-interval: 1000
     passwordGrant:
-      freshness-interval: 86400000
-      check-interval: 7200000
+      freshness-interval: 360000
+      check-interval: 60000
     identity:
       scope: openid profile authorities acr roles
       host: dummy
