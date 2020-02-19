@@ -35,8 +35,7 @@ public class HealthCheck implements HealthIndicator {
                 }});
         }
         return builder
-                //TODO Put the version in the jar manifest.
-                .withDetail("v", defaultIfEmpty(getClass().getPackage().getImplementationVersion(), "2.0.3"))
+                .withDetail("v", defaultIfEmpty(getClass().getPackage().getImplementationVersion(), "dev"))
                 .build();
     }
 }
