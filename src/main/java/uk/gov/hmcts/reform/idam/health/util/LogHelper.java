@@ -21,10 +21,9 @@ public class LogHelper {
     private static LoggerContext loggerContext = generateLoggerContext();
 
     private static LoggerContext generateLoggerContext() {
-        // this is hacky as it supports profiles supplied only as a system property
-        String[] activeProfiles = ((String) System.getProperties().get("spring.profiles.active")).split(",");
-        if (activeProfiles.length < 2)
-            throw new RuntimeException("Expected at least 2 active profiles provided as system properties.");
+        // not the most elegant solution as it supports profiles supplied only as a system property
+        final String activeProfilesProperty = (String) System.getProperties().get("spring.profiles.active");
+        final String[] activeProfiles = activeProfilesProperty == null ? null : activeProfilesProperty.split(",");
 
         try {
             LoggerContext context = new LoggerContext();
@@ -34,16 +33,22 @@ public class LogHelper {
             context.reset();
 
             final String configResourceName;
-            final List<String> activeProfilesList = Arrays.asList(activeProfiles);
 
-            if (activeProfilesList.contains("insightconsole"))
-                configResourceName = "custom-logback-insight-console-file.xml";
-            else if (activeProfilesList.contains("live"))
-                configResourceName = "custom-logback-insight.xml";
-            else if (activeProfilesList.contains("consoleonly"))
+            if (activeProfiles == null) {
+                // fall-back to console and file only, for safety
                 configResourceName = "custom-logback-console-file.xml";
-            else
-                throw new RuntimeException("Cannot match Spring profiles to logback configs.");
+            } else {
+                final List<String> activeProfilesList = Arrays.asList(activeProfiles);
+                if (activeProfilesList.contains("insightconsole"))
+                    configResourceName = "custom-logback-insight-console-file.xml";
+                else if (activeProfilesList.contains("live"))
+                    configResourceName = "custom-logback-insight.xml";
+                else if (activeProfilesList.contains("consoleonly"))
+                    configResourceName = "custom-logback-console-file.xml";
+                else
+                    throw new RuntimeException("Cannot match Spring profiles to logback configs.");
+            }
+
 
             // Get a configuration file from classpath
             URL configurationUrl = Thread.currentThread().getContextClassLoader().getResource(configResourceName);
