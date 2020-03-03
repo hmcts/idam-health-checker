@@ -1,17 +1,17 @@
-import com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer
-
 plugins {
     id 'java-library'
     id 'org.springframework.boot' version '2.0.6.RELEASE'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'com.jfrog.bintray' version '1.8.1'
+    id "io.freefair.lombok" version "5.0.0-rc4"
 }
 
 
 group = 'uk.gov.hmcts.reform'
 version = '2.1.0'
 sourceCompatibility = 1.8
+generateLombokConfig.enabled = false
 
 repositories {
     mavenCentral()
@@ -48,8 +48,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:1.1.0-BETA'
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.2.0'
 
-    implementation 'org.projectlombok:lombok:1.18.2'
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.2'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.0.6.RELEASE'
     testImplementation 'org.hamcrest:hamcrest-core'
@@ -77,21 +76,6 @@ jar {
     manifest {
         attributes('Main-Class': 'uk.gov.hmcts.reform.idam.health.HealthCheckApplication', 'Implementation-Version': project.version)
     }
-}
-
-shadowJar {
-    classifier 'shadow'
-
-    // this is to make a Spring Boot runnable jar
-    append 'META-INF/spring.*'
-    mergeServiceFiles()
-    transform(PropertiesFileTransformer) {
-        paths = ['META-INF/spring.factories']
-        mergeStrategy = "append"
-    }
-
-//    relocate 'org.slf4j', 'shadow.slf4j'
-//    relocate 'ch.qos.logback', 'shadow.logback'
 }
 
 bintray {

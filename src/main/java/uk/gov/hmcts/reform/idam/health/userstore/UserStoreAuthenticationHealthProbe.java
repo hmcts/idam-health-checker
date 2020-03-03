@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.userstore;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @Profile("userstore")
-@Slf4j
+@CustomLog
 public class UserStoreAuthenticationHealthProbe extends HealthProbe {
 
     private static final String LDAP_CN_ATTRIBUTE = "cn";
@@ -58,7 +58,7 @@ public class UserStoreAuthenticationHealthProbe extends HealthProbe {
                 log.error(TAG + "authentication failed for filter " + ldapUserFilter);
             }
         } catch (Exception e) {
-            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
+            log.error(TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
         }
         return false;
     }

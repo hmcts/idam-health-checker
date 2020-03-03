@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.idm;
 
+import lombok.CustomLog;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 @Component
 @Profile("idm")
-@Slf4j
+@CustomLog
 public class IdmPingHealthProbe extends HealthProbe {
 
     private static final String TAG = "IDM Ping: ";

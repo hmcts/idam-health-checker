@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@Slf4j
+@CustomLog
 public abstract class HealthProbe {
 
     private String details;

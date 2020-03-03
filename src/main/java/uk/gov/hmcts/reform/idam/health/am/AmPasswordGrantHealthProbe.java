@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.am;
 
+import lombok.CustomLog;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.context.annotation.Profile;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 @Component
 @Profile("am")
-@Slf4j
+@CustomLog
 public class AmPasswordGrantHealthProbe extends HealthProbe {
 
     private static final String TAG = "AM PasswordGrant: ";
