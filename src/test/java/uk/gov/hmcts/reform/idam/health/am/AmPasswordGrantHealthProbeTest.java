@@ -77,4 +77,15 @@ public class AmPasswordGrantHealthProbeTest {
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
         assertThat(probe.probe(), is(false));
     }
+
+    @Test
+    public void testProbe_failThenPassException() {
+        when(amProvider.passwordGrantAccessToken(anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(null);
+        assertThat(probe.probe(), is(false));
+
+        when(amProvider.passwordGrantAccessToken(anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(ImmutableMap.of("access_token", "test-token"));
+        assertThat(probe.probe(), is(true));
+    }
 }

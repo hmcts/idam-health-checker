@@ -8,7 +8,7 @@ plugins {
 
 
 group = 'uk.gov.hmcts.reform'
-version = '2.0.2'
+version = '2.0.3'
 sourceCompatibility = 1.8
 
 repositories {
@@ -17,6 +17,12 @@ repositories {
         url "https://dl.bintray.com/hmcts/hmcts-maven"
     }
     jcenter()
+}
+
+bootJar {
+    manifest {
+        attributes( 'Implementation-Version': version )
+    }
 }
 
 bootRun {
@@ -61,12 +67,6 @@ publishing {
             artifactId rootProject.name
             version project.version
         }
-    }
-}
-
-jar {
-    manifest {
-        attributes('Main-Class': 'uk.gov.hmcts.reform.idam.health.HealthCheckApplication', 'Implementation-Version': version )
     }
 }
 

@@ -28,11 +28,11 @@ public class HealthCheck implements HealthIndicator {
             builder = Health.up();
         } else {
             builder = Health.down();
-            patients.stream().forEach(indicator -> {
-                        String details = indicator.getDetails();
-                        if (details != null) {
-                            builder.withDetail(indicator.getClass().getName(), details);
-                        }});
+            patients.forEach(indicator -> {
+                String details = indicator.getDetails();
+                if (details != null) {
+                    builder.withDetail(indicator.getClass().getName(), details);
+                }});
         }
         return builder
                 .withDetail("v", defaultIfEmpty(getClass().getPackage().getImplementationVersion(), "dev"))

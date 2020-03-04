@@ -15,7 +15,7 @@ management:
   endpoint:
     health:
       enabled: true
-      show-details: "ALWAYS"
+#      show-details: "ALWAYS"
     metrics:
       enabled: true
   health:
@@ -55,7 +55,7 @@ userstore:
       freshness-interval: 6000
       check-interval: 1000
     replication:
-      freshness-interval: 6000
+      freshness-interval: 60000
       check-interval: 1000
 
 tokenstore:
@@ -64,7 +64,7 @@ tokenstore:
       freshness-interval: 6000
       check-interval: 1000
     replication:
-      freshness-interval: 6000
+      freshness-interval: 60000
       check-interval: 1000
 
 idm:
@@ -81,8 +81,8 @@ am:
       freshness-interval: 6000
       check-interval: 1000
     passwordGrant:
-      freshness-interval: 86400000
-      check-interval: 7200000
+      freshness-interval: 360000
+      check-interval: 60000
     identity:
       scope: openid profile authorities acr roles
       host: dummy

@@ -105,6 +105,12 @@ traces
 | where customDimensions contains "AmIsAliveHealthProbe" 
 ```
 
+### 1.4.3. Details and Version
+
+You can enable the details in the healthchecker with `-Dmanagement.endpoint.health.show-details="ALWAYS"`. 
+
+Details can include information on why something is DOWN and the current healthchecker's version in its JSON output.
+
 ## 1.5. Secrets
 
 **External Infrastructure Dependencies**

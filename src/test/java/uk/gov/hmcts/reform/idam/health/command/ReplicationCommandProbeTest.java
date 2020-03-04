@@ -134,6 +134,19 @@ public class ReplicationCommandProbeTest {
     }
 
     @Test
+    public void testProbe_Sandbox() throws InterruptedException, ExecutionException, IOException {
+        when(probeProperties.getCommand().getEntryDifferenceThreshold()).thenReturn(null);
+        List<String> commandOutput = new ArrayList<>();
+        commandOutput.add("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t889\ttrue\t30518\t14667\t8989\t0\ttrue");
+        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t889\ttrue\t17303\t21868\t8989\t0\ttrue");
+        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t889\ttrue\t964\t8208\t8989\t0\ttrue");
+        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
+        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        boolean result = probe.probe();
+        assertThat(result, is(true));
+    }
+
+    @Test
     public void testProbe_HostWithNaDelay() throws InterruptedException, ExecutionException, IOException {
         List<String> commandOutput = Collections.singletonList("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27259\ttrue\t24501\t1265\t8989\t N/A\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
