@@ -23,7 +23,7 @@ repositories {
 
 bootJar {
     manifest {
-        attributes( 'Implementation-Version': version )
+        attributes('Main-Class': 'uk.gov.hmcts.reform.idam.health.HealthCheckApplication', 'Implementation-Version': project.version)
     }
 }
 
@@ -69,12 +69,6 @@ publishing {
             artifactId rootProject.name
             version project.version
         }
-    }
-}
-
-jar {
-    manifest {
-        attributes('Main-Class': 'uk.gov.hmcts.reform.idam.health.HealthCheckApplication', 'Implementation-Version': project.version)
     }
 }
 
