@@ -73,6 +73,10 @@ idm:
     ping:
       freshness-interval: 6000
       check-interval: 1000
+    ldapCheck:
+      enabled: true
+      username: idmadmin
+      password: supersecretpassword
 
 am:
   root: https://dummy

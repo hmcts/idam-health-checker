@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.idm;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -19,4 +20,13 @@ public class IdmHealthProbeProperties {
     }
 
     private IdmHealthProbeProperties.Probe ping;
+
+    @Data
+    static class LdapCheck {
+        private Boolean enabled;
+        private String username;
+        private String password;
+    }
+
+    private IdmHealthProbeProperties.LdapCheck ldapCheck;
 }
