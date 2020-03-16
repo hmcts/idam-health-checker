@@ -75,8 +75,8 @@ idm:
       check-interval: 1000
     ldapCheck:
       enabled: true
-      username: idmadmin
-      password: supersecretpassword
+      username: username-from-vault
+      password: password-from-vault
 
 am:
   root: https://dummy
