@@ -116,6 +116,10 @@ Details can include information on why something is DOWN and the current healthc
 **External Infrastructure Dependencies**
 
 * KeyVault secrets
+  * openidm-username
+    * used for idm ldap connectivity check
+  * openidm-password
+    * used for idm ldap connectivity check
   * test-owner-username
   * test-owner-password
   * web-admin-client-secret
@@ -245,6 +249,8 @@ Health check description of annonymous ping status for ForgeRock IDM. This probe
 
 * Request `isAlive.jsp`.
 * Assert the response contains `Server is ALIVE.`.
+* Request `/openidm/config/provisioner.openicf/ldap?_fields=enabled`
+* Assert the response contains `enabled: true` assuring IDM is connected to LDAP
 
 **Probe Configuration**
 
