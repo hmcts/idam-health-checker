@@ -188,7 +188,7 @@ public class IdmPingHealthProbeTest {
         when(this.idmHealthProbeProperties.getLdapCheck().getPassword()).thenReturn(null);
 
         when(idmProvider.ping(anyString())).thenReturn(ImmutableMap.of("state", "ACTIVE_READY"));
-        when(idmProvider.checkLdap(anyString(), anyString())).thenReturn(ImmutableMap.of("enabled", true));
+        
         assertThat(probe.probe(), is(false));
     }
 }
