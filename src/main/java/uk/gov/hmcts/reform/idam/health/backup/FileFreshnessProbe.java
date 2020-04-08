@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.backup;
 
 import com.google.common.annotations.VisibleForTesting;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
 import javax.annotation.Nonnull;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
-@Slf4j
+@CustomLog
 public class FileFreshnessProbe extends HealthProbe {
 
     private final String probeName;
@@ -55,7 +55,7 @@ public class FileFreshnessProbe extends HealthProbe {
         }
 
         return false;
-        
+
     }
 
     @VisibleForTesting

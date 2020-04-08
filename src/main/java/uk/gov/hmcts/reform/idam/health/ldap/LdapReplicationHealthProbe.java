@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.idam.health.ldap;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Profile;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-@Slf4j
+@CustomLog
 @Profile({"tokenstore", "userstore", "ldap"})
 public class LdapReplicationHealthProbe extends HealthProbe {
 

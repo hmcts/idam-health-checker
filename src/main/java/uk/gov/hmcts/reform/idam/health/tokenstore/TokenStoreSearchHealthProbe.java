@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.tokenstore;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @Profile("tokenstore")
-@Slf4j
+@CustomLog
 public class TokenStoreSearchHealthProbe extends HealthProbe {
 
     private final String TAG = "TokenStore Search: ";
@@ -42,7 +42,7 @@ public class TokenStoreSearchHealthProbe extends HealthProbe {
                 log.error(TAG + "response is empty");
             }
         } catch (Exception e) {
-            log.error(TAG +  e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
+            log.error(TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
         }
         return false;
     }

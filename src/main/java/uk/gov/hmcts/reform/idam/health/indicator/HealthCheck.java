@@ -8,7 +8,7 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbeIndicator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 @Component
 public class HealthCheck implements HealthIndicator {

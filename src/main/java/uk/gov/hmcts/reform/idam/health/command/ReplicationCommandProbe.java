@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.command;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Profile;
@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Component
-@Profile({"userstore","tokenstore","replication"})
-@Slf4j
+@Profile({"userstore", "tokenstore", "replication"})
+@CustomLog
 public class ReplicationCommandProbe extends HealthProbe {
 
     private static final String SPACE = " ";

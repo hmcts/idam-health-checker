@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.idam.health.vault;
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -20,7 +20,7 @@ import uk.gov.hmcts.reform.vault.credential.ClientSecretKeyVaultCredential;
 import java.util.Map;
 import java.util.Properties;
 
-@Slf4j
+@CustomLog
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
