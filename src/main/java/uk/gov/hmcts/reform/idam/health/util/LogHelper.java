@@ -49,7 +49,6 @@ public class LogHelper {
                     throw new RuntimeException("Cannot match Spring profiles to logback configs.");
             }
 
-
             // Get a configuration file from classpath
             URL configurationUrl = Thread.currentThread().getContextClassLoader().getResource(configResourceName);
             if (configurationUrl == null) {
@@ -58,7 +57,8 @@ public class LogHelper {
 
             configurator.doConfigure(configurationUrl);
             StatusPrinter.printInCaseOfErrorsOrWarnings(context);
-
+            // this must be output directly in case there are problems with logging
+            System.out.println("Loaded " + configResourceName + " custom logback profile."); //NOSONAR
             return context;
         } catch (JoranException e) {
             throw new RuntimeException("Unable to configure logger", e);
