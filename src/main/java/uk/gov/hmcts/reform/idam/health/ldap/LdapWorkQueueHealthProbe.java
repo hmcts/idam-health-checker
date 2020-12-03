@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Component
 @CustomLog
-@Profile({"tokenstore", "userstore", "ldap"})
+@Profile({"tokenstore"})
 public class LdapWorkQueueHealthProbe extends HealthProbe {
 
     private static final String TAG = "LDAP Work Queue: ";
