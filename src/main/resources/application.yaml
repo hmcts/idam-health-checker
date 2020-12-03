@@ -66,6 +66,9 @@ tokenstore:
     replication:
       freshness-interval: 60000
       check-interval: 1000
+    work-queue:
+      freshness-interval: 60000
+      check-interval: 10000
 
 idm:
   root: https://dummy
