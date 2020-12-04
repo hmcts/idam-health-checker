@@ -69,6 +69,9 @@ tokenstore:
     work-queue:
       freshness-interval: 60000
       check-interval: 10000
+    connections:
+      freshness-interval: 30000
+      check-interval: 5000
 
 idm:
   root: https://dummy

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
+import uk.gov.hmcts.reform.idam.health.ldap.LdapConnectionsHealthProbe;
 import uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe;
 import uk.gov.hmcts.reform.idam.health.ldap.LdapWorkQueueHealthProbe;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbeFailureHandling;
@@ -52,5 +53,16 @@ public class TokenStoreHealthProbeConfiguration {
                 taskScheduler,
                 tokenStoreHealthProbeProperties.getWorkQueue().getFreshnessInterval(),
                 tokenStoreHealthProbeProperties.getWorkQueue().getCheckInterval());
+    }
+
+    @Bean
+    public ScheduledHealthProbeIndicator tokenStoreConnectionsHealthProbe(
+            LdapConnectionsHealthProbe ldapConnectionsHealthProbe) {
+        return new ScheduledHealthProbeIndicator(
+                ldapConnectionsHealthProbe,
+                HealthProbeFailureHandling.IGNORE,
+                taskScheduler,
+                tokenStoreHealthProbeProperties.getConnections().getFreshnessInterval(),
+                tokenStoreHealthProbeProperties.getConnections().getCheckInterval());
     }
 }

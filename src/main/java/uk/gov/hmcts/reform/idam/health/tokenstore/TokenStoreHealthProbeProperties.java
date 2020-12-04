@@ -21,4 +21,6 @@ public class TokenStoreHealthProbeProperties {
     private TokenStoreHealthProbeProperties.Probe search;
     private TokenStoreHealthProbeProperties.Probe replication;
     private TokenStoreHealthProbeProperties.Probe workQueue;
+    private TokenStoreHealthProbeProperties.Probe connections;
+
 }

@@ -56,6 +56,8 @@ public class LdapWorkQueueHealthProbe extends HealthProbe {
             if (CollectionUtils.isNotEmpty(workQueueDataList)) {
                 log.info(TAG + workQueueDataList.stream().map(LdapWorkQueueHealthProbe.WorkQueueInfo::toString).collect(Collectors.joining("; ")));
                 return true;
+            } else {
+                log.warn(TAG + "Ldap work queue query returned no results");
             }
 
         } catch (Exception e) {
