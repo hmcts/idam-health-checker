@@ -57,6 +57,12 @@ userstore:
     replication:
       freshness-interval: 60000
       check-interval: 1000
+    work-queue:
+      freshness-interval: 300000
+      check-interval: 30000
+    connections:
+      freshness-interval: 300000
+      check-interval: 30000
 
 tokenstore:
   healthprobe:
@@ -66,6 +72,12 @@ tokenstore:
     replication:
       freshness-interval: 60000
       check-interval: 1000
+    work-queue:
+      freshness-interval: 300000
+      check-interval: 30000
+    connections:
+      freshness-interval: 300000
+      check-interval: 30000
 
 idm:
   root: https://dummy

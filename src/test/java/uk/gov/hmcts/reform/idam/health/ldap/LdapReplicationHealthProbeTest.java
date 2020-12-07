@@ -40,7 +40,7 @@ public class LdapReplicationHealthProbeTest {
         when(configProperties.getLdap()).thenReturn(ldapProperties);
         when(ldapProperties.getReplication().getMissingUpdatesThreshold()).thenReturn(0);
         when(ldapProperties.getReplication().getDelayThreshold()).thenReturn(0);
-        probe = new LdapReplicationHealthProbe(ldapTemplate, configProperties);
+        probe = new LdapReplicationHealthProbe("probeName", ldapTemplate, configProperties);
     }
 
     @Test

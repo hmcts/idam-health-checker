@@ -20,4 +20,6 @@ public class UserStoreHealthProbeProperties {
 
     private UserStoreHealthProbeProperties.Probe authentication;
     private UserStoreHealthProbeProperties.Probe replication;
+    private UserStoreHealthProbeProperties.Probe workQueue;
+    private UserStoreHealthProbeProperties.Probe connections;
 }
