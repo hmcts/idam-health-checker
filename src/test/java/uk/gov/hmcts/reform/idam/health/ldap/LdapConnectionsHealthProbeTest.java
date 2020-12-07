@@ -27,7 +27,7 @@ public class LdapConnectionsHealthProbeTest {
 
     @Before
     public void setup() {
-        probe = new LdapConnectionsHealthProbe(ldapTemplate);
+        probe = new LdapConnectionsHealthProbe("probeName", ldapTemplate);
     }
 
     @Test

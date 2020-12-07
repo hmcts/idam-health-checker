@@ -27,7 +27,7 @@ public class LdapWorkQueueHealthProbeTest {
 
     @Before
     public void setup() {
-        probe = new LdapWorkQueueHealthProbe(ldapTemplate);
+        probe = new LdapWorkQueueHealthProbe("probeName", ldapTemplate);
     }
 
     @Test

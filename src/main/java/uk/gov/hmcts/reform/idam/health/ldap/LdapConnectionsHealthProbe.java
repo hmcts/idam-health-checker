@@ -2,28 +2,20 @@ package uk.gov.hmcts.reform.idam.health.ldap;
 
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQuery;
 import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.ldap.query.SearchScope;
-import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
 @CustomLog
-@Profile({"tokenstore"})
-public class LdapConnectionsHealthProbe extends HealthProbe {
-
-    private static final String TAG = "LDAP Connections: ";
+public class LdapConnectionsHealthProbe extends LdapQueryHealthProbe<LdapConnectionsHealthProbe.ConnectionsInfo> {
 
     private static final String BASE_DN = "cn=LDAPS,cn=connection handlers,cn=monitor";
     private static final String CONNECTION_FILTER = "(objectClass=ds-monitor-connection-handler)";
@@ -40,46 +32,33 @@ public class LdapConnectionsHealthProbe extends HealthProbe {
     private static final String FAILURE_SERVER_STATS_ATTRIBUTE = "ds-mon-requests-failure-server";
     private static final String FAILURE_UNCATEGORIZED_STATS_ATTRIBUTE = "ds-mon-requests-failure-uncategorized";
 
-    private final LdapTemplate ldapTemplate;
-    private final LdapConnectionsHealthProbe.ConnectionsContextMapper connectionsContextMapper;
-
-    public LdapConnectionsHealthProbe(LdapTemplate ldapTemplate) {
-        this.ldapTemplate = ldapTemplate;
-        this.connectionsContextMapper = new ConnectionsContextMapper();
+    public LdapConnectionsHealthProbe(String probeName, LdapTemplate ldapTemplate) {
+        super(probeName, ldapTemplate, new ConnectionsContextMapper());
     }
 
     @Override
-    public boolean probe() {
-        try {
-            LdapQuery connectionsQuery = LdapQueryBuilder.query()
-                    .base(BASE_DN)
-                    .searchScope(SearchScope.SUBTREE)
-                    .attributes(ACTIVE_CONNECTIONS_COUNT_ATTRIBUTE,
-                            CONNECTIONS_STATS_ATTRIBUTE,
-                            ACTIVE_PERSISTENT_SEARCH_COUNT_ATTRIBUTE,
-                            ABANDONED_REQUESTS_COUNT_ATTRIBUTE,
-                            ABANDONED_REQUESTS_STATS_ATTRIBUTE,
-                            FAILURE_CLIENT_INVALID_STATS_ATTRIBUTE,
-                            FAILURE_CLIENT_SECURITY_STATS_ATTRIBUTE,
-                            FAILURE_CLIENT_RESOURCE_STATS_ATTRIBUTE,
-                            FAILURE_CLIENT_REFERRAL_STATS_ATTRIBUTE,
-                            FAILURE_SERVER_STATS_ATTRIBUTE,
-                            FAILURE_UNCATEGORIZED_STATS_ATTRIBUTE)
-                    .filter(CONNECTION_FILTER);
+    public LdapQuery ldapQuery() {
+        return LdapQueryBuilder.query()
+                .base(BASE_DN)
+                .searchScope(SearchScope.SUBTREE)
+                .attributes(ACTIVE_CONNECTIONS_COUNT_ATTRIBUTE,
+                        CONNECTIONS_STATS_ATTRIBUTE,
+                        ACTIVE_PERSISTENT_SEARCH_COUNT_ATTRIBUTE,
+                        ABANDONED_REQUESTS_COUNT_ATTRIBUTE,
+                        ABANDONED_REQUESTS_STATS_ATTRIBUTE,
+                        FAILURE_CLIENT_INVALID_STATS_ATTRIBUTE,
+                        FAILURE_CLIENT_SECURITY_STATS_ATTRIBUTE,
+                        FAILURE_CLIENT_RESOURCE_STATS_ATTRIBUTE,
+                        FAILURE_CLIENT_REFERRAL_STATS_ATTRIBUTE,
+                        FAILURE_SERVER_STATS_ATTRIBUTE,
+                        FAILURE_UNCATEGORIZED_STATS_ATTRIBUTE)
+                .filter(CONNECTION_FILTER);
+    }
 
-            List<LdapConnectionsHealthProbe.ConnectionsInfo> workQueueDataList = ldapTemplate.search(connectionsQuery, connectionsContextMapper);
-
-            if (CollectionUtils.isNotEmpty(workQueueDataList)) {
-                log.info(TAG + workQueueDataList.stream().map(LdapConnectionsHealthProbe.ConnectionsInfo::toString).collect(Collectors.joining("; ")));
-                return true;
-            } else {
-                log.warn(TAG + "Ldap connections query returned no results");
-            }
-
-        } catch (Exception e) {
-            log.error(TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
-        }
-        return false;
+    @Override
+    public boolean handleResult(List<ConnectionsInfo> resultList) {
+        log.info("{}: {}", getName(), resultList.stream().map(LdapConnectionsHealthProbe.ConnectionsInfo::toString).collect(Collectors.joining("; ")));
+        return true;
     }
 
     @EqualsAndHashCode

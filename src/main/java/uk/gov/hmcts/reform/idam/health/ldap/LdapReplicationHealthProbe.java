@@ -25,14 +25,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
 @CustomLog
-@Profile({"tokenstore", "userstore", "ldap"})
-public class LdapReplicationHealthProbe extends HealthProbe {
-
-    private static final String TAG = "LDAP Replication: ";
+public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplicationHealthProbe.ReplicationInfo> {
 
     private static final String BASE_DN = "cn=Replication,cn=monitor";
+    private static final String REPLICATION_FILTER = "(&(objectClass=*)(ds-mon-domain-name=dc=reform,dc=hmcts,dc=net)(!(cn=Changelog*)))";
+
     private static final String STATUS_ATTRIBUTE = "ds-mon-status";
     private static final String PENDING_UPDATES_ATTRIBUTE = "ds-mon-updates-outbound-queue";
     private static final String MISSING_CHANGES_ATTRIBUTE = "ds-mon-missing-changes";
@@ -40,96 +38,91 @@ public class LdapReplicationHealthProbe extends HealthProbe {
     private static final String SENT_UPDATES_ATTRIBUTE = "ds-mon-sent-updates";
     private static final String RECEIVED_UPDATES_ATTRIBUTE = "ds-mon-assured-sr-received-updates-acked";
     private static final String REPLAYED_UPDATES_ATTRIBUTE = "ds-mon-replayed-updates";
-    private static final String REPLICATION_FILTER = "(&(objectClass=*)(ds-mon-domain-name=dc=reform,dc=hmcts,dc=net)(!(cn=Changelog*)))";
     private static final String NORMAL_STATUS = "Normal";
 
-    private final LdapTemplate ldapTemplate;
     private final ConfigProperties.Ldap ldapProperties;
-    private final ReplicationContextMapper replicationContextMapper;
 
     private List<ReplicationInfo> replicationInfoState = Collections.emptyList();
     private boolean probeState;
 
-    public LdapReplicationHealthProbe(
+    public LdapReplicationHealthProbe(String probeName,
             LdapTemplate ldapTemplate,
             ConfigProperties configProperties) {
-        this.ldapTemplate = ldapTemplate;
-        this.replicationContextMapper = new ReplicationContextMapper();
+        super(probeName, ldapTemplate, new ReplicationContextMapper());
         this.ldapProperties = configProperties.getLdap();
     }
 
     @Override
-    public boolean probe() {
-        try {
-            LdapQuery replicationQuery = LdapQueryBuilder.query()
-                    .base(BASE_DN)
-                    .searchScope(SearchScope.SUBTREE)
-                    .attributes(STATUS_ATTRIBUTE,
-                            PENDING_UPDATES_ATTRIBUTE,
-                            MISSING_CHANGES_ATTRIBUTE,
-                            CURRENT_DELAY,
-                            SENT_UPDATES_ATTRIBUTE,
-                            RECEIVED_UPDATES_ATTRIBUTE,
-                            REPLAYED_UPDATES_ATTRIBUTE)
-                    .filter(REPLICATION_FILTER);
+    public LdapQuery ldapQuery() {
+        return LdapQueryBuilder.query()
+                .base(BASE_DN)
+                .searchScope(SearchScope.SUBTREE)
+                .attributes(STATUS_ATTRIBUTE,
+                        PENDING_UPDATES_ATTRIBUTE,
+                        MISSING_CHANGES_ATTRIBUTE,
+                        CURRENT_DELAY,
+                        SENT_UPDATES_ATTRIBUTE,
+                        RECEIVED_UPDATES_ATTRIBUTE,
+                        REPLAYED_UPDATES_ATTRIBUTE)
+                .filter(REPLICATION_FILTER);
+    }
 
-            List<ReplicationInfo> replicationDataList = ldapTemplate.search(replicationQuery, replicationContextMapper);
-            log.debug(replicationDataList.stream().map(ReplicationInfo::toString).collect(Collectors.joining(" ")));
-
-            if (CollectionUtils.isEqualCollection(replicationInfoState, replicationDataList)) {
-                return probeState;
-            }
-
-            boolean result = true;
-            for (ReplicationInfo record : replicationDataList) {
-                switch (record.recordType) {
-                    case LOCAL_DS:
-                        if (!updatesAreBeingReplayed(record)) {
-                            log.error(TAG + record.recordType + " Failing replay check, " + record.toString());
-                            result = false;
-                        } else if ((record.status != null) && (!NORMAL_STATUS.equalsIgnoreCase(record.status))) {
-                            log.warn(TAG + record.recordType + " Unexpected status, " + record.toString());
-                        } else if (log.isInfoEnabled()) {
-                            log.info(TAG + record.recordType + " okay, " + record.toString());
-                        }
-                        break;
-                    case LOCAL_RS:
-                        if (changesAreMissing(record)) {
-                            log.error(TAG + record.recordType + " Failing missing changes check, " + record.toString());
-                            result = false;
-                        } else if (log.isInfoEnabled()) {
-                            log.info(TAG + record.recordType + " okay, " + record.toString());
-                        }
-                        break;
-                    case LOCAL_RS_CONN_DS:
-                        if (!updatesAreOnTime(record)) {
-                            log.error(TAG + record.recordType + " Failing delay check, " + record.toString());
-                            result = false;
-                        } else if (log.isInfoEnabled()) {
-                            log.info(TAG + record.recordType + " okay, " + record.toString());
-                        }
-                        break;
-                    case UNKNOWN:
-                        if (log.isDebugEnabled()) {
-                            log.debug(TAG + "Unknown replication record type, " + record.toString());
-                        }
-                        break;
-                    default:
-                        if (log.isInfoEnabled()) {
-                            log.info(TAG + record.recordType + " okay, " + record.toString());
-                        }
-                }
-            }
-
-            probeState = result;
-            replicationInfoState = replicationDataList;
-
-            return result;
-
-        } catch (Exception e) {
-            log.error(TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
+    @Override
+    public boolean handleResult(List<ReplicationInfo> resultList) {
+        if (CollectionUtils.isEqualCollection(replicationInfoState, resultList)) {
+            return probeState;
         }
-        return false;
+
+        boolean result = true;
+        for (ReplicationInfo record : resultList) {
+            switch (record.recordType) {
+                case LOCAL_DS:
+                    if (!updatesAreBeingReplayed(record)) {
+                        log.error("{}: {}: Failing replay check, {}", getName(), record.recordType, record.toString());
+                        result = false;
+                    } else if ((record.status != null) && (!NORMAL_STATUS.equalsIgnoreCase(record.status))) {
+                        log.warn("{}: {}: Unexpected status, {}", getName(), record.recordType, record.toString());
+                    } else if (log.isInfoEnabled()) {
+                        log.info("{}: {}:  okay, {}", getName(), record.recordType, record.toString());
+                    }
+                    break;
+                case LOCAL_RS:
+                    if (changesAreMissing(record)) {
+                        log.error("{}: {}: Failing missing changes check, {}", getName(), record.recordType, record.toString());
+                        result = false;
+                    } else if (log.isInfoEnabled()) {
+                        log.info("{}: {}: okay, {}", getName(), record.recordType, record.toString());
+                    }
+                    break;
+                case LOCAL_RS_CONN_DS:
+                    if (!updatesAreOnTime(record)) {
+                        log.error("{}: {}: Failing delay check, {}", getName(), record.recordType, record.toString());
+                        result = false;
+                    } else if (log.isInfoEnabled()) {
+                        log.info("{}: {}: okay, {}", getName(), record.recordType, record.toString());
+                    }
+                    break;
+                case UNKNOWN:
+                    if (log.isDebugEnabled()) {
+                        log.debug( "{}: Unknown replication record type, {}", getName(), record.toString());
+                    }
+                    break;
+                default:
+                    if (log.isInfoEnabled()) {
+                        log.info("{}: {}: okay, {}", getName(), record.recordType, record.toString());
+                    }
+            }
+        }
+
+        probeState = result;
+        replicationInfoState = resultList;
+
+        return result;
+    }
+
+    @Override
+    public boolean handleEmptyResult() {
+        return handleResult(Collections.emptyList());
     }
 
     private boolean updatesAreBeingReplayed(ReplicationInfo info) {

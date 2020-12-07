@@ -19,53 +19,36 @@ import javax.naming.NamingException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
 @CustomLog
-@Profile({"tokenstore"})
-public class LdapWorkQueueHealthProbe extends HealthProbe {
-
-    private static final String TAG = "LDAP Work Queue: ";
+public class LdapWorkQueueHealthProbe extends LdapQueryHealthProbe<LdapWorkQueueHealthProbe.WorkQueueInfo> {
 
     private static final String BASE_DN = "cn=work queue,cn=monitor";
+    private static final String WORK_QUEUE_FILTER = "(objectClass=*)";
+
     private static final String REQUESTS_IN_QUEUE_ATTRIBUTE = "ds-mon-requests-in-queue";
     private static final String REQUESTS_SUBMITTED_ATTRIBUTE = "ds-mon-requests-submitted";
     private static final String REQUESTS_REJECTED_ATTRIBUTE = "ds-mon-requests-rejected-queue-full";
-    private static final String WORK_QUEUE_FILTER = "(objectClass=*)";
 
-    private final LdapTemplate ldapTemplate;
-    private final WorkQueueContextMapper workQueueContextMapper;
-
-    public LdapWorkQueueHealthProbe(LdapTemplate ldapTemplate) {
-        this.ldapTemplate = ldapTemplate;
-        this.workQueueContextMapper = new WorkQueueContextMapper();
+    public LdapWorkQueueHealthProbe(String probeName, LdapTemplate ldapTemplate) {
+        super(probeName, ldapTemplate, new WorkQueueContextMapper());
     }
 
     @Override
-    public boolean probe() {
-        try {
-            LdapQuery workQueueQuery = LdapQueryBuilder.query()
-                    .base(BASE_DN)
-                    .searchScope(SearchScope.SUBTREE)
-                    .attributes(REQUESTS_IN_QUEUE_ATTRIBUTE,
-                            REQUESTS_SUBMITTED_ATTRIBUTE,
-                            REQUESTS_REJECTED_ATTRIBUTE)
-                    .filter(WORK_QUEUE_FILTER);
-
-            List<LdapWorkQueueHealthProbe.WorkQueueInfo> workQueueDataList = ldapTemplate.search(workQueueQuery, workQueueContextMapper);
-
-            if (CollectionUtils.isNotEmpty(workQueueDataList)) {
-                log.info(TAG + workQueueDataList.stream().map(LdapWorkQueueHealthProbe.WorkQueueInfo::toString).collect(Collectors.joining("; ")));
-                return true;
-            } else {
-                log.warn(TAG + "Ldap work queue query returned no results");
-            }
-
-        } catch (Exception e) {
-            log.error(TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
-        }
-        return false;
+    public LdapQuery ldapQuery() {
+        return LdapQueryBuilder.query()
+                .base(BASE_DN)
+                .searchScope(SearchScope.SUBTREE)
+                .attributes(REQUESTS_IN_QUEUE_ATTRIBUTE,
+                        REQUESTS_SUBMITTED_ATTRIBUTE,
+                        REQUESTS_REJECTED_ATTRIBUTE)
+                .filter(WORK_QUEUE_FILTER);
     }
 
+    @Override
+    public boolean handleResult(List<LdapWorkQueueHealthProbe.WorkQueueInfo> resultList) {
+        log.info("{}: {}", getName(), resultList.stream().map(LdapWorkQueueHealthProbe.WorkQueueInfo::toString).collect(Collectors.joining("; ")));
+        return true;
+    }
 
     @EqualsAndHashCode
     static class WorkQueueInfo {
