@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 public class ScheduledHealthProbeIndicatorTest {
 
     private static final long EPOCH_1AM = 3600;
+
     @Mock
     private HealthProbe healthProbe;
 
@@ -40,6 +41,7 @@ public class ScheduledHealthProbeIndicatorTest {
         ignoringScheduledHealthProbe = new ScheduledHealthProbeIndicator(
                 healthProbe, HealthProbeFailureHandling.IGNORE, taskScheduler, 40000L, 30000L);
 
+        when(healthProbe.getName()).thenReturn("testprobe");
         verify(taskScheduler, times(2)).scheduleWithFixedDelay(any(Runnable.class), anyLong());
     }
 
@@ -125,6 +127,22 @@ public class ScheduledHealthProbeIndicatorTest {
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
         ignoringScheduledHealthProbe.changeClock(Clock.offset(Clock.systemDefaultZone(),Duration.ofHours(24)));
         ignoringScheduledHealthProbe.refresh();
+        assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+    }
+
+    @Test
+    public void testIsOkay_successAfterFailure() {
+        when(healthProbe.probe()).thenReturn(true);
+        strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
+        strictScheduledHealthProbe.refresh();
+        assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+        when(healthProbe.probe()).thenReturn(false);
+        strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM + 60), ZoneId.systemDefault()));
+        strictScheduledHealthProbe.refresh();
+        assertThat(strictScheduledHealthProbe.isOkay(), is(false));
+        when(healthProbe.probe()).thenReturn(true);
+        strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM + 10), ZoneId.systemDefault()));
+        strictScheduledHealthProbe.refresh();
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
     }
 
