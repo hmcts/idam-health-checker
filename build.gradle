@@ -9,15 +9,12 @@ plugins {
 
 
 group = 'uk.gov.hmcts.reform'
-version = '2.2.1'
+version = '2.2.2'
 sourceCompatibility = 1.8
 generateLombokConfig.enabled = false
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://dl.bintray.com/hmcts/hmcts-maven"
-    }
     jcenter()
 }
 
@@ -71,23 +68,6 @@ publishing {
 bootJar {
     manifest {
         attributes( 'Implementation-Version': archiveVersion )
-    }
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publications = ['Main']
-    publish = true
-    pkg {
-        repo = 'hmcts-maven'
-        name = "${rootProject.name}"
-        userOrg = 'hmcts'
-        licenses = ['MIT']
-        vcsUrl = "https://github.com/hmcts/${rootProject.name}"
-        version {
-            name = project.version
-        }
     }
 }
 
