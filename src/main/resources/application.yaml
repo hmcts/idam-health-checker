@@ -16,6 +16,8 @@ management:
     health:
       enabled: true
 #      show-details: "ALWAYS"
+    info:
+      enabled: true
     metrics:
       enabled: true
   health:
@@ -128,3 +130,7 @@ replication:
       host-identity:
       delay-threshold: 999
       command-timeout: 20000
+
+forgerock:
+  info:
+    path: /opt/idam/ansible/git-commit-id
