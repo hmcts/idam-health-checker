@@ -17,6 +17,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
+/**
+ * Makes the git commit of the cnp_idam_packer branch available. The commit details are deployed as
+ * a file on each host.
+ */
 @CustomLog
 @Component
 public class ForgerockVersionInfoContributor implements InfoContributor {
