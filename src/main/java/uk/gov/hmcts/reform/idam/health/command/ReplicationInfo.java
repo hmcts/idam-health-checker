@@ -11,12 +11,12 @@ public class ReplicationInfo {
 
     private String suffix;
     private String hostName;
-    private Integer entries;
+    private Long entries;
     private String replicationEnabled;
     private String dsID;
     private String rsId;
     private String rsPort;
-    private Integer delay;
+    private Long delay;
     private String securityEnabled;
 
 }
