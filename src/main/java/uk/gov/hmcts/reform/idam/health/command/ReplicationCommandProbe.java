@@ -94,12 +94,11 @@ public class ReplicationCommandProbe extends HealthProbe {
     private boolean compareReplication(ReplicationInfo hostReplicationInfo, List<ReplicationInfo> replicationInfoList) {
         if ((probeProperties.getCommand().getEntryDifferenceThreshold() != null) &&
                 (hostReplicationInfo.getEntries() != null)) {
-            Integer maxNoEntries = replicationInfoList.stream().max(Comparator.comparingInt(ReplicationInfo::getEntries)).get().getEntries();
-            if ((maxNoEntries != null) &&
-                    (hostReplicationInfo.getEntries() < maxNoEntries) &&
-                    (hostReplicationInfo.getEntries() < maxNoEntries - probeProperties.getCommand().getEntryDifferenceThreshold())) {
-                return false;
-            }
+            Long maxNoEntries = replicationInfoList.stream()
+                    .max(Comparator.comparingLong(ReplicationInfo::getEntries)).get().getEntries();
+            return (maxNoEntries == null) ||
+                    (hostReplicationInfo.getEntries() >= maxNoEntries) ||
+                    (hostReplicationInfo.getEntries() >= maxNoEntries - probeProperties.getCommand().getEntryDifferenceThreshold());
         }
         return true;
     }
@@ -140,9 +139,9 @@ public class ReplicationCommandProbe extends HealthProbe {
             info.setHostName(StringUtils.trimToNull(parts[1]));
             String entries = StringUtils.trimToNull(parts[2]);
             if (entries != null) {
-                info.setEntries(Integer.parseInt(entries));
+                info.setEntries(Long.parseLong(entries));
             } else {
-                info.setEntries(-1);
+                info.setEntries(-1L);
             }
             info.setReplicationEnabled(StringUtils.trimToNull(parts[3]));
             info.setDsID(StringUtils.trimToNull(parts[4]));
@@ -150,7 +149,7 @@ public class ReplicationCommandProbe extends HealthProbe {
             info.setRsPort(StringUtils.trimToNull(parts[6]));
             String delay = StringUtils.trimToNull(parts[7]);
             if (delay != null) {
-                info.setDelay(delay.equals("N/A") ? 0 : Integer.parseInt(delay));
+                info.setDelay(delay.equals("N/A") ? 0 : Long.parseLong(delay));
             }
             info.setSecurityEnabled(StringUtils.trimToNull(parts[8]));
             return info;
