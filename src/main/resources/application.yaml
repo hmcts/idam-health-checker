@@ -96,7 +96,7 @@ am:
   root: https://dummy
   healthprobe:
     isAlive:
-      freshness-interval: 6000
+      freshness-interval: 30000
       check-interval: 1000
     passwordGrant:
       freshness-interval: 360000
