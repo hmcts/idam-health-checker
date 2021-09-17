@@ -54,7 +54,7 @@ ldap:
 userstore:
   healthprobe:
     authentication:
-      freshness-interval: 6000
+      freshness-interval: 60000
       check-interval: 1000
     replication:
       freshness-interval: 60000
@@ -69,7 +69,7 @@ userstore:
 tokenstore:
   healthprobe:
     search:
-      freshness-interval: 6000
+      freshness-interval: 60000
       check-interval: 1000
     replication:
       freshness-interval: 60000
@@ -85,7 +85,7 @@ idm:
   root: https://dummy
   healthprobe:
     ping:
-      freshness-interval: 6000
+      freshness-interval: 30000
       check-interval: 1000
     ldapCheck:
       enabled: true
