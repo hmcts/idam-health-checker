@@ -54,6 +54,11 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         return healthProbe.getDetails();
     }
 
+    @Override
+    public String getProbeName() {
+        return healthProbe.getName();
+    }
+
     protected void refresh() {
         boolean probeHasExpired = status == Status.UNKNOWN || LocalDateTime.now(clock)
                 .isAfter(statusDateTime.plus(Math.round(0.5 * freshnessInterval), ChronoUnit.MILLIS));

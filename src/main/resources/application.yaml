@@ -15,7 +15,7 @@ management:
   endpoint:
     health:
       enabled: true
-#      show-details: "ALWAYS"
+      show-details: "ALWAYS"
     info:
       enabled: true
     metrics:
@@ -88,7 +88,8 @@ idm:
       freshness-interval: 30000
       check-interval: 1000
     ldapCheck:
-      enabled: true
+      freshness-interval: 30000
+      check-interval: 1000
       username: username-from-vault
       password: password-from-vault
 

@@ -5,11 +5,11 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'com.jfrog.bintray' version '1.8.1'
     id "io.freefair.lombok" version "5.0.0-rc4"
+    id "com.gorylenko.gradle-git-properties" version "1.4.21"
 }
 
-
 group = 'uk.gov.hmcts.reform'
-version = '2.2.4'
+version = '2.2.5'
 sourceCompatibility = 1.8
 generateLombokConfig.enabled = false
 
@@ -20,6 +20,11 @@ repositories {
 
 bootRun {
     systemProperties = System.properties
+}
+
+gitProperties {
+    // Change date format in git.properties file.
+    dateFormat = "yyyy-MM-dd HH:mm:ssZ"
 }
 
 dependencies {

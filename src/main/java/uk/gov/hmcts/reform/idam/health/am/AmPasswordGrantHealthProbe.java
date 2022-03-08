@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.idam.health.am;
 import lombok.CustomLog;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
@@ -40,6 +41,11 @@ public class AmPasswordGrantHealthProbe extends HealthProbe {
     }
 
     @Override
+    public Logger getLogger() {
+        return log;
+    }
+
+    @Override
     public boolean probe() {
         try {
             Map<String, String> passwordGrantResponse = amProvider.passwordGrantAccessToken(
@@ -50,15 +56,13 @@ public class AmPasswordGrantHealthProbe extends HealthProbe {
                     probeUserProperties.getPassword(),
                     amHealthProbeProperties.getIdentity().getScope());
             if (MapUtils.isNotEmpty(passwordGrantResponse) && passwordGrantResponse.containsKey(ACCESS_TOKEN)) {
-                log.info(TAG + "success");
-                return true;
+                return handleSuccess();
             } else {
-                setDetails(TAG + "response did not contain expected value");
+                return handleError("response did not contain expected value");
             }
         } catch (Exception e) {
-            setDetails(TAG + e.getMessage());
+            return handleException(e);
         }
-        return false;
     }
 
     private String encode(String identity, String secret) {

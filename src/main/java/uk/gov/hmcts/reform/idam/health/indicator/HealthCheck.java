@@ -22,20 +22,17 @@ public class HealthCheck implements HealthIndicator {
     @Override
     public Health health() {
         final Health.Builder builder;
-        List<HealthProbeIndicator> patients = healthProbeList.stream().filter(
+        List<HealthProbeIndicator> failedProbes = healthProbeList.stream().filter(
                 indicator -> !indicator.isOkay()).collect(Collectors.toList());
-        if (patients.isEmpty()) {
+        if (failedProbes.isEmpty()) {
             builder = Health.up();
         } else {
             builder = Health.down();
-            patients.forEach(indicator -> {
-                String details = indicator.getDetails();
-                if (details != null) {
-                    builder.withDetail(indicator.getClass().getName(), details);
+            failedProbes.forEach(indicator -> {
+                if (indicator.getDetails() != null) {
+                    builder.withDetail(indicator.getProbeName(), indicator.getDetails());
                 }});
         }
-        return builder
-                .withDetail("v", defaultIfEmpty(getClass().getPackage().getImplementationVersion(), "dev"))
-                .build();
+        return builder.build();
     }
 }

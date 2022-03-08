@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.idam.health.ldap;
 
 import lombok.CustomLog;
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQuery;
@@ -27,13 +28,7 @@ public abstract class LdapQueryHealthProbe<T> extends HealthProbe {
     public abstract boolean handleResult(List<T> resultList);
 
     public boolean handleEmptyResult() {
-        log.warn("{}: empty result set from ldap query", getName());
-        return false;
-    }
-
-    public boolean handleException(Exception e) {
-        log.error("{}: {} [{}]", getName(), e.getMessage(), e.getClass().getSimpleName());
-        return false;
+        return handleError("empty result set from ldap query");
     }
 
     @Override

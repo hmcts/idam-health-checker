@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.idam.health.command;
 import lombok.CustomLog;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
@@ -33,6 +34,11 @@ public class ReplicationCommandProbe extends HealthProbe {
     }
 
     @Override
+    public Logger getLogger() {
+        return log;
+    }
+
+    @Override
     public boolean probe() {
         try {
             ReplicationStatus status = run(getCommand());
@@ -51,22 +57,27 @@ public class ReplicationCommandProbe extends HealthProbe {
                 } else {
                     result = verifyHostReplication(status.getHostReplicationInfo());
                 }
-                return result;
+
+                if (result) {
+                    return handleSuccess();
+                } else {
+                    return handleError("Host replication failed verification");
+                }
 
             } else if ((CollectionUtils.isNotEmpty(status.getReplicationInfoList()))) {
                 status.getReplicationInfoList().stream().forEach(ri -> log.info("{}: {}", getName(), ri));
                 if (CollectionUtils.isNotEmpty(status.getErrors())) {
-                    log.warn("{}: {}", getName(), String.join(", ", status.getErrors()));
+                    return handleError(String.join(", ", status.getErrors()));
                 }
             } else if (CollectionUtils.isNotEmpty(status.getErrors())) {
-                log.error("{}: {}", getName(), String.join(", ", status.getErrors()));
+                return handleError(String.join(", ", status.getErrors()));
             } else {
-                log.error("Command completed with no replication info present");
+                return handleError("Command completed with no replication info present");
             }
         } catch (Exception e) {
-            log.error("{}: {} [{}]", getName(), e.getMessage(), e.getClass().getSimpleName());
+            return handleException(e);
         }
-        return false;
+        return handleError("Failed");
     }
 
     @Nonnull

@@ -21,4 +21,8 @@ public class FixedHealthProbeIndicator implements HealthProbeIndicator {
         return "Fixed Value";
     }
 
+    @Override
+    public String getProbeName() {
+        return getClass().getSimpleName();
+    }
 }

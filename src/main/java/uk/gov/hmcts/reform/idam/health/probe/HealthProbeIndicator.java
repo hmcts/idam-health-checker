@@ -8,4 +8,6 @@ public interface HealthProbeIndicator {
 
     @Nullable
     String getDetails();
+
+    String getProbeName();
 }

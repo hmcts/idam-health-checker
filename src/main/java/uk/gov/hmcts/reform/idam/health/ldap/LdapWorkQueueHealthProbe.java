@@ -2,17 +2,13 @@ package uk.gov.hmcts.reform.idam.health.ldap;
 
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.context.annotation.Profile;
+import org.slf4j.Logger;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQuery;
 import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.ldap.query.SearchScope;
-import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
-import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -48,6 +44,11 @@ public class LdapWorkQueueHealthProbe extends LdapQueryHealthProbe<LdapWorkQueue
     public boolean handleResult(List<LdapWorkQueueHealthProbe.WorkQueueInfo> resultList) {
         log.info("{}: {}", getName(), resultList.stream().map(LdapWorkQueueHealthProbe.WorkQueueInfo::toString).collect(Collectors.joining("; ")));
         return true;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return log;
     }
 
     @EqualsAndHashCode
