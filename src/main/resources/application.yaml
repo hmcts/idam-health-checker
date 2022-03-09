@@ -4,21 +4,24 @@ server:
 spring:
   application:
     name: idam-health-check
+  cloud:
+    discovery:
+      client:
+        composite-indicator:
+          enabled: false
 
 management:
   endpoints:
     enabled-by-default: false
     web:
       base-path: /admin
-      path-mapping:
-        health: health
+      exposure:
+        include: health, info
   endpoint:
     health:
       enabled: true
       show-details: "ALWAYS"
     info:
-      enabled: true
-    metrics:
       enabled: true
   health:
     defaults:

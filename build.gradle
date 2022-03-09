@@ -1,9 +1,9 @@
 plugins {
     id 'java-library'
-    id 'org.springframework.boot' version '2.0.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "org.springframework.boot" version "2.6.3"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
-    id 'com.jfrog.bintray' version '1.8.1'
     id "io.freefair.lombok" version "5.0.0-rc4"
     id "com.gorylenko.gradle-git-properties" version "1.4.21"
 }
@@ -27,26 +27,38 @@ gitProperties {
     dateFormat = "yyyy-MM-dd HH:mm:ssZ"
 }
 
-dependencies {
-    compile 'org.springframework.boot:spring-boot-starter-web:2.0.6.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-actuator:2.0.6.RELEASE'
+ext {
+    springCloudVersion = "2021.0.1"
+}
 
-    compile 'org.springframework.cloud:spring-cloud-starter-openfeign:2.0.2.RELEASE'
-    compile 'io.github.openfeign:feign-httpclient:9.7.0'
-    compile 'org.apache.httpcomponents:httpclient:4.5.6'
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+
+    compile 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    compile 'io.github.openfeign:feign-httpclient:11.8'
+
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 
     compile 'com.microsoft.azure:azure-keyvault:1.0.0'
     compile 'com.microsoft.azure:adal4j:1.5.0'
 
-    compile 'org.springframework.ldap:spring-ldap-core:2.3.2.RELEASE'
-    compile 'com.microsoft.azure:applicationinsights-core:2.2.0'
-    compile 'com.microsoft.azure:applicationinsights-web:2.2.0'
-    compile 'com.microsoft.azure:applicationinsights-spring-boot-starter:1.1.0-BETA'
-    compile 'com.microsoft.azure:applicationinsights-logging-logback:2.2.0'
+    compile 'org.springframework.ldap:spring-ldap-core:2.3.6.RELEASE'
+    compile 'com.microsoft.azure:applicationinsights-core:2.6.1'
+    compile 'com.microsoft.azure:applicationinsights-web:2.6.1'
+    compile 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.1'
+    compile 'com.microsoft.azure:applicationinsights-logging-logback:2.6.1'
 
-    compile 'org.projectlombok:lombok:1.18.2'
+    compileOnly group: 'org.projectlombok', name: 'lombok'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok'
 
-    testCompile 'org.springframework.boot:spring-boot-starter-test:2.0.6.RELEASE'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'org.hamcrest:hamcrest-core'
     testCompile 'org.hamcrest:hamcrest-library'
     testCompile 'org.springframework:spring-test'
