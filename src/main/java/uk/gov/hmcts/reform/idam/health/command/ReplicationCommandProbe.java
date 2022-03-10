@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
@@ -80,7 +79,6 @@ public class ReplicationCommandProbe extends HealthProbe {
         return handleError("Failed");
     }
 
-    @Nonnull
     @Override
     public String getName() {
         return probeProperties.getCommand().getName();

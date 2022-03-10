@@ -15,9 +15,7 @@ import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.ldap.query.SearchScope;
 import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
-import javax.annotation.Nullable;
 import javax.naming.Name;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -263,7 +261,7 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
             return result;
         }
 
-        static int parseReplayedUpdates(@Nullable String replayedUpdates) {
+        static int parseReplayedUpdates(String replayedUpdates) {
             if (replayedUpdates != null) {
                 try {
                     return new JsonParser().parse(replayedUpdates).getAsJsonObject().get("count").getAsInt();

@@ -2,15 +2,16 @@ package uk.gov.hmcts.reform.idam.health.probe;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.CustomLog;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.scheduling.TaskScheduler;
 
-import javax.annotation.Nullable;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @CustomLog
-public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
+public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, HealthIndicator {
 
     private final HealthProbe healthProbe;
     private final Long freshnessInterval;
@@ -48,17 +49,6 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         }
     }
 
-    @Nullable
-    @Override
-    public String getDetails() {
-        return healthProbe.getDetails();
-    }
-
-    @Override
-    public String getProbeName() {
-        return healthProbe.getName();
-    }
-
     protected void refresh() {
         boolean probeHasExpired = status == Status.UNKNOWN || LocalDateTime.now(clock)
                 .isAfter(statusDateTime.plus(Math.round(0.5 * freshnessInterval), ChronoUnit.MILLIS));
@@ -90,4 +80,27 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator {
         this.clock = clock;
     }
 
+    @VisibleForTesting
+    protected void setStatus(Status status) {
+        this.status = status;
+    }
+
+    @Override
+    public Health health() {
+        if (status == Status.UP) {
+            return Health.up().build();
+        } else if (status == Status.UNKNOWN) {
+            Health.Builder builder = Health.unknown();
+            if (healthProbe.getDetails() != null) {
+                builder.withDetail(healthProbe.getName(), healthProbe.getDetails());
+            }
+            return builder.build();
+        } else {
+            Health.Builder builder = Health.down();
+            if (healthProbe.getDetails() != null) {
+                builder.withDetail(healthProbe.getName(), healthProbe.getDetails());
+            }
+            return builder.build();
+        }
+    }
 }

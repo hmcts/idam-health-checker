@@ -1,9 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.idm;
 
 import lombok.CustomLog;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;

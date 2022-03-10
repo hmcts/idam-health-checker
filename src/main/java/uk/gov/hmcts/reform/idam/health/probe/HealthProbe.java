@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.idam.health.probe;
 
 import org.slf4j.Logger;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public abstract class HealthProbe {
 
@@ -11,17 +9,15 @@ public abstract class HealthProbe {
 
     abstract public boolean probe();
 
-    @Nonnull
     public String getName() {
         return this.getClass().getSimpleName();
     }
 
-    @Nullable
     public String getDetails() {
         return details;
     }
 
-    public void setDetails(@Nullable String details) {
+    public void setDetails(String details) {
         this.details = details;
     }
 
