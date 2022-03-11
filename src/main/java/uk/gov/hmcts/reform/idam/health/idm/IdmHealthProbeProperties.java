@@ -21,9 +21,11 @@ public class IdmHealthProbeProperties {
 
     private IdmHealthProbeProperties.Probe ping;
 
-    @Data
+    @Getter
+    @Setter
     static class LdapCheck {
-        private Boolean enabled;
+        private Long freshnessInterval;
+        private Long checkInterval;
         private String username;
         private String password;
     }

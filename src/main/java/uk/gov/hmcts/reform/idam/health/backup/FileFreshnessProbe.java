@@ -2,9 +2,9 @@ package uk.gov.hmcts.reform.idam.health.backup;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.CustomLog;
+import org.slf4j.Logger;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +13,8 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+
+import static java.text.MessageFormat.format;
 
 @CustomLog
 public class FileFreshnessProbe extends HealthProbe {
@@ -33,6 +35,11 @@ public class FileFreshnessProbe extends HealthProbe {
     }
 
     @Override
+    public Logger getLogger() {
+        return log;
+    }
+
+    @Override
     public boolean probe() {
 
         try {
@@ -40,21 +47,19 @@ public class FileFreshnessProbe extends HealthProbe {
 
                 LocalDateTime updateTime = fileSystemInfo.lastModifiedTime(checkPath);
                 if (LocalDateTime.now(clock).isBefore(updateTime.plus(fileExpiryMs, ChronoUnit.MILLIS))) {
-                    log.debug("{}: Path {} modified at {}", probeName, checkPath, updateTime);
+                    log.debug("{}: Path {} modified at {}", getName(), checkPath, updateTime);
                     return true;
                 } else {
-                    log.warn("{}: Path {} modified at {}", probeName, checkPath, updateTime);
+                    return handleError(format("Path {} modified at {}", checkPath, updateTime));
                 }
 
             } else {
-                log.warn("{}: Nothing at path {}", probeName, checkPath);
+                return handleError(format("Nothing at path {}", checkPath));
             }
 
         } catch (Exception e) {
-            log.error("{}: {} [{}]", probeName, e.getMessage(), e.getClass().getSimpleName());
+            return handleException(e);
         }
-
-        return false;
 
     }
 
@@ -68,7 +73,6 @@ public class FileFreshnessProbe extends HealthProbe {
         this.fileSystemInfo = fileSystemInfo;
     }
 
-    @Nonnull
     @Override
     public String getName() {
         return probeName;

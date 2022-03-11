@@ -1,8 +1,9 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
-import javax.annotation.Nullable;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
 
-public class FixedHealthProbeIndicator implements HealthProbeIndicator {
+public class FixedHealthProbeIndicator implements HealthProbeIndicator, HealthIndicator {
 
     private final boolean fixedValue;
 
@@ -15,10 +16,12 @@ public class FixedHealthProbeIndicator implements HealthProbeIndicator {
         return fixedValue;
     }
 
-    @Nullable
     @Override
-    public String getDetails() {
-        return "Fixed Value";
+    public Health health() {
+        if (fixedValue) {
+            return Health.up().build();
+        } else {
+            return Health.down().build();
+        }
     }
-
 }

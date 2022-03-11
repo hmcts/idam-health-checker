@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.idam.health.ldap;
 
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
+import org.slf4j.Logger;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
@@ -59,6 +60,11 @@ public class LdapConnectionsHealthProbe extends LdapQueryHealthProbe<LdapConnect
     public boolean handleResult(List<ConnectionsInfo> resultList) {
         log.info("{}: {}", getName(), resultList.stream().map(LdapConnectionsHealthProbe.ConnectionsInfo::toString).collect(Collectors.joining("; ")));
         return true;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return log;
     }
 
     @EqualsAndHashCode

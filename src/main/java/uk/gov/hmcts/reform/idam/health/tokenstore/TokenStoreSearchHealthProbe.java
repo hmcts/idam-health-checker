@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.tokenstore;
 
 import lombok.CustomLog;
+import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
@@ -28,6 +29,11 @@ public class TokenStoreSearchHealthProbe extends HealthProbe {
     }
 
     @Override
+    public Logger getLogger() {
+        return log;
+    }
+
+    @Override
     public boolean probe() {
         try {
             List<Object> searchResponse = ldapTemplate.search(
@@ -36,14 +42,12 @@ public class TokenStoreSearchHealthProbe extends HealthProbe {
                     SearchControls.SUBTREE_SCOPE,
                     (AttributesMapper<Object>) attrs -> attrs.get(LDAP_CN_ATTRIBUTE).get());
             if (!searchResponse.isEmpty()) {
-                log.info(TAG + "success");
-                return true;
+                return handleSuccess();
             } else {
-                log.error(TAG + "response is empty");
+                return handleError("response is empty");
             }
         } catch (Exception e) {
-            log.error(TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
+            return handleException(e);
         }
-        return false;
     }
 }

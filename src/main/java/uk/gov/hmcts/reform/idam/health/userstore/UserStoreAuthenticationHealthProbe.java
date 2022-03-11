@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.userstore;
 
 import lombok.CustomLog;
+import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
@@ -37,6 +38,11 @@ public class UserStoreAuthenticationHealthProbe extends HealthProbe {
     }
 
     @Override
+    public Logger getLogger() {
+        return log;
+    }
+
+    @Override
     public boolean probe() {
         try {
             List<String> testUsers = ldapTemplate.search(LDAP_PARTITION_SUFFIX,
@@ -52,14 +58,12 @@ public class UserStoreAuthenticationHealthProbe extends HealthProbe {
                     ldapUserFilter,
                     ldapUserPassword);
             if (isAuthenticationSuccessful) {
-                log.info(TAG + "success");
-                return true;
+                return handleSuccess();
             } else {
-                log.error(TAG + "authentication failed for filter " + ldapUserFilter);
+                return handleError("authentication failed for filter " + ldapUserFilter);
             }
         } catch (Exception e) {
-            log.error(TAG + e.getMessage() + " [" + e.getClass().getSimpleName() + "]");
+            return handleException(e);
         }
-        return false;
     }
 }

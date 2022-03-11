@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.time.Clock;
@@ -12,8 +13,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
@@ -144,6 +147,49 @@ public class ScheduledHealthProbeIndicatorTest {
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM + 10), ZoneId.systemDefault()));
         strictScheduledHealthProbe.refresh();
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+    }
+
+    @Test
+    public void testHealth_up() {
+        strictScheduledHealthProbe.setStatus(Status.UP);
+        Health health = strictScheduledHealthProbe.health();
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UP));
+    }
+
+    @Test
+    public void testHealth_unknown() {
+        strictScheduledHealthProbe.setStatus(Status.UNKNOWN);
+        when(healthProbe.getDetails()).thenReturn(null);
+        Health health = strictScheduledHealthProbe.health();
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UNKNOWN));
+        assertThat(health.getDetails(), is(anEmptyMap()));
+    }
+
+    @Test
+    public void testHealth_unknownWithDetails() {
+        strictScheduledHealthProbe.setStatus(Status.UNKNOWN);
+        when(healthProbe.getDetails()).thenReturn("test-error");
+        Health health = strictScheduledHealthProbe.health();
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UNKNOWN));
+        assertThat(health.getDetails().get("testprobe"), is("test-error"));
+    }
+
+    @Test
+    public void testHealth_down() {
+        strictScheduledHealthProbe.setStatus(Status.DOWN);
+        when(healthProbe.getDetails()).thenReturn(null);
+        Health health = strictScheduledHealthProbe.health();
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getDetails(), is(anEmptyMap()));
+    }
+
+    @Test
+    public void testHealth_downWithDetails() {
+        strictScheduledHealthProbe.setStatus(Status.DOWN);
+        when(healthProbe.getDetails()).thenReturn("test-error");
+        Health health = strictScheduledHealthProbe.health();
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getDetails().get("testprobe"), is("test-error"));
     }
 
 }

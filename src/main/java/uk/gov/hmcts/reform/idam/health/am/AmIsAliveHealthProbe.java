@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.idam.health.am;
 
 import lombok.CustomLog;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
@@ -22,18 +23,22 @@ public class AmIsAliveHealthProbe extends HealthProbe {
     }
 
     @Override
+    public Logger getLogger() {
+        return log;
+    }
+
+    @Override
     public boolean probe() {
         try {
             String isAliveResponse = amProvider.isAlive();
             if (StringUtils.contains(isAliveResponse, ALIVE)) {
-                log.info(TAG + "success");
-                return true;
+                return handleSuccess();
             } else {
-                setDetails(TAG + "response did not contain expected value");
+                return handleError("response did not contain expected value");
             }
         } catch (Exception e) {
-            setDetails(TAG + e.getMessage());
+            return handleException(e);
         }
-        return false;
     }
+
 }

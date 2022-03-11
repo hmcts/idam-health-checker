@@ -6,24 +6,22 @@ import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Profile;
+import org.slf4j.Logger;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQuery;
 import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.ldap.query.SearchScope;
-import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
 
-import javax.annotation.Nullable;
 import javax.naming.Name;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.text.MessageFormat.format;
 
 @CustomLog
 public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplicationHealthProbe.ReplicationInfo> {
@@ -67,19 +65,26 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
                 .filter(REPLICATION_FILTER);
     }
 
+    private List<String> addErrors(List<String> errors, String error) {
+        if (errors == null) {
+            errors = new ArrayList<>();
+        }
+        errors.add(error);
+        return errors;
+    }
+
     @Override
     public boolean handleResult(List<ReplicationInfo> resultList) {
         if (CollectionUtils.isEqualCollection(replicationInfoState, resultList)) {
             return probeState;
         }
 
-        boolean result = true;
+        List<String> errors = null;
         for (ReplicationInfo record : resultList) {
             switch (record.recordType) {
                 case LOCAL_DS:
                     if (!updatesAreBeingReplayed(record)) {
-                        log.error("{}: {}: Failing replay check, {}", getName(), record.recordType, record.toString());
-                        result = false;
+                        errors = addErrors(errors, format("{}: Failing replay check, {}", record.recordType, record.toString()));
                     } else if ((record.status != null) && (!NORMAL_STATUS.equalsIgnoreCase(record.status))) {
                         log.warn("{}: {}: Unexpected status, {}", getName(), record.recordType, record.toString());
                     } else if (log.isInfoEnabled()) {
@@ -88,16 +93,14 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
                     break;
                 case LOCAL_RS:
                     if (changesAreMissing(record)) {
-                        log.error("{}: {}: Failing missing changes check, {}", getName(), record.recordType, record.toString());
-                        result = false;
+                        errors = addErrors(errors, format("{}: Failing missing changes check, {}", record.recordType, record.toString()));
                     } else if (log.isInfoEnabled()) {
                         log.info("{}: {}: okay, {}", getName(), record.recordType, record.toString());
                     }
                     break;
                 case LOCAL_RS_CONN_DS:
                     if (!updatesAreOnTime(record)) {
-                        log.error("{}: {}: Failing delay check, {}", getName(), record.recordType, record.toString());
-                        result = false;
+                        errors = addErrors(errors, format("{}: Failing delay check, {}", record.recordType, record.toString()));
                     } else if (log.isInfoEnabled()) {
                         log.info("{}: {}: okay, {}", getName(), record.recordType, record.toString());
                     }
@@ -114,10 +117,22 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
             }
         }
 
-        probeState = result;
         replicationInfoState = resultList;
 
-        return result;
+        if (errors == null) {
+            probeState = true;
+            return handleSuccess();
+        } else if (errors.size() == 1) {
+            return handleError(errors.get(0));
+        } else {
+            return handleError("Multiple errors, see log");
+        }
+
+    }
+
+    @Override
+    public Logger getLogger() {
+        return log;
     }
 
     @Override
@@ -246,7 +261,7 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
             return result;
         }
 
-        static int parseReplayedUpdates(@Nullable String replayedUpdates) {
+        static int parseReplayedUpdates(String replayedUpdates) {
             if (replayedUpdates != null) {
                 try {
                     return new JsonParser().parse(replayedUpdates).getAsJsonObject().get("count").getAsInt();
