@@ -90,11 +90,6 @@ idm:
     ping:
       freshness-interval: 30000
       check-interval: 1000
-    ldapCheck:
-      freshness-interval: 30000
-      check-interval: 1000
-      username: username-from-vault
-      password: password-from-vault
 
 am:
   root: https://dummy

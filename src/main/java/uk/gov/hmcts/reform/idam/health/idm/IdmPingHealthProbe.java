@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
-import java.util.Base64;
 import java.util.Map;
 
 @Component
@@ -18,15 +17,10 @@ public class IdmPingHealthProbe extends HealthProbe {
     private static final String STATE = "state";
     private static final String IDM_ACTIVE = "ACTIVE_READY";
 
-    private static final String ANONYMOUS_USER = "anonymous";
-    private static final String ANONYMOUS_PASSWORD = "anonymous";
-
     private final IdmProvider idmProvider;
-    private final String authorization;
 
     public IdmPingHealthProbe(IdmProvider idmProvider) {
         this.idmProvider = idmProvider;
-        this.authorization = "Basic " + encode(ANONYMOUS_USER, ANONYMOUS_PASSWORD);
     }
 
     @Override
@@ -45,7 +39,7 @@ public class IdmPingHealthProbe extends HealthProbe {
     @Override
     public boolean probe() {
         try {
-            final Map<String, String> pingResponse = idmProvider.ping(authorization);
+            final Map<String, String> pingResponse = idmProvider.ping();
             final boolean pingOk = IDM_ACTIVE.equals(MapUtils.getString(pingResponse, STATE));
 
             if (pingOk) {
@@ -61,7 +55,4 @@ public class IdmPingHealthProbe extends HealthProbe {
         return false;
     }
 
-    private String encode(String identity, String secret) {
-        return Base64.getEncoder().encodeToString((identity + ":" + secret).getBytes());
-    }
 }
