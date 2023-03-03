@@ -19,13 +19,12 @@ public class AmHealthProbeConfiguration {
     private TaskScheduler taskScheduler;
 
     @Bean
-    public ScheduledHealthProbeIndicator amIsAliveScheduledHealthProbe(AmIsAliveHealthProbe amIsAliveHealthProbe) {
-        return new ScheduledHealthProbeIndicator(
-                amIsAliveHealthProbe,
+    public ScheduledHealthProbeIndicator amLiveScheduledHealthProbe(AmLiveHealthProbe amLiveHealthProbe) {
+        return new ScheduledHealthProbeIndicator(amLiveHealthProbe,
                 HealthProbeFailureHandling.MARK_AS_DOWN,
                 taskScheduler,
-                amHealthProbeProperties.getIsAlive().getFreshnessInterval(),
-                amHealthProbeProperties.getIsAlive().getCheckInterval());
+                amHealthProbeProperties.getLive().getFreshnessInterval(),
+                amHealthProbeProperties.getLive().getCheckInterval());
     }
 
     @Bean

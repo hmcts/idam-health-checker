@@ -18,8 +18,6 @@ import java.util.Map;
 @CustomLog
 public class AmPasswordGrantHealthProbe extends HealthProbe {
 
-    private static final String TAG = "AM PasswordGrant: ";
-
     private static final String GRANT_TYPE = "password";
     private static final String ACCESS_TOKEN = "access_token";
 

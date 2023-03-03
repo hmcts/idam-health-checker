@@ -94,7 +94,7 @@ idm:
 am:
   root: https://dummy
   healthprobe:
-    isAlive:
+    live:
       freshness-interval: 30000
       check-interval: 1000
     passwordGrant:

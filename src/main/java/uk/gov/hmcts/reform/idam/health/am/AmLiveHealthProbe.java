@@ -1,7 +1,8 @@
 package uk.gov.hmcts.reform.idam.health.am;
 
+import feign.Response;
 import lombok.CustomLog;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -10,15 +11,11 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 @Component
 @Profile("am")
 @CustomLog
-public class AmIsAliveHealthProbe extends HealthProbe {
-
-    private static final String TAG = "AM IsAlive: ";
-
-    private static final String ALIVE = "ALIVE";
+public class AmLiveHealthProbe extends HealthProbe {
 
     private final AmProvider amProvider;
 
-    public AmIsAliveHealthProbe(AmProvider amProvider) {
+    public AmLiveHealthProbe(AmProvider amProvider) {
         this.amProvider = amProvider;
     }
 
@@ -30,11 +27,11 @@ public class AmIsAliveHealthProbe extends HealthProbe {
     @Override
     public boolean probe() {
         try {
-            String isAliveResponse = amProvider.isAlive();
-            if (StringUtils.contains(isAliveResponse, ALIVE)) {
+            Response rsp = amProvider.healthLive();
+            if (rsp.status() == HttpStatus.SC_OK) {
                 return handleSuccess();
             } else {
-                return handleError("response did not contain expected value");
+                return handleError("Unexpected response: " + rsp.status());
             }
         } catch (Exception e) {
             return handleException(e);
