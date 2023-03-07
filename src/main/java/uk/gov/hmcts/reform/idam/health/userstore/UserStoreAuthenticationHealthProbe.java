@@ -13,7 +13,7 @@ import javax.naming.directory.SearchControls;
 import java.util.List;
 
 @Component
-@Profile("userstore")
+@Profile("userstore & check-ready")
 @CustomLog
 public class UserStoreAuthenticationHealthProbe extends HealthProbe {
 

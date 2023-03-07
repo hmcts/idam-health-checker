@@ -1,5 +1,5 @@
 server:
-  port: 9292
+  port: 9393
 
 spring:
   application:
@@ -55,6 +55,7 @@ ldap:
     delay-threshold: 120000
 
 userstore:
+  root: https://localhost:8443
   healthprobe:
     authentication:
       freshness-interval: 60000
@@ -68,8 +69,12 @@ userstore:
     connections:
       freshness-interval: 300000
       check-interval: 30000
+    alive:
+      freshness-interval: 20000
+      check-interval: 1000
 
 tokenstore:
+  root: https://localhost:8443
   healthprobe:
     search:
       freshness-interval: 60000
@@ -83,6 +88,9 @@ tokenstore:
     connections:
       freshness-interval: 300000
       check-interval: 30000
+    alive:
+      freshness-interval: 20000
+      check-interval: 1000
 
 idm:
   root: https://dummy

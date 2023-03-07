@@ -28,6 +28,7 @@ public class AmHealthProbeConfiguration {
     }
 
     @Bean
+    @Profile("check-ready")
     public ScheduledHealthProbeIndicator amPasswordGrantScheduledHealthProbe(AmPasswordGrantHealthProbe amPasswordGrantHealthProbe) {
         return new ScheduledHealthProbeIndicator(
                 amPasswordGrantHealthProbe,

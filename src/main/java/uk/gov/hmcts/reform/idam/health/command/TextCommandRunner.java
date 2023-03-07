@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@Profile({"userstore","tokenstore","replication"})
+@Profile({"(userstore | tokenstore) & replication & check-ready)"})
 public class TextCommandRunner {
 
     private final AsyncTaskExecutor taskExecutor;

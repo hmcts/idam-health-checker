@@ -22,4 +22,5 @@ public class UserStoreHealthProbeProperties {
     private UserStoreHealthProbeProperties.Probe replication;
     private UserStoreHealthProbeProperties.Probe workQueue;
     private UserStoreHealthProbeProperties.Probe connections;
+    private UserStoreHealthProbeProperties.Probe alive;
 }

@@ -14,7 +14,7 @@ import java.util.Base64;
 import java.util.Map;
 
 @Component
-@Profile("am")
+@Profile("am & check-ready")
 @CustomLog
 public class AmPasswordGrantHealthProbe extends HealthProbe {
 

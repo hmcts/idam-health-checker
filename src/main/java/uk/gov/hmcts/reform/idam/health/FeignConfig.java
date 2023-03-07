@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @EnableFeignClients
-@Profile({"am","idm"})
+@Profile({"am","idm","userstore","tokenstore"})
 public class FeignConfig {
 
     @Autowired
