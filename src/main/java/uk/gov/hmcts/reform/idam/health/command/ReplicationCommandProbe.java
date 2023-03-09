@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Component
-@Profile({"(userstore | tokenstore) & replication)"})
+@Profile("(userstore | tokenstore) & replication)")
 @CustomLog
 public class ReplicationCommandProbe extends HealthProbe {
 
