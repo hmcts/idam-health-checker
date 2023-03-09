@@ -12,7 +12,7 @@ import javax.naming.directory.SearchControls;
 import java.util.List;
 
 @Component
-@Profile("tokenstore & check-ready")
+@Profile("tokenstore")
 @CustomLog
 public class TokenStoreSearchHealthProbe extends HealthProbe {
 

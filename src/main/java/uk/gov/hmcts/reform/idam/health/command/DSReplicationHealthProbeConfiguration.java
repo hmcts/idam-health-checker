@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbeFailureHandling;
 import uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbeIndicator;
 
 @Configuration
-@Profile({"(userstore | tokenstore) & replication & check-ready)"})
+@Profile({"(userstore | tokenstore) & replication)"})
 public class DSReplicationHealthProbeConfiguration {
 
     @Autowired

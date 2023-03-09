@@ -49,7 +49,7 @@ feign:
 
 ldap:
   root: ldaps://dummy:1639
-  principal: CN=Directory Manager
+  principal: uid=admin
   replication:
     missing-updates-threshold: 10000000
     delay-threshold: 120000
@@ -109,7 +109,7 @@ am:
       freshness-interval: 360000
       check-interval: 60000
     identity:
-      scope: openid profile authorities acr roles
+      scope: openid profile roles
       host: dummy
 
 backup:
