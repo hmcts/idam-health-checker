@@ -36,6 +36,17 @@ public class UserStoreHealthProbeConfiguration {
     }
 
     @Bean
+    public ScheduledHealthProbeIndicator userStoreReadyScheduledHealthProbe(
+            UserStoreReadyHealthProbe userStoreReadyHealthProbe ) {
+        return new ScheduledHealthProbeIndicator(
+                userStoreReadyHealthProbe,
+                HealthProbeFailureHandling.MARK_AS_DOWN,
+                taskScheduler,
+                userStoreHealthProbeProperties.getReady().getFreshnessInterval(),
+                userStoreHealthProbeProperties.getReady().getCheckInterval());
+    }
+
+    @Bean
     @Profile("!single")
     public LdapReplicationHealthProbe userStoreReplicationHealthProbe(
             LdapTemplate ldapTemplate,

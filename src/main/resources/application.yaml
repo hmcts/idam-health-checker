@@ -48,14 +48,14 @@ feign:
     enabled: true
 
 ldap:
-  root: ldaps://dummy:1639
+  root: ldaps://dummy:1636
   principal: uid=admin
   replication:
     missing-updates-threshold: 10000000
     delay-threshold: 120000
 
 userstore:
-  root: https://localhost:8443
+  root: https://dummy:8443
   healthprobe:
     authentication:
       freshness-interval: 60000
@@ -70,11 +70,14 @@ userstore:
       freshness-interval: 300000
       check-interval: 30000
     alive:
-      freshness-interval: 20000
+      freshness-interval: 30000
+      check-interval: 1000
+    ready:
+      freshness-interval: 30000
       check-interval: 1000
 
 tokenstore:
-  root: https://localhost:8443
+  root: https://dummy:8443
   healthprobe:
     search:
       freshness-interval: 60000
@@ -89,7 +92,10 @@ tokenstore:
       freshness-interval: 300000
       check-interval: 30000
     alive:
-      freshness-interval: 20000
+      freshness-interval: 30000
+      check-interval: 1000
+    ready:
+      freshness-interval: 30000
       check-interval: 1000
 
 idm:

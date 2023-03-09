@@ -16,16 +16,27 @@ public class LdapConfig {
     private ConfigProperties configProperties;
 
     @Bean
-    public LdapContextSource contextSource() {
+    @Profile("userstore")
+    public LdapContextSource contextSourceUserstore() {
         LdapContextSource contextSource = new LdapContextSource();
         contextSource.setUrl(configProperties.getLdap().getRoot());
         contextSource.setUserDn(configProperties.getLdap().getPrincipal());
-        contextSource.setPassword(configProperties.getLdap().getPassword());
+        contextSource.setPassword(configProperties.getLdap().getUserStorePassword());
         return contextSource;
     }
 
     @Bean
-    public LdapTemplate ldapTemplate() {
-        return new LdapTemplate(contextSource());
+    @Profile("tokenstore")
+    public LdapContextSource contextSourceTokenstore() {
+        LdapContextSource contextSource = new LdapContextSource();
+        contextSource.setUrl(configProperties.getLdap().getRoot());
+        contextSource.setUserDn(configProperties.getLdap().getPrincipal());
+        contextSource.setPassword(configProperties.getLdap().getTokenStorePassword());
+        return contextSource;
+    }
+
+    @Bean
+    public LdapTemplate ldapTemplate(LdapContextSource contextSource) {
+        return new LdapTemplate(contextSource);
     }
 }

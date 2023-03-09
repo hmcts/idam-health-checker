@@ -23,5 +23,6 @@ public class TokenStoreHealthProbeProperties {
     private TokenStoreHealthProbeProperties.Probe workQueue;
     private TokenStoreHealthProbeProperties.Probe connections;
     private TokenStoreHealthProbeProperties.Probe alive;
+    private TokenStoreHealthProbeProperties.Probe ready;
 
 }

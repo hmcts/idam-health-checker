@@ -31,7 +31,8 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
             .put("test-owner-username", "test.owner.username")
             .put("test-owner-password", "test.owner.password")
             .put("web-admin-client-secret", "web.admin.client.secret")
-            .put("BINDPASSWD", "ldap.password")
+            .put("DSUrootUserPassword", "ldap.userstore-password")
+            .put("DSTrootUserPassword", "ldap.tokenstore-password")
             .put("adminUID", "replication.healthprobe.command.user")
             .put("adminPassword", "replication.healthprobe.command.password")
             .put("appinsights-instrumentationkey", "azure.application-insights.instrumentation-key").build();
