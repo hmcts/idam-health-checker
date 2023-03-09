@@ -28,6 +28,15 @@ public class AmHealthProbeConfiguration {
     }
 
     @Bean
+    public ScheduledHealthProbeIndicator amReadyScheduledHealthProbe(AMReadyHealthProbe amReadyHealthProbe) {
+        return new ScheduledHealthProbeIndicator(amReadyHealthProbe,
+                                                 HealthProbeFailureHandling.MARK_AS_DOWN,
+                                                 taskScheduler,
+                                                 amHealthProbeProperties.getReady().getFreshnessInterval(),
+                                                 amHealthProbeProperties.getReady().getCheckInterval());
+    }
+
+    @Bean
     public ScheduledHealthProbeIndicator amPasswordGrantScheduledHealthProbe(AmPasswordGrantHealthProbe amPasswordGrantHealthProbe) {
         return new ScheduledHealthProbeIndicator(
                 amPasswordGrantHealthProbe,

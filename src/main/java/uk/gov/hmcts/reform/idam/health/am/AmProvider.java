@@ -40,6 +40,11 @@ public interface AmProvider {
     )
     Response healthLive();
 
+    @GetMapping(
+            value = "/json/health/ready"
+    )
+    Response healthReady();
+
     @PostMapping(
             value = "/oauth2/realms/hmcts/access_token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE

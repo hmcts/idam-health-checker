@@ -105,6 +105,9 @@ am:
     live:
       freshness-interval: 30000
       check-interval: 1000
+    ready:
+      freshness-interval: 30000
+      check-interval: 1000
     passwordGrant:
       freshness-interval: 360000
       check-interval: 60000

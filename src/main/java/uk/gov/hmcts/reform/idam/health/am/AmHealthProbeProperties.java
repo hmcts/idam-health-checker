@@ -19,6 +19,8 @@ public class AmHealthProbeProperties {
     }
 
     private AmHealthProbeProperties.Probe live;
+
+    private AmHealthProbeProperties.Probe ready;
     private AmHealthProbeProperties.Probe passwordGrant;
 
     @Getter
