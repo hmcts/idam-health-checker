@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.am;
 
 import com.google.common.collect.ImmutableMap;
+import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
@@ -35,9 +36,14 @@ public interface AmProvider {
     }
 
     @GetMapping(
-            value = "/isAlive.jsp"
+            value = "/json/health/live"
     )
-    String isAlive();
+    Response healthLive();
+
+    @GetMapping(
+            value = "/json/health/ready"
+    )
+    Response healthReady();
 
     @PostMapping(
             value = "/oauth2/realms/hmcts/access_token",

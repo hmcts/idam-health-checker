@@ -24,7 +24,8 @@ public class ConfigProperties {
 
         private String root;
         private String principal;
-        private String password;
+        private String userStorePassword;
+        private String tokenStorePassword;
 
         private Replication replication;
     }

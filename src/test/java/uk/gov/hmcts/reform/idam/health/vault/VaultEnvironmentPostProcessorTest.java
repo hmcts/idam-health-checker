@@ -85,7 +85,8 @@ public class VaultEnvironmentPostProcessorTest {
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(null);
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(null);
         when(keyVaultClient.getSecret("test-vault-url", "web-admin-client-secret")).thenReturn(null);
-        when(keyVaultClient.getSecret("test-vault-url", "BINDPASSWD")).thenReturn(null);
+        when(keyVaultClient.getSecret("test-vault-url", "DSUrootUserPassword")).thenReturn(null);
+        when(keyVaultClient.getSecret("test-vault-url", "DSTrootUserPassword")).thenReturn(null);
         when(keyVaultClient.getSecret("test-vault-url", "appinsights-instrumentationkey")).thenReturn(null);
 
         postProcessor.postProcessEnvironment(configurableEnvironment, springApplication);
@@ -107,7 +108,8 @@ public class VaultEnvironmentPostProcessorTest {
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-username")).thenReturn(new SecretBundle().withValue("test-username"));
         when(keyVaultClient.getSecret("test-vault-url", "test-owner-password")).thenReturn(new SecretBundle().withValue("test-password"));
         when(keyVaultClient.getSecret("test-vault-url", "web-admin-client-secret")).thenReturn(new SecretBundle().withValue("test-secret"));
-        when(keyVaultClient.getSecret("test-vault-url", "BINDPASSWD")).thenReturn(new SecretBundle().withValue("test-ldappass"));
+        when(keyVaultClient.getSecret("test-vault-url", "DSUrootUserPassword")).thenReturn(new SecretBundle().withValue("test-ldappass-userstore"));
+        when(keyVaultClient.getSecret("test-vault-url", "DSTrootUserPassword")).thenReturn(new SecretBundle().withValue("test-ldappass-tokenstore"));
         when(keyVaultClient.getSecret("test-vault-url", "appinsights-instrumentationkey")).thenReturn(new SecretBundle().withValue("test-instrumentation"));
 
         postProcessor.postProcessEnvironment(configurableEnvironment, springApplication);
@@ -118,7 +120,8 @@ public class VaultEnvironmentPostProcessorTest {
         assertThat(propertySource.getProperty("test.owner.username"), is("test-username"));
         assertThat(propertySource.getProperty("test.owner.password"), is("test-password"));
         assertThat(propertySource.getProperty("web.admin.client.secret"), is("test-secret"));
-        assertThat(propertySource.getProperty("ldap.password"), is("test-ldappass"));
+        assertThat(propertySource.getProperty("ldap.userstore-password"), is("test-ldappass-userstore"));
+        assertThat(propertySource.getProperty("ldap.tokenstore-password"), is("test-ldappass-tokenstore"));
         assertThat(propertySource.getProperty("azure.application-insights.instrumentation-key"), is("test-instrumentation"));
     }
 }

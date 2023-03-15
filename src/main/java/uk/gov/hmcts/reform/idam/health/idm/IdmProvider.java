@@ -14,7 +14,7 @@ import java.util.Map;
 public interface IdmProvider {
 
     @GetMapping("/info/ping")
-    Map<String, String> ping(@RequestHeader("Authorization") String basicAuth);
+    Map<String, String> ping();
 
     @GetMapping("/config/provisioner.openicf/ldap?_fields={fields}")
     Map<String, Object> checkLdap(@RequestHeader("Authorization") String basicAuth,

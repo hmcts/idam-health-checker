@@ -25,6 +25,28 @@ public class UserStoreHealthProbeConfiguration {
     private TaskScheduler taskScheduler;
 
     @Bean
+    public ScheduledHealthProbeIndicator userStoreAliveScheduledHealthProbe(
+            UserStoreAliveHealthProbe userStoreAliveHealthProbe ) {
+        return new ScheduledHealthProbeIndicator(
+                userStoreAliveHealthProbe,
+                HealthProbeFailureHandling.MARK_AS_DOWN,
+                taskScheduler,
+                userStoreHealthProbeProperties.getAlive().getFreshnessInterval(),
+                userStoreHealthProbeProperties.getAlive().getCheckInterval());
+    }
+
+    @Bean
+    public ScheduledHealthProbeIndicator userStoreReadyScheduledHealthProbe(
+            UserStoreReadyHealthProbe userStoreReadyHealthProbe ) {
+        return new ScheduledHealthProbeIndicator(
+                userStoreReadyHealthProbe,
+                HealthProbeFailureHandling.MARK_AS_DOWN,
+                taskScheduler,
+                userStoreHealthProbeProperties.getReady().getFreshnessInterval(),
+                userStoreHealthProbeProperties.getReady().getCheckInterval());
+    }
+
+    @Bean
     @Profile("!single")
     public LdapReplicationHealthProbe userStoreReplicationHealthProbe(
             LdapTemplate ldapTemplate,

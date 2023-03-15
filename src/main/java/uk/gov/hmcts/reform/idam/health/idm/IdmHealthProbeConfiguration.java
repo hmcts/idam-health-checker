@@ -28,13 +28,4 @@ public class IdmHealthProbeConfiguration {
                 idmHealthProbeProperties.getPing().getCheckInterval());
     }
 
-    @Bean
-    public ScheduledHealthProbeIndicator idmLdapScheduledHealthProbe(IdmLdapHealthProbe idmLdapHealthProbe) {
-        return new ScheduledHealthProbeIndicator(
-                idmLdapHealthProbe,
-                HealthProbeFailureHandling.MARK_AS_DOWN,
-                taskScheduler,
-                idmHealthProbeProperties.getLdapCheck().getFreshnessInterval(),
-                idmHealthProbeProperties.getLdapCheck().getCheckInterval());
-    }
 }

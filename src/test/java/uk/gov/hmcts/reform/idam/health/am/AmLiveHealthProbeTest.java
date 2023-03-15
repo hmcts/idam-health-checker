@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.am;
 
+import feign.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -13,35 +14,34 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AmIsAliveHealthProbeTest {
+public class AmLiveHealthProbeTest {
 
     @Mock
     private AmProvider amProvider;
 
+    @Mock
+    Response response;
+
     @InjectMocks
-    private AmIsAliveHealthProbe probe;
+    private AmLiveHealthProbe probe;
 
     @Test
     public void testProbe_success() {
-        when(amProvider.isAlive()).thenReturn("Server is ALIVE!");
+        when(response.status()).thenReturn(HttpStatus.OK.value());
+        when(amProvider.healthLive()).thenReturn(response);
         assertThat(probe.probe(), is(true));
     }
 
     @Test
     public void testProve_failUnexpectedResponse() {
-        when(amProvider.isAlive()).thenReturn("Unexpected response");
-        assertThat(probe.probe(), is(false));
-    }
-
-    @Test
-    public void testProve_failEmptyResponse() {
-        when(amProvider.isAlive()).thenReturn(null);
+        when(response.status()).thenReturn(HttpStatus.I_AM_A_TEAPOT.value());
+        when(amProvider.healthLive()).thenReturn(response);
         assertThat(probe.probe(), is(false));
     }
 
     @Test
     public void testProve_failException() {
-        when(amProvider.isAlive()).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+        when(amProvider.healthLive()).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
         assertThat(probe.probe(), is(false));
     }
 

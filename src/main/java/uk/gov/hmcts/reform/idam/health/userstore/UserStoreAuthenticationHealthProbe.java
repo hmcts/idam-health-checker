@@ -20,8 +20,8 @@ public class UserStoreAuthenticationHealthProbe extends HealthProbe {
     private static final String LDAP_CN_ATTRIBUTE = "cn";
     private final String TAG = "UserStore Auth: ";
 
-    private static final String LDAP_PARTITION_SUFFIX = "dc=reform,dc=hmcts,dc=net";
-    private static final String LDAP_USER_FILTER_TEMPLATE = "(uid=%s)";
+    private static final String LDAP_PARTITION_SUFFIX = "ou=identities";
+    private static final String LDAP_USER_FILTER_TEMPLATE = "(mail=%s)";
 
     private final LdapTemplate ldapTemplate;
 

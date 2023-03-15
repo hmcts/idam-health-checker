@@ -28,12 +28,11 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
     protected static final String VAULT_PROPERTIES = "vaultProperties";
 
     private static final Map<String, String> vaultKeyPropertyNames = ImmutableMap.<String, String>builder()
-            .put("openidm-username", "idm.healthprobe.ldapCheck.username")
-            .put("openidm-password", "idm.healthprobe.ldapCheck.password")
             .put("test-owner-username", "test.owner.username")
             .put("test-owner-password", "test.owner.password")
             .put("web-admin-client-secret", "web.admin.client.secret")
-            .put("BINDPASSWD", "ldap.password")
+            .put("DSUrootUserPassword", "ldap.userstore-password")
+            .put("DSTrootUserPassword", "ldap.tokenstore-password")
             .put("adminUID", "replication.healthprobe.command.user")
             .put("adminPassword", "replication.healthprobe.command.password")
             .put("appinsights-instrumentationkey", "azure.application-insights.instrumentation-key").build();

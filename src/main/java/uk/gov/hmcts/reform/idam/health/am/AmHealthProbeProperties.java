@@ -18,7 +18,9 @@ public class AmHealthProbeProperties {
         private Long checkInterval;
     }
 
-    private AmHealthProbeProperties.Probe isAlive;
+    private AmHealthProbeProperties.Probe live;
+
+    private AmHealthProbeProperties.Probe ready;
     private AmHealthProbeProperties.Probe passwordGrant;
 
     @Getter

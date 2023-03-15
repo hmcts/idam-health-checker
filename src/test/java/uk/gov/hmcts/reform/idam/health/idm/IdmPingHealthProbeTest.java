@@ -36,7 +36,7 @@ public class IdmPingHealthProbeTest {
      */
     @Test
     public void probe_shouldPassWhenPingIsOk() throws Exception {
-        when(idmProvider.ping(anyString())).thenReturn(ImmutableMap.of("state", "ACTIVE_READY"));
+        when(idmProvider.ping()).thenReturn(ImmutableMap.of("state", "ACTIVE_READY"));
         assertThat(probe.probe(), is(true));
     }
 
@@ -46,7 +46,7 @@ public class IdmPingHealthProbeTest {
      */
     @Test
     public void probe_shouldFailWhenPingStateIsUnexpected() {
-        when(idmProvider.ping(anyString())).thenReturn(ImmutableMap.of("state", "UNEXPECTED"));
+        when(idmProvider.ping()).thenReturn(ImmutableMap.of("state", "UNEXPECTED"));
         assertThat(probe.probe(), is(false));
     }
 
@@ -56,7 +56,7 @@ public class IdmPingHealthProbeTest {
      */
     @Test
     public void probe_shouldFailWhenPingStateIsMissing() {
-        when(idmProvider.ping(anyString())).thenReturn(ImmutableMap.of("unexpected", "UNEXPECTED"));
+        when(idmProvider.ping()).thenReturn(ImmutableMap.of("unexpected", "UNEXPECTED"));
         assertThat(probe.probe(), is(false));
     }
 
@@ -66,7 +66,7 @@ public class IdmPingHealthProbeTest {
      */
     @Test
     public void probe_shouldFailWhenPingResponseIsEmpty() {
-        when(idmProvider.ping(anyString())).thenReturn(new HashMap<>());
+        when(idmProvider.ping()).thenReturn(new HashMap<>());
         assertThat(probe.probe(), is(false));
     }
 
@@ -76,7 +76,7 @@ public class IdmPingHealthProbeTest {
      */
     @Test
     public void probe_shouldFailWhenPingResponseIsNull() {
-        when(idmProvider.ping(anyString())).thenReturn(null);
+        when(idmProvider.ping()).thenReturn(null);
         assertThat(probe.probe(), is(false));
     }
 
@@ -86,7 +86,7 @@ public class IdmPingHealthProbeTest {
      */
     @Test
     public void probe_shouldFailWhenPingThrowsException() {
-        when(idmProvider.ping(anyString())).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+        when(idmProvider.ping()).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
         assertThat(probe.probe(), is(false));
     }
 

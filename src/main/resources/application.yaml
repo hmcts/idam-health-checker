@@ -48,13 +48,14 @@ feign:
     enabled: true
 
 ldap:
-  root: ldaps://dummy:1639
-  principal: CN=Directory Manager
+  root: ldaps://dummy:1636
+  principal: uid=admin
   replication:
     missing-updates-threshold: 10000000
     delay-threshold: 120000
 
 userstore:
+  root: https://dummy:8443
   healthprobe:
     authentication:
       freshness-interval: 60000
@@ -68,8 +69,15 @@ userstore:
     connections:
       freshness-interval: 300000
       check-interval: 30000
+    alive:
+      freshness-interval: 30000
+      check-interval: 1000
+    ready:
+      freshness-interval: 30000
+      check-interval: 1000
 
 tokenstore:
+  root: https://dummy:8443
   healthprobe:
     search:
       freshness-interval: 60000
@@ -83,6 +91,12 @@ tokenstore:
     connections:
       freshness-interval: 300000
       check-interval: 30000
+    alive:
+      freshness-interval: 30000
+      check-interval: 1000
+    ready:
+      freshness-interval: 30000
+      check-interval: 1000
 
 idm:
   root: https://dummy
@@ -90,23 +104,21 @@ idm:
     ping:
       freshness-interval: 30000
       check-interval: 1000
-    ldapCheck:
-      freshness-interval: 30000
-      check-interval: 1000
-      username: username-from-vault
-      password: password-from-vault
 
 am:
   root: https://dummy
   healthprobe:
-    isAlive:
+    live:
+      freshness-interval: 30000
+      check-interval: 1000
+    ready:
       freshness-interval: 30000
       check-interval: 1000
     passwordGrant:
       freshness-interval: 360000
       check-interval: 60000
     identity:
-      scope: openid profile authorities acr roles
+      scope: openid profile roles
       host: dummy
 
 backup:

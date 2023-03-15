@@ -16,8 +16,6 @@ import java.util.List;
 @CustomLog
 public class TokenStoreSearchHealthProbe extends HealthProbe {
 
-    private final String TAG = "TokenStore Search: ";
-
     private static final String LDAP_SEARCH_IN_CONFIG = "cn=schema providers,cn=config";
     private static final String LDAP_SEARCH_ANY_OBJECT = "(objectClass=*)";
     private static final String LDAP_CN_ATTRIBUTE = "cn";
