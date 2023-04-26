@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import java.util.Map;
 
 @FeignClient(name = "AmProvider", url = "${am.root}")
-@Profile("am")
+@Profile({"am", "idm"})
 public interface AmProvider {
 
     default Map<String, String> passwordGrantAccessToken(
@@ -52,5 +52,33 @@ public interface AmProvider {
     Map<String, String> accessToken(@RequestHeader("Authorization") String auth,
                          @RequestHeader("Host") String host,
                          Map<String, ?> formParams);
+
+    default Map<String, String> rootPasswordGrantAccessToken(
+            String host,
+            String username,
+            String password,
+            String clientId,
+            String clientSecret,
+            String scope
+    ) {
+        return rootAccessToken(
+                host,
+                ImmutableMap.<String, String>builder()
+                        .put("grant_type", "password")
+                        .put("username", username)
+                        .put("password", password)
+                        .put("client_id", clientId)
+                        .put("client_secret", clientSecret)
+                        .put("scope", scope)
+                        .build()
+        );
+    }
+
+    @PostMapping(
+            value = "/oauth2/access_token",
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+    )
+    Map<String, String> rootAccessToken(@RequestHeader("Host") String host,
+                                    Map<String, ?> formParams);
 
 }

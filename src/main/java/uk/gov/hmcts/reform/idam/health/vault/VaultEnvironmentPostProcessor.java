@@ -31,10 +31,10 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
             .put("test-owner-username", "test.owner.username")
             .put("test-owner-password", "test.owner.password")
             .put("web-admin-client-secret", "web.admin.client.secret")
-            .put("DSUrootUserPassword", "ldap.userstore-password")
-            .put("DSTrootUserPassword", "ldap.tokenstore-password")
-            .put("adminUID", "replication.healthprobe.command.user")
-            .put("adminPassword", "replication.healthprobe.command.password")
+            .put("DSUrootUserPassword", "ldap.userstore-password,replication.healthprobe.command.DSUPassword")
+            .put("DSTrootUserPassword", "ldap.tokenstore-password,replication.healthprobe.command.DSTPassword")
+            .put("adminUID", "idm.healthprobe.check-role-exists.am-user")
+            .put("adminPassword", "idm.healthprobe.check-role-exists.am-password")
             .put("appinsights-instrumentationkey", "azure.application-insights.instrumentation-key").build();
 
     private final KeyVaultClientProvider provider;
@@ -72,7 +72,12 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
             for (String vaultKey : vaultKeyPropertyNames.keySet()) {
                 String value = loadValue(client, keyVaultConfig.getVaultBaseUrl(), vaultKey);
                 if (value != null) {
-                    props.put(vaultKeyPropertyNames.get(vaultKey), value);
+                    String[] propertyKeys = vaultKeyPropertyNames.get(vaultKey).split(",");
+                    for (String propertyKey : propertyKeys) {
+                        props.put(propertyKey, value);
+                    }
+                } else {
+                    log.warn("Unable to set value for {}", vaultKey);
                 }
             }
 

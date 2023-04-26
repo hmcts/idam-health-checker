@@ -7,6 +7,7 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.core.env.Environment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,26 +29,31 @@ public class ReplicationCommandProbeTest {
     @Mock
     private TextCommandRunner textCommandRunner;
 
+    @Mock
+    private Environment environment;
+
     @InjectMocks
     private ReplicationCommandProbe probe;
 
     @Before
     public void setup() {
         when(probeProperties.getCommand().getUser()).thenReturn("test-user");
-        when(probeProperties.getCommand().getPassword()).thenReturn("test-password");
-        when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s");
+        when(probeProperties.getCommand().getDSUPassword()).thenReturn("test-password");
+        when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s %s");
         when(probeProperties.getCommand().getHostIdentity()).thenReturn("test-host");
         when(probeProperties.getCommand().getCommandTimeout()).thenReturn(20000L);
         when(probeProperties.getCommand().getName()).thenReturn("test-probe");
         when(probeProperties.getCommand().getDelayThreshold()).thenReturn(10L);
         when(probeProperties.getCommand().getEntryDifferenceThreshold()).thenReturn(50L);
+        when(probeProperties.getCommand().getUser()).thenReturn("test-user");
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"userstore"});
     }
 
     @Test
     public void testProbe_HostOkay() throws InterruptedException, ExecutionException, IOException {
         List<String> commandOutput = Collections.singletonList("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27259\ttrue\t24501\t1265\t8989\t0\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(true));
     }
@@ -57,7 +63,7 @@ public class ReplicationCommandProbeTest {
         List<String> commandOutput = new ArrayList<>();
         commandOutput.add("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27101\ttrue\t24501\t1265\t8989\t1053\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(false));
     }
@@ -65,9 +71,6 @@ public class ReplicationCommandProbeTest {
     @Test
     public void testProbe_HostOkayNoIdentity() throws InterruptedException, ExecutionException, IOException {
         when(probeProperties.getCommand().getHostIdentity()).thenReturn(null);
-        List<String> commandOutput = Collections.singletonList("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27259\ttrue\t24501\t1265\t8989\t0\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(false));
     }
@@ -79,7 +82,7 @@ public class ReplicationCommandProbeTest {
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(true));
     }
@@ -91,7 +94,7 @@ public class ReplicationCommandProbeTest {
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t2000\ttrue\t24501\t1265\t8989\t0\ttrue");
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t1500\ttrue\t24501\t1265\t8989\t0\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(false));
     }
@@ -103,7 +106,7 @@ public class ReplicationCommandProbeTest {
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t1050\ttrue\t24501\t1265\t8989\t0\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(true));
     }
@@ -115,7 +118,7 @@ public class ReplicationCommandProbeTest {
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t\ttrue\t24501\t1265\t8989\t9999\ttrue");
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t\ttrue\t24501\t1265\t8989\t1204\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(true));
     }
@@ -128,7 +131,7 @@ public class ReplicationCommandProbeTest {
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t2000\ttrue\t24501\t1265\t8989\t0\ttrue");
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t1500\ttrue\t24501\t1265\t8989\t0\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(true));
     }
@@ -141,7 +144,7 @@ public class ReplicationCommandProbeTest {
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t889\ttrue\t17303\t21868\t8989\t0\ttrue");
         commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t889\ttrue\t964\t8208\t8989\t0\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(true));
     }
@@ -150,7 +153,7 @@ public class ReplicationCommandProbeTest {
     public void testProbe_HostWithNaDelay() throws InterruptedException, ExecutionException, IOException {
         List<String> commandOutput = Collections.singletonList("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27259\ttrue\t24501\t1265\t8989\t N/A\ttrue");
         TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
         boolean result = probe.probe();
         assertThat(result, is(true));
     }

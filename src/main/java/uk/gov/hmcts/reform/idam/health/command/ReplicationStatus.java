@@ -14,4 +14,6 @@ public class ReplicationStatus {
     private ReplicationInfo hostReplicationInfo;
     private List<ReplicationInfo> replicationInfoList = new ArrayList<>();
 
+    private List<SimpleReplicationInfo> simpleReplicationInfoList = new ArrayList<>();
+
 }
