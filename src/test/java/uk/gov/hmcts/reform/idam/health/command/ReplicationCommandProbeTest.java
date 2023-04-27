@@ -12,12 +12,11 @@ import org.springframework.core.env.Environment;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,6 +31,9 @@ public class ReplicationCommandProbeTest {
     @Mock
     private Environment environment;
 
+    @Mock
+    private ReplicationStatusConverter replicationStatusConverter;
+
     @InjectMocks
     private ReplicationCommandProbe probe;
 
@@ -41,6 +43,7 @@ public class ReplicationCommandProbeTest {
         when(probeProperties.getCommand().getDSUPassword()).thenReturn("test-password");
         when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s %s");
         when(probeProperties.getCommand().getHostIdentity()).thenReturn("test-host");
+        when(probeProperties.getCommand().getReplicationIdentity()).thenReturn("test-identity");
         when(probeProperties.getCommand().getCommandTimeout()).thenReturn(20000L);
         when(probeProperties.getCommand().getName()).thenReturn("test-probe");
         when(probeProperties.getCommand().getDelayThreshold()).thenReturn(10L);
@@ -50,112 +53,89 @@ public class ReplicationCommandProbeTest {
     }
 
     @Test
-    public void testProbe_HostOkay() throws InterruptedException, ExecutionException, IOException {
-        List<String> commandOutput = Collections.singletonList("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27259\ttrue\t24501\t1265\t8989\t0\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
-        boolean result = probe.probe();
+    public void testVerify_PrimaryHostOkay() {
+        ReplicationStatus status = new ReplicationStatus();
+        status.getContextReplicationInfo().put("test-context", new ArrayList<>());
+        status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY));
+        boolean result = probe.verify(status);
         assertThat(result, is(true));
     }
 
     @Test
-    public void testProbe_HostHasDelay() throws InterruptedException, ExecutionException, IOException {
-        List<String> commandOutput = new ArrayList<>();
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27101\ttrue\t24501\t1265\t8989\t1053\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
-        boolean result = probe.probe();
+    public void testVerify_PrimaryHostNotPresent() {
+        ReplicationStatus status = new ReplicationStatus();
+        status.getContextReplicationInfo().put("test-context", new ArrayList<>());
+        status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.REPLICA));
+        boolean result = probe.verify(status);
         assertThat(result, is(false));
     }
 
     @Test
-    public void testProbe_HostOkayNoIdentity() throws InterruptedException, ExecutionException, IOException {
-        when(probeProperties.getCommand().getHostIdentity()).thenReturn(null);
-        boolean result = probe.probe();
+    public void testVerify_PrimaryHostHasDelay() {
+        ReplicationStatus status = new ReplicationStatus();
+        status.getContextReplicationInfo().put("test-context", new ArrayList<>());
+        ReplicationInfo hostInfo = simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY);
+        hostInfo.setReceiveDelayMs(100L);
+        status.getContextReplicationInfo().get("test-context").add(hostInfo);
+        boolean result = probe.verify(status);
         assertThat(result, is(false));
     }
 
     @Test
-    public void testProbe_HostOkayAndOthersLagging() throws InterruptedException, ExecutionException, IOException {
-        List<String> commandOutput = new ArrayList<>();
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27259\ttrue\t24501\t1265\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
-        boolean result = probe.probe();
-        assertThat(result, is(true));
-    }
-
-    @Test
-    public void testProbe_HostLaggingAndOthersOkay() throws InterruptedException, ExecutionException, IOException {
-        List<String> commandOutput = new ArrayList<>();
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t2000\ttrue\t24501\t1265\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t1500\ttrue\t24501\t1265\t8989\t0\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
-        boolean result = probe.probe();
+    public void testVerify_PrimaryHostMissingEntries() {
+        ReplicationStatus status = new ReplicationStatus();
+        status.getContextReplicationInfo().put("test-context", new ArrayList<>());
+        status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY));
+        ReplicationInfo replicaInfo = simpleReplicationInfo("test-context", "test-instance", InstanceType.REPLICA);
+        replicaInfo.setEntryCount(151L);
+        status.getContextReplicationInfo().get("test-context").add(replicaInfo);
+        boolean result = probe.verify(status);
         assertThat(result, is(false));
     }
 
     @Test
-    public void testProbe_HostLaggingAndOthersSimilar() throws InterruptedException, ExecutionException, IOException {
-        List<String> commandOutput = new ArrayList<>();
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t1050\ttrue\t24501\t1265\t8989\t0\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+    public void testVerify_StatusErrors() {
+        ReplicationStatus status = new ReplicationStatus();
+        status.setErrors(Collections.singletonList("test-error"));
+        boolean result = probe.verify(status);
+        assertThat(result, is(false));
+    }
+
+    @Test
+    public void testVerify_StatusEmpty() {
+        ReplicationStatus status = new ReplicationStatus();
+        boolean result = probe.verify(status);
+        assertThat(result, is(false));
+    }
+
+    @Test
+    public void testProbe_Success() throws IOException, ExecutionException, InterruptedException {
+        ReplicationStatus status = new ReplicationStatus();
+        status.getContextReplicationInfo().put("test-context", new ArrayList<>());
+        status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY));
+        when(textCommandRunner.execute(any(), any())).thenReturn(new TextCommandRunner.Response(Collections.singletonList("output"), Collections.emptyList()));
+        when(replicationStatusConverter.convert(any())).thenReturn(status);
         boolean result = probe.probe();
         assertThat(result, is(true));
     }
 
     @Test
-    public void testProbe_HostOkayAndOthersHaveDelay() throws InterruptedException, ExecutionException, IOException {
-        List<String> commandOutput = new ArrayList<>();
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t\ttrue\t24501\t1265\t8989\t9999\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t\ttrue\t24501\t1265\t8989\t1204\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
+    public void testProbe_Exception() throws IOException, ExecutionException, InterruptedException {
+        when(textCommandRunner.execute(any(), any())).thenThrow(new RuntimeException("test-exception"));
         boolean result = probe.probe();
-        assertThat(result, is(true));
+        assertThat(result, is(false));
     }
 
-    @Test
-    public void testProbe_HostLaggingAndOthersOkayButNoThreshold() throws InterruptedException, ExecutionException, IOException {
-        when(probeProperties.getCommand().getEntryDifferenceThreshold()).thenReturn(null);
-        List<String> commandOutput = new ArrayList<>();
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t1000\ttrue\t24501\t1265\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t2000\ttrue\t24501\t1265\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t1500\ttrue\t24501\t1265\t8989\t0\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
-        boolean result = probe.probe();
-        assertThat(result, is(true));
-    }
-
-    @Test
-    public void testProbe_Sandbox() throws InterruptedException, ExecutionException, IOException {
-        when(probeProperties.getCommand().getEntryDifferenceThreshold()).thenReturn(null);
-        List<String> commandOutput = new ArrayList<>();
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t889\ttrue\t30518\t14667\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-1:4444\t889\ttrue\t17303\t21868\t8989\t0\ttrue");
-        commandOutput.add("dc=reform,dc=hmcts,dc=net\tother-host-2:4444\t889\ttrue\t964\t8208\t8989\t0\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
-        boolean result = probe.probe();
-        assertThat(result, is(true));
-    }
-
-    @Test
-    public void testProbe_HostWithNaDelay() throws InterruptedException, ExecutionException, IOException {
-        List<String> commandOutput = Collections.singletonList("dc=reform,dc=hmcts,dc=net\ttest-host:4444\t27259\ttrue\t24501\t1265\t8989\t N/A\ttrue");
-        TextCommandRunner.Response testResponse = new TextCommandRunner.Response(commandOutput, null);
-        when(textCommandRunner.execute(eq("test-template test-host.service.core-compute-idam-preview.internal test-user test-password".split(" ")), eq(20000L))).thenReturn(testResponse);
-        boolean result = probe.probe();
-        assertThat(result, is(true));
+    private ReplicationInfo simpleReplicationInfo(String context, String instance, InstanceType instanceType) {
+        ReplicationInfo info = new ReplicationInfo();
+        info.setContext(context);
+        info.setInstance(instance);
+        info.setInstanceType(instanceType);
+        info.setEntryCount(100L);
+        info.setStatus("test-okay");
+        info.setReceiveDelayMs(0L);
+        info.setReplayDelayMs(0L);
+        return info;
     }
 
 }
