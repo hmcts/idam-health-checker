@@ -41,14 +41,12 @@ public class ReplicationCommandProbeTest {
     public void setup() {
         when(probeProperties.getCommand().getUser()).thenReturn("test-user");
         when(probeProperties.getCommand().getDSUPassword()).thenReturn("test-password");
-        when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s %s");
-        when(probeProperties.getCommand().getHostIdentity()).thenReturn("test-host");
-        when(probeProperties.getCommand().getHostname()).thenReturn("test-host.local");
+        when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s");
         when(probeProperties.getCommand().getReplicationIdentity()).thenReturn("test-identity");
         when(probeProperties.getCommand().getCommandTimeout()).thenReturn(20000L);
         when(probeProperties.getCommand().getName()).thenReturn("test-probe");
         when(probeProperties.getCommand().getDelayThreshold()).thenReturn(10L);
-        when(probeProperties.getCommand().getEntryDifferenceThreshold()).thenReturn(50L);
+        when(probeProperties.getCommand().getEntryDifferencePercent()).thenReturn(0.2);
         when(probeProperties.getCommand().getUser()).thenReturn("test-user");
         when(environment.getActiveProfiles()).thenReturn(new String[]{"userstore"});
     }
@@ -88,10 +86,22 @@ public class ReplicationCommandProbeTest {
         status.getContextReplicationInfo().put("test-context", new ArrayList<>());
         status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY));
         ReplicationInfo replicaInfo = simpleReplicationInfo("test-context", "test-instance", InstanceType.REPLICA);
-        replicaInfo.setEntryCount(151L);
+        replicaInfo.setEntryCount(150L);
         status.getContextReplicationInfo().get("test-context").add(replicaInfo);
         boolean result = probe.verify(status);
         assertThat(result, is(false));
+    }
+
+    @Test
+    public void testVerify_PrimaryHostMissingEntriesWithinThreshold() {
+        ReplicationStatus status = new ReplicationStatus();
+        status.getContextReplicationInfo().put("test-context", new ArrayList<>());
+        status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY));
+        ReplicationInfo replicaInfo = simpleReplicationInfo("test-context", "test-instance", InstanceType.REPLICA);
+        replicaInfo.setEntryCount(125L);
+        status.getContextReplicationInfo().get("test-context").add(replicaInfo);
+        boolean result = probe.verify(status);
+        assertThat(result, is(true));
     }
 
     @Test
@@ -130,11 +140,10 @@ public class ReplicationCommandProbeTest {
     @Test
     public void testGetCommand_Success() {
         String[] result = probe.getCommand();
-        assertThat(result.length, is(4));
+        assertThat(result.length, is(3));
         assertThat(result[0], is("test-template"));
-        assertThat(result[1], is("test-host.local"));
-        assertThat(result[2], is("test-user"));
-        assertThat(result[3], is("test-password"));
+        assertThat(result[1], is("test-user"));
+        assertThat(result[2], is("test-password"));
     }
 
     private ReplicationInfo simpleReplicationInfo(String context, String instance, InstanceType instanceType) {

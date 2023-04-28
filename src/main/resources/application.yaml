@@ -149,10 +149,9 @@ replication:
       name: ReplicationCommand
       freshness-interval: 360000
       check-interval: 60000
-      template: /opt/opendj/bin/dsrepl status --showReplicas --hostname %s --bindDN %s --bindPassword %s --port 4444 --trustall
-      host-identity: dummy
-      hostname: dummy
+      template: /opt/opendj/bin/dsrepl status --showReplicas --bindDN %s --bindPassword %s --port 4444 --trustall
       delay-threshold: 999
+      entry-difference-percent: 0.25
       command-timeout: 20000
       user: uid=admin
 

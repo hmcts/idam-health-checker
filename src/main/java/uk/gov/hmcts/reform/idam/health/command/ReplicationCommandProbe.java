@@ -70,7 +70,7 @@ public class ReplicationCommandProbe extends HealthProbe {
                     log.info("{}", replicationInfo);
                 }
                 if (hostReplicationInfo == null) {
-                    healthErrors.add(format("Context {0}: No primary host details for identity '{1}'", context,
+                    healthErrors.add(format("Context {0}: No primary host details for identity {1}", context,
                                             probeProperties.getCommand().getReplicationIdentity()));
                     result = false;
                 } else {
@@ -84,7 +84,7 @@ public class ReplicationCommandProbe extends HealthProbe {
                             .map(ReplicationInfo::getEntryCount).orElse(0L);
                     if (!compareReplication(hostReplicationInfo, maxReplicaEntryCount)) {
                         healthErrors.add(
-                                format("Context {0}: primary host '{1}' with entry count of {2} failed verification against max replication count {3}",
+                                format("Context {0}: primary host {1} with entry count of {2} failed verification against max replication count {3}",
                                        context, hostReplicationInfo.getInstance(), hostReplicationInfo.getEntryCount(),
                                        maxReplicaEntryCount));
                         result = false;
@@ -104,12 +104,14 @@ public class ReplicationCommandProbe extends HealthProbe {
     }
 
     private boolean compareReplication(ReplicationInfo hostReplicationInfo, Long maxReplicaEntryCount) {
-        if ((probeProperties.getCommand()
-                .getEntryDifferenceThreshold() != null) && (hostReplicationInfo.getEntryCount() != null)) {
-            return (maxReplicaEntryCount == null) || (hostReplicationInfo.getEntryCount() >= maxReplicaEntryCount) || (hostReplicationInfo.getEntryCount() >= maxReplicaEntryCount - probeProperties.getCommand()
-                    .getEntryDifferenceThreshold());
+        if (hostReplicationInfo.getEntryCount() != null
+                && hostReplicationInfo.getEntryCount() >= 0L
+                && maxReplicaEntryCount >= 0L
+                && probeProperties.getCommand().getEntryDifferencePercent() != null
+                && hostReplicationInfo.getEntryCount() < maxReplicaEntryCount - (maxReplicaEntryCount * probeProperties.getCommand().getEntryDifferencePercent())) {
+            return false;
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -119,9 +121,9 @@ public class ReplicationCommandProbe extends HealthProbe {
 
     public String[] getCommand() {
         if (command == null) {
-            command = buildCommand(probeProperties.getCommand().getTemplate(), probeProperties.getCommand()
-                                           .getHostname(),
-                                   probeProperties.getCommand().getUser(), getBindPassword());
+            command = buildCommand(probeProperties.getCommand().getTemplate(),
+                                   probeProperties.getCommand().getUser(),
+                                   getBindPassword());
         }
         return command;
     }
@@ -142,9 +144,9 @@ public class ReplicationCommandProbe extends HealthProbe {
         return replicationStatusConverter.convert(response);
     }
 
-    protected static String[] buildCommand(String commandTemplate, String host, String adminUID, String adminPassword) {
-        if (StringUtils.isNoneEmpty(commandTemplate, host, adminUID, adminPassword)) {
-            return String.format(commandTemplate, host, adminUID, adminPassword).split(SPACE);
+    protected static String[] buildCommand(String commandTemplate, String adminUID, String adminPassword) {
+        if (StringUtils.isNoneEmpty(commandTemplate, adminUID, adminPassword)) {
+            return String.format(commandTemplate, adminUID, adminPassword).split(SPACE);
         } else if (commandTemplate != null) {
             if (StringUtils.isEmpty(adminPassword)) {
                 log.warn("No value for admin password");
