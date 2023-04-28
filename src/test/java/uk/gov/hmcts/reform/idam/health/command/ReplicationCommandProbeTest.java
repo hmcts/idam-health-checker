@@ -43,6 +43,7 @@ public class ReplicationCommandProbeTest {
         when(probeProperties.getCommand().getDSUPassword()).thenReturn("test-password");
         when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s %s");
         when(probeProperties.getCommand().getHostIdentity()).thenReturn("test-host");
+        when(probeProperties.getCommand().getHostname()).thenReturn("test-host.local");
         when(probeProperties.getCommand().getReplicationIdentity()).thenReturn("test-identity");
         when(probeProperties.getCommand().getCommandTimeout()).thenReturn(20000L);
         when(probeProperties.getCommand().getName()).thenReturn("test-probe");
@@ -124,6 +125,16 @@ public class ReplicationCommandProbeTest {
         when(textCommandRunner.execute(any(), any())).thenThrow(new RuntimeException("test-exception"));
         boolean result = probe.probe();
         assertThat(result, is(false));
+    }
+
+    @Test
+    public void testGetCommand_Success() {
+        String[] result = probe.getCommand();
+        assertThat(result.length, is(4));
+        assertThat(result[0], is("test-template"));
+        assertThat(result[1], is("test-host.local"));
+        assertThat(result[2], is("test-user"));
+        assertThat(result[3], is("test-password"));
     }
 
     private ReplicationInfo simpleReplicationInfo(String context, String instance, InstanceType instanceType) {

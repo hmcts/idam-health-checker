@@ -22,6 +22,7 @@ public class ReplicationCommandProbeProperties {
         private Long checkInterval;
         private String template;
         private String hostIdentity;
+        private String hostname;
         private String replicationIdentity;
         private Long delayThreshold;
         private Long entryDifferenceThreshold;

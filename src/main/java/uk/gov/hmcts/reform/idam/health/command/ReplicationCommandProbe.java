@@ -120,7 +120,7 @@ public class ReplicationCommandProbe extends HealthProbe {
     public String[] getCommand() {
         if (command == null) {
             command = buildCommand(probeProperties.getCommand().getTemplate(), probeProperties.getCommand()
-                                           .getHostIdentity() + ".service.core-compute-idam-preview.internal",
+                                           .getHostname(),
                                    probeProperties.getCommand().getUser(), getBindPassword());
         }
         return command;

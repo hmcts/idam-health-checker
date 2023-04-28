@@ -105,8 +105,8 @@ idm:
       freshness-interval: 30000
       check-interval: 1000
     check-role-exists:
-      freshness-interval: 30000
-      check-interval: 1000
+      freshness-interval: 360000
+      check-interval: 60000
       idm-client-id: idm-admin-ui
       idm-client-scope: openid fr:idm:*
       am-host: dummy
@@ -150,7 +150,8 @@ replication:
       freshness-interval: 360000
       check-interval: 60000
       template: /opt/opendj/bin/dsrepl status --showReplicas --hostname %s --bindDN %s --bindPassword %s --port 4444 --trustall
-      host-identity:
+      host-identity: dummy
+      hostname: dummy
       delay-threshold: 999
       command-timeout: 20000
       user: uid=admin
