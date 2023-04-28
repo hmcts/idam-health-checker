@@ -9,14 +9,12 @@ import lombok.ToString;
 @ToString
 public class ReplicationInfo {
 
-    private String suffix;
-    private String hostName;
-    private Long entries;
-    private String replicationEnabled;
-    private String dsID;
-    private String rsId;
-    private String rsPort;
-    private Long delay;
-    private String securityEnabled;
+    private String context;
+    private InstanceType instanceType;
+    private String instance;
+    private String status;
+    private Long receiveDelayMs;
+    private Long replayDelayMs;
+    private Long entryCount;
 
 }

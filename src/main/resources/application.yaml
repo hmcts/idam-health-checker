@@ -104,6 +104,13 @@ idm:
     ping:
       freshness-interval: 30000
       check-interval: 1000
+    check-role-exists:
+      freshness-interval: 360000
+      check-interval: 60000
+      idm-client-id: idm-admin-ui
+      idm-client-scope: openid fr:idm:*
+      am-host: dummy
+      role-id: citizen
 
 am:
   root: https://dummy
@@ -142,10 +149,11 @@ replication:
       name: ReplicationCommand
       freshness-interval: 360000
       check-interval: 60000
-      template: /opt/opendj/bin/dsreplication status -X --adminUID %s --adminPassword %s --port 4444 -s -n
-      host-identity:
+      template: /opt/opendj/bin/dsrepl status --showReplicas --bindDN %s --bindPassword %s --port 4444 --trustall
       delay-threshold: 999
+      entry-difference-percent: 0.25
       command-timeout: 20000
+      user: uid=admin
 
 forgerock:
   info:

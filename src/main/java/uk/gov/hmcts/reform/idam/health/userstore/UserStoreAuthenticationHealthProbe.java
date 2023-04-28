@@ -63,6 +63,7 @@ public class UserStoreAuthenticationHealthProbe extends HealthProbe {
                 return handleError("authentication failed for filter " + ldapUserFilter);
             }
         } catch (Exception e) {
+            log.error("Failed to prove", e);
             return handleException(e);
         }
     }

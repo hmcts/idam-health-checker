@@ -47,9 +47,6 @@ public class VaultEnvironmentPostProcessorTest {
 
     private VaultEnvironmentPostProcessor postProcessor;
 
-    @Mock
-    private EnvironmentKeyVaultConfigBuilder environmentKeyVaultConfigBuilder;
-
     @Before
     public void setup() {
         postProcessor = new VaultEnvironmentPostProcessor(keyVaultClientProvider);
@@ -111,6 +108,7 @@ public class VaultEnvironmentPostProcessorTest {
         when(keyVaultClient.getSecret("test-vault-url", "DSUrootUserPassword")).thenReturn(new SecretBundle().withValue("test-ldappass-userstore"));
         when(keyVaultClient.getSecret("test-vault-url", "DSTrootUserPassword")).thenReturn(new SecretBundle().withValue("test-ldappass-tokenstore"));
         when(keyVaultClient.getSecret("test-vault-url", "appinsights-instrumentationkey")).thenReturn(new SecretBundle().withValue("test-instrumentation"));
+        when(keyVaultClient.getSecret("test-vault-url", "adminUID")).thenReturn(new SecretBundle().withValue("test-admin-uid"));
 
         postProcessor.postProcessEnvironment(configurableEnvironment, springApplication);
 
@@ -123,5 +121,6 @@ public class VaultEnvironmentPostProcessorTest {
         assertThat(propertySource.getProperty("ldap.userstore-password"), is("test-ldappass-userstore"));
         assertThat(propertySource.getProperty("ldap.tokenstore-password"), is("test-ldappass-tokenstore"));
         assertThat(propertySource.getProperty("azure.application-insights.instrumentation-key"), is("test-instrumentation"));
+        assertThat(propertySource.getProperty("idm.healthprobe.check-role-exists.am-user"), is("test-admin-uid"));
     }
 }

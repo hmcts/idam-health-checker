@@ -2,16 +2,22 @@ package uk.gov.hmcts.reform.idam.health.command;
 
 import lombok.CustomLog;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static java.text.MessageFormat.format;
 
 @Component
 @Profile("(userstore | tokenstore) & replication)")
@@ -19,17 +25,20 @@ import java.util.concurrent.ExecutionException;
 public class ReplicationCommandProbe extends HealthProbe {
 
     private static final String SPACE = " ";
-    private static final String RESULT_DELIM = "\t";
-    private static final String REFORM_HMCTS_NET = "dc=reform,dc=hmcts,dc=net";
-
     private final ReplicationCommandProbeProperties probeProperties;
     private final TextCommandRunner textCommandRunner;
+    private final Environment environment;
+    private final ReplicationStatusConverter replicationStatusConverter;
 
     private String[] command;
 
-    public ReplicationCommandProbe(ReplicationCommandProbeProperties probeProperties, TextCommandRunner textCommandRunner) {
+    public ReplicationCommandProbe(ReplicationCommandProbeProperties probeProperties,
+                                   TextCommandRunner textCommandRunner, Environment environment,
+                                   ReplicationStatusConverter converter) {
         this.probeProperties = probeProperties;
         this.textCommandRunner = textCommandRunner;
+        this.environment = environment;
+        replicationStatusConverter = converter;
     }
 
     @Override
@@ -41,42 +50,68 @@ public class ReplicationCommandProbe extends HealthProbe {
     public boolean probe() {
         try {
             ReplicationStatus status = run(getCommand());
-            if (status.getHostReplicationInfo() != null) {
-
-                boolean result = true;
-                log.info("{}: Host replication info: {}", getName(), status.getHostReplicationInfo());
-                if (CollectionUtils.isNotEmpty(status.getReplicationInfoList())) {
-                    status.getReplicationInfoList().stream().forEach(ri -> log.info("{}: Replicated host: {}", getName(), ri));
-                    if (!verifyHostReplication(status.getHostReplicationInfo())) {
-                        result = false;
-                    }
-                    if (!compareReplication(status.getHostReplicationInfo(), status.getReplicationInfoList())) {
-                        result = false;
-                    }
-                } else {
-                    result = verifyHostReplication(status.getHostReplicationInfo());
-                }
-
-                if (result) {
-                    return handleSuccess();
-                } else {
-                    return handleError("Host replication failed verification");
-                }
-
-            } else if ((CollectionUtils.isNotEmpty(status.getReplicationInfoList()))) {
-                status.getReplicationInfoList().stream().forEach(ri -> log.info("{}: {}", getName(), ri));
-                if (CollectionUtils.isNotEmpty(status.getErrors())) {
-                    return handleError(String.join(", ", status.getErrors()));
-                }
-            } else if (CollectionUtils.isNotEmpty(status.getErrors())) {
-                return handleError(String.join(", ", status.getErrors()));
-            } else {
-                return handleError("Command completed with no replication info present");
-            }
+            return verify(status);
         } catch (Exception e) {
             return handleException(e);
         }
-        return handleError("Failed");
+    }
+
+    protected boolean verify(ReplicationStatus status) {
+        if (MapUtils.isNotEmpty(status.getContextReplicationInfo())) {
+            List<String> healthErrors = new ArrayList<>();
+            boolean result = true;
+            for (String context : status.getContextReplicationInfo().keySet()) {
+                ReplicationInfo hostReplicationInfo = null;
+                for (ReplicationInfo replicationInfo : status.getContextReplicationInfo()
+                        .get(context)) {
+                    if (replicationInfo.getInstanceType() == InstanceType.PRIMARY) {
+                        hostReplicationInfo = replicationInfo;
+                    }
+                    log.info("{}", replicationInfo);
+                }
+                if (hostReplicationInfo == null) {
+                    healthErrors.add(format("Context {0}: No primary host details for identity {1}", context,
+                                            probeProperties.getCommand().getReplicationIdentity()));
+                    result = false;
+                } else {
+                    if (!verifyHostReplication(hostReplicationInfo)) {
+                        healthErrors.add(format("Context {0}: failed primary host verification", context));
+                        result = false;
+                    }
+                    Long maxReplicaEntryCount = status.getContextReplicationInfo().get(context).stream()
+                            .filter(s -> s.getInstanceType() != InstanceType.PRIMARY)
+                            .max(Comparator.comparingLong(ReplicationInfo::getEntryCount))
+                            .map(ReplicationInfo::getEntryCount).orElse(0L);
+                    if (!compareReplication(hostReplicationInfo, maxReplicaEntryCount)) {
+                        healthErrors.add(
+                                format("Context {0}: primary host {1} with entry count of {2} failed verification against max replication count {3}",
+                                       context, hostReplicationInfo.getInstance(), hostReplicationInfo.getEntryCount(),
+                                       maxReplicaEntryCount));
+                        result = false;
+                    }
+                }
+            }
+            if (result) {
+                return handleSuccess();
+            } else {
+                return handleError(String.join("; ", healthErrors));
+            }
+        } else if (CollectionUtils.isNotEmpty(status.getErrors())) {
+            return handleError(String.join(", ", status.getErrors()));
+        } else {
+            return handleError("Command completed with no replication info present");
+        }
+    }
+
+    private boolean compareReplication(ReplicationInfo hostReplicationInfo, Long maxReplicaEntryCount) {
+        if (hostReplicationInfo.getEntryCount() != null
+                && hostReplicationInfo.getEntryCount() >= 0L
+                && maxReplicaEntryCount >= 0L
+                && probeProperties.getCommand().getEntryDifferencePercent() != null
+                && hostReplicationInfo.getEntryCount() < maxReplicaEntryCount - (maxReplicaEntryCount * probeProperties.getCommand().getEntryDifferencePercent())) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -86,89 +121,31 @@ public class ReplicationCommandProbe extends HealthProbe {
 
     public String[] getCommand() {
         if (command == null) {
-            command = buildCommand(probeProperties.getCommand().getTemplate(), probeProperties.getCommand().getUser(), probeProperties.getCommand().getPassword());
+            command = buildCommand(probeProperties.getCommand().getTemplate(),
+                                   probeProperties.getCommand().getUser(),
+                                   getBindPassword());
         }
         return command;
     }
 
     protected boolean verifyHostReplication(ReplicationInfo replicationInfo) {
-        if ((probeProperties.getCommand().getDelayThreshold() != null) &&
-                (replicationInfo.getDelay() != null) &&
-                (replicationInfo.getDelay() > probeProperties.getCommand().getDelayThreshold())) {
+        if ((probeProperties.getCommand()
+                .getDelayThreshold() != null) && (replicationInfo.getReceiveDelayMs() != null) && (replicationInfo.getReceiveDelayMs() > probeProperties.getCommand()
+                .getDelayThreshold())) {
             return false;
         }
         return true;
     }
 
-    private boolean compareReplication(ReplicationInfo hostReplicationInfo, List<ReplicationInfo> replicationInfoList) {
-        if ((probeProperties.getCommand().getEntryDifferenceThreshold() != null) &&
-                (hostReplicationInfo.getEntries() != null)) {
-            Long maxNoEntries = replicationInfoList.stream()
-                    .max(Comparator.comparingLong(ReplicationInfo::getEntries)).get().getEntries();
-            return (maxNoEntries == null) ||
-                    (hostReplicationInfo.getEntries() >= maxNoEntries) ||
-                    (hostReplicationInfo.getEntries() >= maxNoEntries - probeProperties.getCommand().getEntryDifferenceThreshold());
-        }
-        return true;
-    }
-
     protected ReplicationStatus run(String[] command) throws InterruptedException, ExecutionException, IOException {
-        log.debug("Pulling replication command response...");
-        TextCommandRunner.Response response = textCommandRunner.execute(command, probeProperties.getCommand().getCommandTimeout());
-        ReplicationStatus status = new ReplicationStatus();
-        if (CollectionUtils.isNotEmpty(response.getOutput())) {
-            for (String value : response.getOutput()) {
-                log.debug("Response value: {}", value);
-                if (value.startsWith(REFORM_HMCTS_NET)) {
-                    ReplicationInfo info = convert(value);
-                    if (info != null) {
-                        if ((StringUtils.isNotEmpty(probeProperties.getCommand().getHostIdentity()) &&
-                                StringUtils.startsWith(info.getHostName(), probeProperties.getCommand().getHostIdentity()))) {
-                            status.setHostReplicationInfo(info);
-                        } else {
-                            status.getReplicationInfoList().add(info);
-                        }
-                    }
-                }
-            }
-        }
-        if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            for (String error : response.getErrors()) {
-                status.getErrors().add(error);
-            }
-        }
-        return status;
-    }
-
-    protected ReplicationInfo convert(String value) {
-        String[] parts = value.split(RESULT_DELIM);
-        if (parts.length == 9) {
-            ReplicationInfo info = new ReplicationInfo();
-            info.setSuffix(StringUtils.trimToNull(parts[0]));
-            info.setHostName(StringUtils.trimToNull(parts[1]));
-            String entries = StringUtils.trimToNull(parts[2]);
-            if (entries != null) {
-                info.setEntries(Long.parseLong(entries));
-            } else {
-                info.setEntries(-1L);
-            }
-            info.setReplicationEnabled(StringUtils.trimToNull(parts[3]));
-            info.setDsID(StringUtils.trimToNull(parts[4]));
-            info.setRsId(StringUtils.trimToNull(parts[5]));
-            info.setRsPort(StringUtils.trimToNull(parts[6]));
-            String delay = StringUtils.trimToNull(parts[7]);
-            if (delay != null) {
-                info.setDelay(delay.equals("N/A") ? 0 : Long.parseLong(delay));
-            }
-            info.setSecurityEnabled(StringUtils.trimToNull(parts[8]));
-            return info;
-        }
-        return null;
+        log.info("Running replication command");
+        TextCommandRunner.Response response = textCommandRunner.execute(command, probeProperties.getCommand()
+                .getCommandTimeout());
+        return replicationStatusConverter.convert(response);
     }
 
     protected static String[] buildCommand(String commandTemplate, String adminUID, String adminPassword) {
         if (StringUtils.isNoneEmpty(commandTemplate, adminUID, adminPassword)) {
-            log.info("Configuring with command {} and password value from properties", commandTemplate);
             return String.format(commandTemplate, adminUID, adminPassword).split(SPACE);
         } else if (commandTemplate != null) {
             if (StringUtils.isEmpty(adminPassword)) {
@@ -177,11 +154,18 @@ public class ReplicationCommandProbe extends HealthProbe {
             if (StringUtils.isEmpty(adminUID)) {
                 log.warn("No value for admin user ID");
             }
-            log.info("Configuring with command {}", commandTemplate);
             return commandTemplate.split(SPACE);
         }
         log.warn("command template is null");
         return null;
+    }
+
+    private String getBindPassword() {
+        if (ArrayUtils.contains(environment.getActiveProfiles(), "userstore")) {
+            return probeProperties.getCommand().getDSUPassword();
+        } else {
+            return probeProperties.getCommand().getDSTPassword();
+        }
     }
 
 }

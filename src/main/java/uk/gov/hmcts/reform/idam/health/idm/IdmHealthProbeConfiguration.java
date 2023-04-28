@@ -28,4 +28,14 @@ public class IdmHealthProbeConfiguration {
                 idmHealthProbeProperties.getPing().getCheckInterval());
     }
 
+    @Bean
+    public ScheduledHealthProbeIndicator idmCheckRoleExistsScheduledHealthProbe(IdmCheckRoleExistsHealthProbe idmCheckRoleExistsHealthProbe) {
+        return new ScheduledHealthProbeIndicator(
+                idmCheckRoleExistsHealthProbe,
+                HealthProbeFailureHandling.MARK_AS_DOWN,
+                taskScheduler,
+                idmHealthProbeProperties.getCheckRoleExists().getFreshnessInterval(),
+                idmHealthProbeProperties.getCheckRoleExists().getCheckInterval());
+    }
+
 }

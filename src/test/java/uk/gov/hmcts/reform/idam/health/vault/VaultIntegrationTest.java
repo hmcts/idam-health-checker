@@ -104,8 +104,8 @@ public class VaultIntegrationTest {
         final String webAdmin = env.getProperty("web.admin.client.secret");
         final String ldapUserstorePwd = env.getProperty("ldap.userstore-password");
         final String ldapTokenstorePwd = env.getProperty("ldap.tokenstore-password");
-        final String replicationUser = env.getProperty("replication.healthprobe.command.user");
-        final String replicationPwd = env.getProperty("replication.healthprobe.command.password");
+        final String roleExistsUser = env.getProperty("idm.healthprobe.check-role-exists.am-user");
+        final String roleExistsPwd = env.getProperty("idm.healthprobe.check-role-exists.am-password");
         final String instrumentationKey = env.getProperty("azure.application-insights.instrumentation-key");
 
         assertEquals(VAULT_PROPERTIES.get("test-owner-username"), username);
@@ -113,8 +113,8 @@ public class VaultIntegrationTest {
         assertEquals(VAULT_PROPERTIES.get("web-admin-client-secret"), webAdmin);
         assertEquals(VAULT_PROPERTIES.get("DSUrootUserPassword"), ldapUserstorePwd);
         assertEquals(VAULT_PROPERTIES.get("DSTrootUserPassword"), ldapTokenstorePwd);
-        assertEquals(VAULT_PROPERTIES.get("adminUID"), replicationUser);
-        assertEquals(VAULT_PROPERTIES.get("adminPassword"), replicationPwd);
+        assertEquals(VAULT_PROPERTIES.get("adminUID"), roleExistsUser);
+        assertEquals(VAULT_PROPERTIES.get("adminPassword"), roleExistsPwd);
         assertEquals(VAULT_PROPERTIES.get("appinsights-instrumentationkey"), instrumentationKey);
     }
 

@@ -16,13 +16,14 @@ public class ReplicationCommandProbeProperties {
     static class Probe {
         private String name;
         private String user;
-        private String password;
+        private String DSUPassword;
+        private String DSTPassword;
         private Long freshnessInterval;
         private Long checkInterval;
         private String template;
-        private String hostIdentity;
+        private String replicationIdentity;
         private Long delayThreshold;
-        private Long entryDifferenceThreshold;
+        private Double entryDifferencePercent;
         private Long commandTimeout;
     }
 
