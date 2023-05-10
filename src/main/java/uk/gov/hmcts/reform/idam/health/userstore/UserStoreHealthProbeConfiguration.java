@@ -51,7 +51,7 @@ public class UserStoreHealthProbeConfiguration {
     public LdapReplicationHealthProbe userStoreReplicationHealthProbe(
             LdapTemplate ldapTemplate,
             ConfigProperties configProperties) {
-        return new LdapReplicationHealthProbe("UserStore replication", ldapTemplate, configProperties);
+        return new LdapReplicationHealthProbe("UserStore replication", ldapTemplate, "ou=identities", configProperties);
     }
 
     @Bean
