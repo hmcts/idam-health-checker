@@ -51,7 +51,7 @@ public class TokenStoreHealthProbeConfiguration {
     public LdapReplicationHealthProbe tokenStoreReplicationHealthProbe(
             LdapTemplate ldapTemplate,
             ConfigProperties configProperties) {
-        return new LdapReplicationHealthProbe("TokenStore replication", ldapTemplate, configProperties);
+        return new LdapReplicationHealthProbe("TokenStore replication", ldapTemplate, "ou=tokens", configProperties);
     }
 
     @Bean

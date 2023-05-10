@@ -26,9 +26,8 @@ import static java.text.MessageFormat.format;
 @CustomLog
 public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplicationHealthProbe.ReplicationInfo> {
 
-    private static final String BASE_DN = "cn=Replication,cn=monitor";
-    private static final String REPLICATION_FILTER = "(&(objectClass=*)(ds-mon-domain-name=dc=reform,dc=hmcts,dc=net)(!(cn=Changelog*)))";
-
+    private static final String BASE_DN = "cn=replication,cn=monitor";
+    private static final String REPLICATION_FILTER = "(&(objectClass=ds-monitor)(ds-mon-domain-name={0})(!(objectClass=ds-monitor-changelog-domain)))";
     private static final String STATUS_ATTRIBUTE = "ds-mon-status";
     private static final String PENDING_UPDATES_ATTRIBUTE = "ds-mon-updates-outbound-queue";
     private static final String MISSING_CHANGES_ATTRIBUTE = "ds-mon-missing-changes";
@@ -37,6 +36,10 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
     private static final String RECEIVED_UPDATES_ATTRIBUTE = "ds-mon-assured-sr-received-updates-acked";
     private static final String REPLAYED_UPDATES_ATTRIBUTE = "ds-mon-replayed-updates";
     private static final String NORMAL_STATUS = "Normal";
+    private static final String SERVER_ID_ATTRIBUTE = "ds-mon-server-id";
+    private static final String CONN_SERVER_ID_ATTRIBUTE = "ds-mon-connected-to-server-id";
+
+    private final String domainName;
 
     private final ConfigProperties.Ldap ldapProperties;
 
@@ -44,9 +47,9 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
     private boolean probeState;
 
     public LdapReplicationHealthProbe(String probeName,
-            LdapTemplate ldapTemplate,
-            ConfigProperties configProperties) {
+                                      LdapTemplate ldapTemplate, String domainName, ConfigProperties configProperties) {
         super(probeName, ldapTemplate, new ReplicationContextMapper());
+        this.domainName = domainName;
         this.ldapProperties = configProperties.getLdap();
     }
 
@@ -56,13 +59,15 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
                 .base(BASE_DN)
                 .searchScope(SearchScope.SUBTREE)
                 .attributes(STATUS_ATTRIBUTE,
+                            SERVER_ID_ATTRIBUTE,
+                            CONN_SERVER_ID_ATTRIBUTE,
                         PENDING_UPDATES_ATTRIBUTE,
                         MISSING_CHANGES_ATTRIBUTE,
                         CURRENT_DELAY,
                         SENT_UPDATES_ATTRIBUTE,
                         RECEIVED_UPDATES_ATTRIBUTE,
                         REPLAYED_UPDATES_ATTRIBUTE)
-                .filter(REPLICATION_FILTER);
+                .filter(format(REPLICATION_FILTER, domainName));
     }
 
     private List<String> addErrors(List<String> errors, String error) {
@@ -76,11 +81,13 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
     @Override
     public boolean handleResult(List<ReplicationInfo> resultList) {
         if (CollectionUtils.isEqualCollection(replicationInfoState, resultList)) {
+            log.debug("State unchanged");
             return probeState;
         }
 
         List<String> errors = null;
         for (ReplicationInfo record : resultList) {
+            log.debug("{}", record);
             switch (record.recordType) {
                 case LOCAL_DS:
                     if (!updatesAreBeingReplayed(record)) {
@@ -137,6 +144,7 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
 
     @Override
     public boolean handleEmptyResult() {
+        log.debug("Empty result");
         return handleResult(Collections.emptyList());
     }
 
@@ -161,6 +169,7 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
         String dn;
         String connectedReplicationServer;
         String connectedDirectoryServer;
+        String serverId;
         String directoryServer;
         String replicationServer;
         String status;
@@ -189,6 +198,7 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
             if (display.isEmpty()) {
                 display.add("dn:" + dn);
             }
+            display.add("server id:" + serverId);
             display.add("status:" + status);
             display.add("pending:" + pendingUpdates);
             display.add("missing:" + missingChanges);
@@ -218,6 +228,8 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
 
             log.debug(context.toString());
 
+            String serverId = context.getStringAttribute(SERVER_ID_ATTRIBUTE);
+            String connServerId = context.getStringAttribute(CONN_SERVER_ID_ATTRIBUTE);
             String statusAttribute = context.getStringAttribute(STATUS_ATTRIBUTE);
             String pendingUpdatesAttribute = context.getStringAttribute(PENDING_UPDATES_ATTRIBUTE);
             String missingChangesAttribute = context.getStringAttribute(MISSING_CHANGES_ATTRIBUTE);
@@ -232,18 +244,15 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
             String directoryServer = null;
             for (Enumeration<String> e = dn.getAll(); e.hasMoreElements(); ) {
                 String value = e.nextElement();
-                if (value.startsWith("cn=Connected replication server")) {
-                    connectedReplicationServer = value.split("\\) ")[1];
-                } else if (value.startsWith("cn=Connected directory server")) {
-                    connectedDirectoryServer = value.split("\\) ")[1];
-                } else if (value.startsWith("cn=Directory server")) {
-                    directoryServer = value.split("\\) ")[1];
-                } else if (value.startsWith("cn=Replication server")) {
-                    replicationServer = value.split("\\) ")[1];
+                if (value.contains("cn=remote replicas")) {
+                    connectedReplicationServer = serverId;
+                } else if (serverId != null && StringUtils.equals(serverId, connServerId)) {
+                    replicationServer = serverId;
                 }
             }
 
             ReplicationInfo result = new ReplicationInfo();
+            result.serverId = serverId;
             result.dn = dn.toString();
             result.connectedReplicationServer = connectedReplicationServer;
             result.connectedDirectoryServer = connectedDirectoryServer;
