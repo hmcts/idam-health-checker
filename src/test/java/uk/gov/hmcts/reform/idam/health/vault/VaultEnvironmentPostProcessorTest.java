@@ -108,7 +108,7 @@ public class VaultEnvironmentPostProcessorTest {
         when(keyVaultClient.getSecret("test-vault-url", "DSUrootUserPassword")).thenReturn(new SecretBundle().withValue("test-ldappass-userstore"));
         when(keyVaultClient.getSecret("test-vault-url", "DSTrootUserPassword")).thenReturn(new SecretBundle().withValue("test-ldappass-tokenstore"));
         when(keyVaultClient.getSecret("test-vault-url", "appinsights-instrumentationkey")).thenReturn(new SecretBundle().withValue("test-instrumentation"));
-        when(keyVaultClient.getSecret("test-vault-url", "adminUID")).thenReturn(new SecretBundle().withValue("test-admin-uid"));
+        when(keyVaultClient.getSecret("test-vault-url", "amadminUID")).thenReturn(new SecretBundle().withValue("test-admin-uid"));
 
         postProcessor.postProcessEnvironment(configurableEnvironment, springApplication);
 

@@ -33,8 +33,8 @@ public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
             .put("web-admin-client-secret", "web.admin.client.secret")
             .put("DSUrootUserPassword", "ldap.userstore-password,replication.healthprobe.command.DSUPassword")
             .put("DSTrootUserPassword", "ldap.tokenstore-password,replication.healthprobe.command.DSTPassword")
-            .put("adminUID", "idm.healthprobe.check-role-exists.am-user")
-            .put("adminPassword", "idm.healthprobe.check-role-exists.am-password")
+            .put("amadminUID", "idm.healthprobe.check-role-exists.am-user")
+            .put("amadminPassword", "idm.healthprobe.check-role-exists.am-password")
             .put("appinsights-instrumentationkey", "azure.application-insights.instrumentation-key").build();
 
     private final KeyVaultClientProvider provider;
