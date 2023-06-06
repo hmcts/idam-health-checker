@@ -83,7 +83,7 @@ public class TokenStoreHealthProbeConfiguration {
             @Qualifier("tokenStoreReplicationHealthProbe") LdapReplicationHealthProbe ldapReplicationHealthProbe) {
         return new ScheduledHealthProbeIndicator(
                 ldapReplicationHealthProbe,
-                HealthProbeFailureHandling.MARK_AS_DOWN,
+                HealthProbeFailureHandling.IGNORE,
                 taskScheduler,
                 tokenStoreHealthProbeProperties.getReplication().getFreshnessInterval(),
                 tokenStoreHealthProbeProperties.getReplication().getCheckInterval());

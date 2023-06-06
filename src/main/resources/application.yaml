@@ -132,10 +132,10 @@ backup:
   healthprobe:
     full:
       name: FullBackup
-      freshness-interval: 900000 # 15 min
-      check-interval: 120000 # 2 min
+      freshness-interval: 900000
+      check-interval: 120000
       path: /opt/opendj/bak/backup.successful
-      expiry-interval: 2700000 # 45 min
+      expiry-interval: 2700000
 
 replication:
   healthprobe:
