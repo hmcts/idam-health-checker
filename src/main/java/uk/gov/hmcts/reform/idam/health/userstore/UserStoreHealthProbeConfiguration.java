@@ -83,7 +83,7 @@ public class UserStoreHealthProbeConfiguration {
             @Qualifier("userStoreReplicationHealthProbe") LdapReplicationHealthProbe ldapReplicationHealthProbe) {
         return new ScheduledHealthProbeIndicator(
                 ldapReplicationHealthProbe,
-                HealthProbeFailureHandling.MARK_AS_DOWN,
+                HealthProbeFailureHandling.IGNORE,
                 taskScheduler,
                 userStoreHealthProbeProperties.getReplication().getFreshnessInterval(),
                 userStoreHealthProbeProperties.getReplication().getCheckInterval());

@@ -50,11 +50,11 @@ public class FileFreshnessProbe extends HealthProbe {
                     log.debug("{}: Path {} modified at {}", getName(), checkPath, updateTime);
                     return true;
                 } else {
-                    return handleError(format("Path {} modified at {}", checkPath, updateTime));
+                    return handleError(format("Path {0} modified at {1}", checkPath, updateTime));
                 }
 
             } else {
-                return handleError(format("Nothing at path {}", checkPath));
+                return handleError(format("Nothing at path {0}", checkPath));
             }
 
         } catch (Exception e) {
