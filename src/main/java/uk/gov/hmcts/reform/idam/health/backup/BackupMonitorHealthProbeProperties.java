@@ -22,6 +22,5 @@ public class BackupMonitorHealthProbeProperties {
     }
 
     private BackupMonitorHealthProbeProperties.Probe full;
-    private BackupMonitorHealthProbeProperties.Probe incremental;
 
 }

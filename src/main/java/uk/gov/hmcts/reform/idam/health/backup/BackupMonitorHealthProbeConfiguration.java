@@ -33,19 +33,4 @@ public class BackupMonitorHealthProbeConfiguration {
         );
     }
 
-    @Bean
-    public ScheduledHealthProbeIndicator incrementalBackupMonitor() {
-        return new ScheduledHealthProbeIndicator(
-                new FileFreshnessProbe(
-                        backupMonitorHealthProbeProperties.getIncremental().getName(),
-                        backupMonitorHealthProbeProperties.getIncremental().getPath(),
-                        backupMonitorHealthProbeProperties.getIncremental().getExpiryInterval()
-                ),
-                HealthProbeFailureHandling.IGNORE,
-                taskScheduler,
-                backupMonitorHealthProbeProperties.getIncremental().getFreshnessInterval(),
-                backupMonitorHealthProbeProperties.getIncremental().getCheckInterval()
-        );
-    }
-
 }
