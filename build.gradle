@@ -44,7 +44,7 @@ dependencies {
     compile 'org.springframework.cloud:spring-cloud-starter-openfeign'
     compile 'io.github.openfeign:feign-httpclient:11.8'
 
-    compile 'com.microsoft.azure:azure-keyvault:1.0.0'
+    compile 'com.microsoft.azure:azure-keyvault:1.2.6'
     compile 'com.microsoft.azure:adal4j:1.5.0'
 
     compile 'org.springframework.ldap:spring-ldap-core:2.3.6.RELEASE'
