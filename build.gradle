@@ -28,7 +28,7 @@ gitProperties {
 }
 
 ext {
-    springCloudVersion = "2021.0.1"
+    springCloudVersion = "2021.0.8"
 }
 
 dependencyManagement {
