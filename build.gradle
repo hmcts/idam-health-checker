@@ -49,7 +49,7 @@ dependencies {
 
     compile 'org.springframework.ldap:spring-ldap-core:2.3.6.RELEASE'
     compile 'com.microsoft.azure:applicationinsights-core:2.6.4'
-    compile 'com.microsoft.azure:applicationinsights-web:2.6.1'
+    compile 'com.microsoft.azure:applicationinsights-web:2.6.4'
     compile 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.4'
     compile 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
 
