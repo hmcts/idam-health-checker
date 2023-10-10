@@ -51,7 +51,7 @@ dependencies {
     compile 'com.microsoft.azure:applicationinsights-core:2.6.4'
     compile 'com.microsoft.azure:applicationinsights-web:2.6.1'
     compile 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.1'
-    compile 'com.microsoft.azure:applicationinsights-logging-logback:2.6.1'
+    compile 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
 
     compileOnly group: 'org.projectlombok', name: 'lombok'
     annotationProcessor group: 'org.projectlombok', name: 'lombok'
