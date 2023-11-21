@@ -4,7 +4,7 @@ plugins {
     id "org.springframework.boot" version "2.6.3"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
-    id "io.freefair.lombok" version "5.0.0-rc4"
+    id "io.freefair.lombok" version "5.3.3.3"
     id "com.gorylenko.gradle-git-properties" version "1.5.2"
 }
 
