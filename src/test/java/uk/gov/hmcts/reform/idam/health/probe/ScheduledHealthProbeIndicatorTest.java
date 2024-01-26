@@ -36,6 +36,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     private ScheduledHealthProbeIndicator strictScheduledHealthProbe;
     private ScheduledHealthProbeIndicator ignoringScheduledHealthProbe;
+    private ScheduledHealthProbeIndicator ignoringOnceReadyScheduledHealthProbe;
 
     @Before
     public void setup() {
@@ -43,9 +44,12 @@ public class ScheduledHealthProbeIndicatorTest {
                 healthProbe, HealthProbeFailureHandling.MARK_AS_DOWN, taskScheduler, 40000L, 30000L);
         ignoringScheduledHealthProbe = new ScheduledHealthProbeIndicator(
                 healthProbe, HealthProbeFailureHandling.IGNORE, taskScheduler, 40000L, 30000L);
+        ignoringOnceReadyScheduledHealthProbe = new ScheduledHealthProbeIndicator(
+                healthProbe, HealthProbeFailureHandling.IGNORE_ONCE_READY, taskScheduler, 40000L, 30000L);
+
 
         when(healthProbe.getName()).thenReturn("testprobe");
-        verify(taskScheduler, times(2)).scheduleWithFixedDelay(any(Runnable.class), anyLong());
+        verify(taskScheduler, times(3)).scheduleWithFixedDelay(any(Runnable.class), anyLong());
     }
 
     @Test
@@ -113,6 +117,18 @@ public class ScheduledHealthProbeIndicatorTest {
     }
 
     @Test
+    public void testIsOkay_ignoreDownForIgnoreOnceReady() {
+        when(healthProbe.probe()).thenReturn(true);
+        ignoringOnceReadyScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
+        ignoringOnceReadyScheduledHealthProbe.refresh();
+        when(healthProbe.probe()).thenReturn(false);
+        ignoringOnceReadyScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM + 31), ZoneId.systemDefault()));
+        ignoringOnceReadyScheduledHealthProbe.refresh();
+        assertThat(ignoringOnceReadyScheduledHealthProbe.isOkay(), is(true));
+        verify(healthProbe, times(2)).probe();
+    }
+
+    @Test
     public void testIsOkay_alwaysSuccessWhenIgnoreProbe() {
         when(healthProbe.probe()).thenReturn(false);
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
@@ -120,6 +136,17 @@ public class ScheduledHealthProbeIndicatorTest {
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
         ignoringScheduledHealthProbe.refresh();
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
+        verify(healthProbe, times(3)).probe();
+    }
+
+    @Test
+    public void testIsOkay_returnDownAtStartupForIgnoreOnceReady() {
+        when(healthProbe.probe()).thenReturn(false);
+        assertThat(ignoringOnceReadyScheduledHealthProbe.isOkay(), is(false));
+        when(healthProbe.probe()).thenReturn(true);
+        assertThat(ignoringOnceReadyScheduledHealthProbe.isOkay(), is(true));
+        ignoringOnceReadyScheduledHealthProbe.refresh();
+        assertThat(ignoringOnceReadyScheduledHealthProbe.isOkay(), is(true));
         verify(healthProbe, times(3)).probe();
     }
 
