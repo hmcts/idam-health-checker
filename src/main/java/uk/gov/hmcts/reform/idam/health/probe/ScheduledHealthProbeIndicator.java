@@ -70,7 +70,7 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
 
             this.status = newStatus;
             this.statusDateTime = LocalDateTime.now(clock);
-        } else if (failureHandling == HealthProbeFailureHandling.IGNORE) {
+        } else {
             log.warn("{}: DOWN state ignored", this.healthProbe.getName());
         }
     }

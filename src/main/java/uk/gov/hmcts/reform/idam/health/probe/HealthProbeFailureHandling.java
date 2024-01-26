@@ -1,5 +1,5 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
 public enum HealthProbeFailureHandling {
-    MARK_AS_DOWN, IGNORE
+    MARK_AS_DOWN, IGNORE, IGNORE_ONCE_READY
 }
