@@ -5,7 +5,7 @@ plugins {
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
     id "io.freefair.lombok" version "5.3.3.3"
-    id "com.gorylenko.gradle-git-properties" version "1.5.2"
+    id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
 group = 'uk.gov.hmcts.reform'
