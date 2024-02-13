@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.command;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 @Profile("(userstore | tokenstore) & replication)")
-@CustomLog
+@Slf4j
 public class ReplicationStatusConverter {
 
     private static final List<String> PATH_STARTS = Arrays.asList("dc=", "ou=");

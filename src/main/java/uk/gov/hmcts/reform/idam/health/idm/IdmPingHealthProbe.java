@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.idm;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Component
 @Profile("idm")
-@CustomLog
+@Slf4j
 public class IdmPingHealthProbe extends HealthProbe {
 
     private static final String STATE = "state";

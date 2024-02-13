@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.idam.health.am;
 
-import lombok.CustomLog;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
@@ -15,7 +14,7 @@ import java.util.Map;
 
 @Component
 @Profile("am")
-@CustomLog
+@Slf4j
 public class AmPasswordGrantHealthProbe extends HealthProbe {
 
     private static final String GRANT_TYPE = "password";

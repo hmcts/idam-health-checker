@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.ldap;
 
-import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -15,7 +15,7 @@ import javax.naming.NamingException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@CustomLog
+@Slf4j
 public class LdapWorkQueueHealthProbe extends LdapQueryHealthProbe<LdapWorkQueueHealthProbe.WorkQueueInfo> {
 
     private static final String BASE_DN = "cn=work queue,cn=monitor";

@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.command;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -21,7 +21,7 @@ import static java.text.MessageFormat.format;
 
 @Component
 @Profile("(userstore | tokenstore) & replication)")
-@CustomLog
+@Slf4j
 public class ReplicationCommandProbe extends HealthProbe {
 
     private static final String SPACE = " ";

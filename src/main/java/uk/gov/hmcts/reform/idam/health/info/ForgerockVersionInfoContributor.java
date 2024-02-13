@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.idam.health.info;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * Makes the git commit of the cnp_idam_packer branch available. The commit details are deployed as
  * a file on each host.
  */
-@CustomLog
+@Slf4j
 @Component
 public class ForgerockVersionInfoContributor implements InfoContributor {
 

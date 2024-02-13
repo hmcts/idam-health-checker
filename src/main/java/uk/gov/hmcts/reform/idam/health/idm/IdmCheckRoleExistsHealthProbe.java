@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.idm;
 
 import feign.Response;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Component
 @Profile("idm")
-@CustomLog
+@Slf4j
 public class IdmCheckRoleExistsHealthProbe extends HealthProbe {
 
     private final AmProvider amProvider;

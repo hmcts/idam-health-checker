@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
 import com.google.common.annotations.VisibleForTesting;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.scheduling.TaskScheduler;
@@ -10,7 +10,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-@CustomLog
+@Slf4j
 public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, HealthIndicator {
 
     private final HealthProbe healthProbe;

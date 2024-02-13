@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.userstore;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.AttributesMapper;
@@ -14,7 +14,7 @@ import java.util.List;
 
 @Component
 @Profile("userstore")
-@CustomLog
+@Slf4j
 public class UserStoreAuthenticationHealthProbe extends HealthProbe {
 
     private static final String LDAP_CN_ATTRIBUTE = "cn";
