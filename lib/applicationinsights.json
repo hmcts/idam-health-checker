@@ -6,7 +6,7 @@
   "preview": {
     "roleNameOverrides": [
       {
-        "httpPathPrefix": "/health",
+        "httpPathPrefix": "/admin/health",
         "roleName": "idam-health-checker (health)"
       }
     ],
@@ -17,7 +17,7 @@
           "attributes": [
             {
               "key": "http.url",
-              "value": "https?://[^/]+/health.*",
+              "value": "https?://[^/]+/admin/health.*",
               "matchType": "regexp"
             }
           ],
