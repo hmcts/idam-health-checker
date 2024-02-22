@@ -1,8 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.ldap;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQuery;
@@ -10,7 +9,7 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
 import java.util.List;
 
-@CustomLog
+@Slf4j
 public abstract class LdapQueryHealthProbe<T> extends HealthProbe {
 
     private final String probeName;

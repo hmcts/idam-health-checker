@@ -1,17 +1,16 @@
 plugins {
     id 'java-library'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "org.springframework.boot" version "2.6.3"
+    id 'io.spring.dependency-management' version '1.1.4'
+    id "org.springframework.boot" version "3.2.2"
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
-    id "io.freefair.lombok" version "5.0.0-rc4"
-    id "com.gorylenko.gradle-git-properties" version "1.4.21"
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id "io.freefair.lombok" version "8.4"
+    id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
 group = 'uk.gov.hmcts.reform'
-version = '2.3.4'
-sourceCompatibility = 1.8
-generateLombokConfig.enabled = false
+version = '2.4.0'
+sourceCompatibility = 17
 
 repositories {
     mavenCentral()
@@ -28,7 +27,7 @@ gitProperties {
 }
 
 ext {
-    springCloudVersion = "2021.0.1"
+    springCloudVersion = "2023.0.0"
 }
 
 dependencyManagement {
@@ -38,34 +37,34 @@ dependencyManagement {
 }
 
 dependencies {
-    compile 'org.springframework.boot:spring-boot-starter-web'
-    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'io.github.openfeign:feign-httpclient:13.2.1'
 
-    compile 'org.springframework.cloud:spring-cloud-starter-openfeign'
-    compile 'io.github.openfeign:feign-httpclient:11.8'
+    implementation 'com.microsoft.azure:azure-keyvault:1.2.6'
+    implementation 'com.microsoft.azure:adal4j:1.6.7'
 
-    compile 'com.microsoft.azure:azure-keyvault:1.0.0'
-    compile 'com.microsoft.azure:adal4j:1.5.0'
+    implementation 'org.springframework.ldap:spring-ldap-core:3.2.1'
+    implementation 'com.microsoft.azure:applicationinsights-core:3.4.19'
+    implementation 'com.microsoft.azure:applicationinsights-web:3.4.19'
+    implementation 'io.opentelemetry:opentelemetry-api:1.35.0'
 
-    compile 'org.springframework.ldap:spring-ldap-core:2.3.6.RELEASE'
-    compile 'com.microsoft.azure:applicationinsights-core:2.6.1'
-    compile 'com.microsoft.azure:applicationinsights-web:2.6.1'
-    compile 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.1'
-    compile 'com.microsoft.azure:applicationinsights-logging-logback:2.6.1'
+    implementation 'org.apache.commons:commons-collections4:4.4'
 
     compileOnly group: 'org.projectlombok', name: 'lombok'
     annotationProcessor group: 'org.projectlombok', name: 'lombok'
 
-    testCompile 'org.springframework.boot:spring-boot-starter-test'
-    testCompile 'org.hamcrest:hamcrest-core'
-    testCompile 'org.hamcrest:hamcrest-library'
-    testCompile 'org.springframework:spring-test'
+    implementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.hamcrest:hamcrest-core'
+    implementation 'org.hamcrest:hamcrest-library'
+    implementation 'org.springframework:spring-test'
 
-    testCompile 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
+    implementation 'org.powermock:powermock-module-junit4:2.0.9'
+    implementation 'org.mockito:mockito-core:5.10.0'
 
-    testCompile "com.github.tomakehurst:wiremock:2.19.0"
-    testCompile 'org.mockito:mockito-core:3.6.28'
-
+    testImplementation "jakarta.servlet:jakarta.servlet-api:4.0.4"
+    testImplementation "org.wiremock:wiremock-standalone:3.3.1"
 }
 
 publishing {

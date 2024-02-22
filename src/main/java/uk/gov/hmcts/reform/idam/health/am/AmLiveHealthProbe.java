@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.am;
 
 import feign.Response;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.idam.health.probe.HealthProbe;
 
 @Component
 @Profile("am")
-@CustomLog
+@Slf4j
 public class AmLiveHealthProbe extends HealthProbe {
 
     private final AmProvider amProvider;

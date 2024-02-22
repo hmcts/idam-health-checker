@@ -1,0 +1,34 @@
+{
+  "connectionString": "${APP_INSIGHTS_CONNECTION_STRING}",
+  "role": {
+    "name": "idam-health-checker"
+  },
+  "preview": {
+    "roleNameOverrides": [
+      {
+        "httpPathPrefix": "/admin/health",
+        "roleName": "idam-health-checker (health)"
+      }
+    ],
+    "sampling": {
+      "overrides": [
+        {
+          "telemetryType": "request",
+          "attributes": [
+            {
+              "key": "http.url",
+              "value": "https?://[^/]+/admin/health.*",
+              "matchType": "regexp"
+            }
+          ],
+          "percentage": 100
+        }
+      ]
+    }
+  },
+  "instrumentation": {
+    "micrometer": {
+      "enabled": false
+    }
+  }
+}

@@ -3,32 +3,10 @@
 
     <logger name="uk.gov.hmcts.reform.idam.health" level="WARN"/>
     <logger name="uk.gov.hmcts.reform.idam.health.ldap" level="INFO"/>
+    <logger name="uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbeIndicator" level="INFO"/>
     <logger name="uk.gov.hmcts.reform.idam.health.command.ReplicationCommandProbe" level="INFO"/>
 
-    <springProfile name="live">
-
-        <appender name="aiAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender">
-        </appender>
-
-        <root level="INFO">
-            <appender-ref ref="aiAppender"/>
-        </root>
-
-    </springProfile>
-
-    <springProfile name="insightconsole">
-
-        <appender name="aiAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender">
-        </appender>
-
-        <appender name="Console"
-                  class="ch.qos.logback.core.ConsoleAppender">
-            <encoder>
-                <Pattern>
-                    %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable
-                </Pattern>
-            </encoder>
-        </appender>
+    <springProfile name="file">
 
         <appender name="File" class="ch.qos.logback.core.FileAppender">
             <file>idam-health-checker.log</file>
@@ -37,34 +15,28 @@
             <immediateFlush>true</immediateFlush>
             <encoder>
                 <Pattern>
-                    %d{ISO8601} %-5level [%t] %C{1.}: %msg%n%throwable
+                    %d{ISO8601} %-5level [%t] %C{1}: %msg%n%throwable
                 </Pattern>
             </encoder>
         </appender>
 
         <root level="INFO">
-            <appender-ref ref="aiAppender"/>
-            <appender-ref ref="Console"/>
             <appender-ref ref="File"/>
         </root>
 
     </springProfile>
 
-    <springProfile name="consoleonly">
+    <appender name="Console"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1}): %msg%n%throwable
+            </Pattern>
+        </layout>
+    </appender>
 
-        <appender name="Console"
-                  class="ch.qos.logback.core.ConsoleAppender">
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <Pattern>
-                    %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable
-                </Pattern>
-            </layout>
-        </appender>
-
-        <root level="info">
-            <appender-ref ref="Console"/>
-        </root>
-
-    </springProfile>
+    <root level="info">
+        <appender-ref ref="Console"/>
+    </root>
 
 </configuration>

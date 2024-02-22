@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.idam.health.ldap;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ import java.util.List;
 
 import static java.text.MessageFormat.format;
 
-@CustomLog
+@Slf4j
 public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplicationHealthProbe.ReplicationInfo> {
 
     private static final String BASE_DN = "cn=replication,cn=monitor";

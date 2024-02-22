@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.idam.health.tokenstore;
 
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.AttributesMapper;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @Profile("tokenstore")
-@CustomLog
+@Slf4j
 public class TokenStoreSearchHealthProbe extends HealthProbe {
 
     private static final String LDAP_SEARCH_IN_CONFIG = "cn=schema providers,cn=config";
