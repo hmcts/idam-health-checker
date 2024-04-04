@@ -26,6 +26,8 @@ management:
   health:
     defaults:
       enabled: false
+    status:
+      order: DOWN, OUT_OF_SERVICE, UNKNOWN, UP
 
 azure:
   application-insights:
