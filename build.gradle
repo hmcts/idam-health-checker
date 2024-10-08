@@ -42,7 +42,7 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-actuator'
 
     compile 'org.springframework.cloud:spring-cloud-starter-openfeign'
-    compile 'io.github.openfeign:feign-httpclient:11.10'
+    compile 'io.github.openfeign:feign-httpclient:13.5'
 
     compile 'com.microsoft.azure:azure-keyvault:1.2.6'
     compile 'com.microsoft.azure:adal4j:1.6.7'
