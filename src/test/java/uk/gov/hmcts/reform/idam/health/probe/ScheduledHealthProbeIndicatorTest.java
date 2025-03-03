@@ -41,15 +41,15 @@ public class ScheduledHealthProbeIndicatorTest {
     @Before
     public void setup() {
         strictScheduledHealthProbe = new ScheduledHealthProbeIndicator(
-                healthProbe, HealthProbeFailureHandling.MARK_AS_DOWN, taskScheduler, 40000L, 30000L);
+                healthProbe, HealthProbeFailureHandling.MARK_AS_DOWN, taskScheduler, Duration.ofSeconds(40), Duration.ofSeconds(30));
         ignoringScheduledHealthProbe = new ScheduledHealthProbeIndicator(
-                healthProbe, HealthProbeFailureHandling.IGNORE, taskScheduler, 40000L, 30000L);
+                healthProbe, HealthProbeFailureHandling.IGNORE, taskScheduler,  Duration.ofSeconds(40), Duration.ofSeconds(30));
         ignoringOnceReadyScheduledHealthProbe = new ScheduledHealthProbeIndicator(
-                healthProbe, HealthProbeFailureHandling.IGNORE_ONCE_READY, taskScheduler, 40000L, 30000L);
+                healthProbe, HealthProbeFailureHandling.IGNORE_ONCE_READY, taskScheduler,  Duration.ofSeconds(40), Duration.ofSeconds(30));
 
 
         when(healthProbe.getName()).thenReturn("testprobe");
-        verify(taskScheduler, times(3)).scheduleWithFixedDelay(any(Runnable.class), anyLong());
+        verify(taskScheduler, times(3)).scheduleWithFixedDelay(any(Runnable.class), any(Duration.class));
     }
 
     @Test
@@ -216,6 +216,24 @@ public class ScheduledHealthProbeIndicatorTest {
         when(healthProbe.getDetails()).thenReturn("test-error");
         Health health = strictScheduledHealthProbe.health();
         assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getDetails().get("testprobe"), is("test-error"));
+    }
+
+    @Test
+    public void testHealth_outOfService() {
+        strictScheduledHealthProbe.setStatus(Status.OUT_OF_SERVICE);
+        when(healthProbe.getDetails()).thenReturn(null);
+        Health health = strictScheduledHealthProbe.health();
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.OUT_OF_SERVICE));
+        assertThat(health.getDetails(), is(anEmptyMap()));
+    }
+
+    @Test
+    public void testHealth_outOfServiceWithDetails() {
+        strictScheduledHealthProbe.setStatus(Status.OUT_OF_SERVICE);
+        when(healthProbe.getDetails()).thenReturn("test-error");
+        Health health = strictScheduledHealthProbe.health();
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.OUT_OF_SERVICE));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
     }
 

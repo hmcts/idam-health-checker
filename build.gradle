@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
-    id 'io.spring.dependency-management' version '1.1.4'
-    id "org.springframework.boot" version "3.2.2"
+    id 'io.spring.dependency-management' version '1.1.7'
+    id "org.springframework.boot" version "3.4.3"
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id "io.freefair.lombok" version "8.4"
@@ -9,11 +9,18 @@ plugins {
 }
 
 group = 'uk.gov.hmcts.reform'
-version = '2.4.1'
-sourceCompatibility = 17
+version = '2.4.2'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    maven { url 'https://jitpack.io' }
     jcenter()
 }
 
@@ -27,7 +34,9 @@ gitProperties {
 }
 
 ext {
-    springCloudVersion = "2023.0.0"
+    springCloudVersion = "2024.0.0"
+    log4JVersion = "2.23.1"
+    reformLoggingVersion = "6.1.6"
 }
 
 dependencyManagement {
@@ -40,15 +49,17 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-    implementation 'io.github.openfeign:feign-httpclient:13.2.1'
+    implementation 'io.github.openfeign:feign-httpclient:13.5'
 
     implementation 'com.microsoft.azure:azure-keyvault:1.2.6'
     implementation 'com.microsoft.azure:adal4j:1.6.7'
 
-    implementation 'org.springframework.ldap:spring-ldap-core:3.2.1'
-    implementation 'com.microsoft.azure:applicationinsights-core:3.4.19'
-    implementation 'com.microsoft.azure:applicationinsights-web:3.4.19'
-    implementation 'io.opentelemetry:opentelemetry-api:1.35.0'
+    implementation 'org.springframework.ldap:spring-ldap-core:3.2.11'
+
+    implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: reformLoggingVersion
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4JVersion
+    implementation group: 'io.opentelemetry', name: 'opentelemetry-api', version: '1.41.0'
 
     implementation 'org.apache.commons:commons-collections4:4.4'
 
@@ -61,7 +72,7 @@ dependencies {
     implementation 'org.springframework:spring-test'
 
     implementation 'org.powermock:powermock-module-junit4:2.0.9'
-    implementation 'org.mockito:mockito-core:5.10.0'
+    implementation 'org.mockito:mockito-core:5.15.2'
 
     testImplementation "jakarta.servlet:jakarta.servlet-api:4.0.4"
     testImplementation "org.wiremock:wiremock-standalone:3.3.1"

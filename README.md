@@ -2,102 +2,116 @@
 
 A Spring Boot application checking the health of various components of the ForgeRock system.
 
-<!-- TOC -->
+## 1.1. Build and Deployment
 
-- [idam-health-checker](#idam-health-checker)
-  - [CI/CD](#cicd)
-  - [Interface](#interface)
-  - [Statuses](#statuses)
-  - [Logs](#logs)
-    - [Console](#console)
-    - [Application Insights](#application-insights)
-  - [Secrets](#secrets)
-  - [Scheduler](#scheduler)
-    - [Freshness & Probe Expiry](#freshness--probe-expiry)
-  - [ForgeRock AM](#forgerock-am)
-    - [Is Alive Health Probe](#is-alive-health-probe)
-      - [DOWN Event Triggers](#down-event-triggers)
-    - [Password Grant Health Probe](#password-grant-health-probe)
-      - [DOWN Event Triggers](#down-event-triggers)
-  - [ForgeRock IDM](#forgerock-idm)
-    - [Ping Health Probe](#ping-health-probe)
-      - [DOWN Event Triggers](#down-event-triggers)
-    - [Password Grant Health Probe](#password-grant-health-probe)
-      - [DOWN Event Triggers](#down-event-triggers)
-  - [ForgeRock DS](#forgerock-ds)
-    - [LDAP Replication Health Probe](#ldap-replication-health-probe)
-      - [DOWN Event Triggers](#down-event-triggers)
-    - [Replication Command Probe](#replication-command-probe)
-      - [DOWN Event Triggers](#down-event-triggers)
-    - [Userstore Authentication Health Probe](#userstore-authentication-health-probe)
-      - [DOWN Event Triggers](#down-event-triggers)
-    - [TokenStore Search Health Probe](#tokenstore-search-health-probe)
-      - [DOWN Event Triggers](#down-event-triggers)
-    - [WIP - ForgeRock DS Backup Probe](#wip---forgerock-ds-backup-probe)
-      - [DOWN Event Triggers](#down-event-triggers)
+# 1.1.1 Production
 
-<!-- /TOC -->
+For production the executable jar should be built using `gradle bootJar` and the generated jar is then placed in blob 
+storage to be deployed by idam-forgerock-config.
 
-## 1.1. CI/CD
+# 1.1.2 Running locally
 
-To trigger Travis CI to build and publish the idam-health-checker, tag a commit in Git.
+idam-health-checker can be run locally for development purposes, pointing to Forgerock components on lower environment via an ssh tunnel.
+
+`ssh -L 8443:forgerock-am-idam-preview-1:8443 -N preview`
+
+application-local.yaml
+```
+am:
+  root: https://forgerock-am.service.core-compute-idam-preview.internal:8443/openam
+```
+
+/etc/hosts
+```
+127.0.0.1       forgerock-am.service.core-compute-idam-preview.internal
+```
+
+Most of the Forgerock components will also require you to configura an appropriate truststore. You can do this by 
+downloading the truststore from one of the lower environement VMs and referencing it in the run command.
+
+You can find the location of the environment truststore as a parameter on the run command in an environment, i.e.
+`-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-17-openjdk-amd64/lib/security/cacerts`. You can then scp this file to your local machine
+and set the `-Djavax.net.ssl.trustStore` to the location of the file you have downloaded.
+
+When running in intellij set the following VM options to control the profile and the location of the truststore
+```
+-Dspring.profiles.active=local,am
+-Djavax.net.ssl.trustStore=/dev/trust/preview/am/cacerts
+```
+
+### 1.1.3 Running on lower environments for testing
+
+To test on a lower environment build the jar file and scp it to the Forgerock environment for the component you're testing, i.e. preview-am1. 
+
+If you want to write logs to app insights you will also need to copy the `/opt/healthcheck/applicationinsights-agent.jar` file to
+the same location as your executable jar. Then you should set the app insights connection string as an environment variable.
+```
+export APPLICATIONINSIGHTS_CONNECTION_STRING={value}
+```
+
+To ensure that you can distinguish your test build logs from the actual deployment already running on the machine set the following values
+in your run command.
+
+```
+spring.application.name
+applicationinsights.role.name
+```
+
+For example:
+```
+java -jar -Xmx256M -Dserver.port=8282 -Dspring.application.name=test-health-am-forgerock-am-idam-preview-1 
+-Dapplicationinsights.role.name=test-health-check-role-name -Dspring.profiles.active=am 
+-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-17-openjdk-amd64/lib/security/cacerts 
+-Dazure.keyvault.uri=https://idamvaultpreview.vault.azure.net/ 
+-Dam.root=https://forgerock-am.service.core-compute-idam-preview.internal:8443/openam 
+-Dam.healthprobe.identity.host=forgerock-am.service.core-compute-idam-preview.internal 
+-Dlogging.level.uk.gov.hmcts.reform.idam.health=INFO 
+idam-health-checker-2.4.2.jar
+```
+The `applicationinsights.role.name` will then be used as the `cloud_roleName` in app insights.
+
 
 ## 1.2. Interface
 
 `http://<fqdn>:9292/admin/health`
 
-## 1.3. Statuses
+The health endpoint is a spring management health check, and all probes are implemented within the spring health framework. 
+The response to the /admin/health call is 503 for errors and 200 for successes with a JSON body providing more details of 
+the probes and their statuses. For example:
 
-| Status  |
-|---------|
-| UP      |
-| DOWN    |
-| UNKNOWN |
-
-## 1.4. Logs
-
-`idam-health-checker` runs via `supervisord` on ForgeRock Virtual Machines. The `ini` file can be found at 
-`/etc/supervisord.d/healthcheck.ini`. Images created by Packer and Ansible will configure the health 
-checker to use the `live` Spring Profile in addition to the other system specific profiles. This 
-profile uses `logback` with only the Application Insights Appender, `aiAppender`. See 
-[src/main/resources/logback-spring.xml](src/main/resources/logback-spring.xml) for more.
-
-### 1.4.1. Console 
-
-To view console output it's advisable to set the log levels to DEBUG and the Spring Profile as `insightconsole`.
-
-```bash
-# Update /etc/supervisord.d/healthcheck.ini
-sudo sed -i'.bak' \
-    -e 's/WARN/DEBUG/g' \
-    -e 's/,live/,insightconsole/' /etc/supervisord.d/healthcheck.ini
-
-sudo systemctl restart supervisord
-
-# Attach to process and parse logs
-sudo strace -p$(pgrep -f supervisord) -s1000 -e write 2>&1 \
-  | sed -ur 's/^.+\"(.+)\\n\".+$/\1/;s/\\n//g;s/\[?\\[0-9]{2}\[[0-9]?;?[[0-9]{2}m\]?//g'
-
-# To restore the healthcheck.ini
-sudo mv /etc/supervisord.d/healthcheck.ini /etc/supervisord.d/healthcheck.ini.debug
-sudo mv /etc/supervisord.d/healthcheck.ini.bak /etc/supervisord.d/healthcheck.ini
-sudo systemctl restart supervisord
+```
+{"status":"UP","components":{"amLiveScheduledHealthProbe":{"status":"UP"},"amPasswordGrantScheduledHealthProbe":{"status":"UP"},"amReadyScheduledHealthProbe":{"status":"UP"}}}
 ```
 
-### 1.4.2. Application Insights
+## 1.3. Statuses
 
-Application Insights: `idam-idam-${environment}`
+| Status         | Description                                                     |
+|----------------|-----------------------------------------------------------------|
+| UP             | Probe is healthy                                                |
+| DOWN           | Probe failed to get expected result or errored                  |
+| UNKNOWN        | Initial state of IGNORE probes. Indicates the probe is starting |
+| OUT_OF_SERVICE | Initial state of other probes. Indicates the probe is starting  |
 
-HealthProbe Names for customDimensions:
-* AmIsAliveHealthProbe
-* AmPasswordGrantHealthProbe
-* FileFreshnessProbe
-* ReplicationCommandProbe
-* IdmPingHealthProbe
-* LdapReplicationHealthProbe
-* UserStoreAuthenticationHealthProbe
 
-Example for AM isAlive Health Probe.
+## 1.4. Failure handling
+
+| Failure Handling  | Description                                                                                                  |
+|-------------------|--------------------------------------------------------------------------------------------------------------|
+| IGNORE            | Probe is for information only, results are logged.                                                           |
+| IGNORE_ONCE_READY | Probe starts as OUT_OF_SERVICE and can only be marked as UP. Once it is UP other failures are ignored        |
+| MARK_AS_DOWN      | Probe starts as OUT_OF_SERVICE and can be marked as UP or DOWN. Any errors at any time will mark it as DOWN. |
+ 
+
+## 1.5. Logging
+
+The logs are written to console and application insights in production. Logging is handled by hmcts java-logging with
+specific log level overrides in the logback-includes.xml file.
+
+Note that applicationinsights.json and the applicationinsights-agent file are added to the production environment by idam-forgerock-config.
+The lib/applicationinsights.json file in the repo is for local development only, and for local development the app insight connection string
+will need to be set at run time (see running locally).
+
+Example query in app insights:
 
 ```
 traces
@@ -105,38 +119,11 @@ traces
 | where customDimensions contains "AmIsAliveHealthProbe" 
 ```
 
-### 1.4.3. Details and Version
-
-You can enable the details in the healthchecker with `-Dmanagement.endpoint.health.show-details="ALWAYS"`. 
-
-Details can include information on why something is DOWN and the current healthchecker's version in its JSON output.
-
-## 1.5. Secrets
-
-**External Infrastructure Dependencies**
-
-* KeyVault secrets
-  * openidm-username
-    * used for idm ldap connectivity check
-  * openidm-password
-    * used for idm ldap connectivity check
-  * test-owner-username
-  * test-owner-password
-  * web-admin-client-secret
-  * BINDPASSWD
-  * adminUID
-  * adminPassword
-  * appinsights-instrumentationkey
-    * [KeyVault Secret to Properties Mappings](src/main/java/uk/gov/hmcts/reform/idam/health/vault/VaultEnvironmentPostProcessor.java#L30-L38)
-* Managed Identity
-
-Secret Vault Support: [Azure KeyVault](src/main/java/uk/gov/hmcts/reform/vault)
-
 ## 1.6. Scheduler
 
 * [ScheduledHealthProbeIndicator](src/main/java/uk/gov/hmcts/reform/idam/health/probe/ScheduledHealthProbeIndicator.java)
 
-Status begins as `UNKNOWN`.<br>
+Status begins as `OUT_OF_SERVICE` or `UNKNOWN`.<br>
 The `refresh` function is scheduled with `checkInterval`.<br>
 The initial probe is triggered.<br>
 When the probe result is `true`, the status will be set to `UP`.<br>
@@ -199,7 +186,7 @@ Spring Configuration Property: `am.root` & `am.healthprobe.isAlive`
 
 ### 1.7.2. Password Grant Health Probe
 
-Health check description of password grant probe for ForgeRock AM, which asserts that the password grant returns an access token. This probe is enabled when `am` is active however it will ignore status changes due to `HealthProbeFailureHandling.IGNORE`.
+Health check description of hmcts realm password grant probe for ForgeRock AM, which asserts that the password grant returns an access token. This probe is enabled when `am` is active however it will ignore status changes due to `HealthProbeFailureHandling.IGNORE`.
 
 **External Service Dependencies**
 
@@ -215,21 +202,35 @@ Health check description of password grant probe for ForgeRock AM, which asserts
 
 **Probe Actions**
 
-* WIP 
+* Performs a password grant against the hmcts domain for a configure user and client.
 
 **Probe Configuration**
 
 Spring Configuration Property: `am.root`, `am.healthprobe.passwordGrant` & `am.healthprobe.identity`.
 
-#### 1.7.2.1. DOWN Event Triggers
+### 1.7.2. Root Password Grant Health Probe
 
-* WIP 
+Health check description of root realm password grant probe for ForgeRock AM, which asserts that the password grant returns an access token. This probe is enabled when `am` is active however it will ignore status changes due to `HealthProbeFailureHandling.IGNORE`.
 
-**Example Logs**
+**External Service Dependencies**
 
-```log
-WIP 
-```
+* DS Userstore
+* DS Config/Tokenstore.
+* IDM
+
+**External Configuration Dependencies**
+
+* DS Config/Tokenstore.
+* IDM
+
+**Probe Actions**
+
+* Performs a password grant against the root domain for a configured user and client.
+
+**Probe Configuration**
+
+Spring Configuration Property: `am.root`, `am.healthprobe.rootpasswordGrant`.
+
 
 ## 1.8. ForgeRock IDM
 

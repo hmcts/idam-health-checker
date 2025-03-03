@@ -1,5 +1,5 @@
 {
-  "connectionString": "${APP_INSIGHTS_CONNECTION_STRING}",
+  "connectionString": "Set locally using env var APPLICATIONINSIGHTS_CONNECTION_STRING",
   "role": {
     "name": "idam-health-checker"
   },

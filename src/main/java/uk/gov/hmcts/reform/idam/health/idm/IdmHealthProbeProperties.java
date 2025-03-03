@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 @Component
 @ConfigurationProperties("idm.healthprobe")
 @Getter
@@ -14,15 +16,15 @@ public class IdmHealthProbeProperties {
     @Getter
     @Setter
     static class Probe {
-        private Long freshnessInterval;
-        private Long checkInterval;
+        private Duration freshnessInterval;
+        private Duration checkInterval;
     }
 
     @Getter
     @Setter
     static class RoleExistsProbe {
-        private Long freshnessInterval;
-        private Long checkInterval;
+        private Duration freshnessInterval;
+        private Duration checkInterval;
         private String idmClientId;
         private String idmClientSecret;
         private String idmClientScope;

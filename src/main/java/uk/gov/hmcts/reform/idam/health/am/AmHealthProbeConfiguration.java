@@ -45,4 +45,14 @@ public class AmHealthProbeConfiguration {
                 amHealthProbeProperties.getPasswordGrant().getFreshnessInterval(),
                 amHealthProbeProperties.getPasswordGrant().getCheckInterval());
     }
+
+    @Bean
+    public ScheduledHealthProbeIndicator amRootPasswordGrantScheduledHealthProbe(AmRootPasswordGrantHealthProbe amRootPasswordGrantHealthProbe) {
+        return new ScheduledHealthProbeIndicator(
+                amRootPasswordGrantHealthProbe,
+                HealthProbeFailureHandling.MARK_AS_DOWN,
+                taskScheduler,
+                amHealthProbeProperties.getRootPasswordGrant().getFreshnessInterval(),
+                amHealthProbeProperties.getRootPasswordGrant().getCheckInterval());
+    }
 }

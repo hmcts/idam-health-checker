@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <logger name="uk.gov.hmcts.reform.idam.health" level="WARN"/>
+    <logger name="uk.gov.hmcts.reform.idam.health.ldap" level="INFO"/>
+    <logger name="uk.gov.hmcts.reform.idam.health.probe.ScheduledHealthProbeIndicator" level="INFO"/>
+    <logger name="uk.gov.hmcts.reform.idam.health.command.ReplicationCommandProbe" level="INFO"/>
+
+</configuration>
