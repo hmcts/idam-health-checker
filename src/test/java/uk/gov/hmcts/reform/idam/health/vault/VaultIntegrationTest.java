@@ -106,7 +106,7 @@ public class VaultIntegrationTest {
         final String roleExistsUser = env.getProperty("idm.healthprobe.check-role-exists.am-user");
         final String roleExistsPwd = env.getProperty("idm.healthprobe.check-role-exists.am-password");
 
-        //assertEquals(VAULT_PROPERTIES.get("test-owner-username"), username);
+        assertEquals(VAULT_PROPERTIES.get("test-owner-username"), username);
         assertEquals(VAULT_PROPERTIES.get("test-owner-password"), userPwd);
         assertEquals(VAULT_PROPERTIES.get("web-admin-client-secret"), webAdmin);
         assertEquals(VAULT_PROPERTIES.get("DSUrootUserPassword"), ldapUserstorePwd);
