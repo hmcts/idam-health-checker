@@ -92,7 +92,7 @@ tokenstore:
       freshness-interval: 5m
       check-interval: 30s
     alive:
-      freshness-interval: 1m
+      freshness-interval: 30s
       check-interval: 1s
     ready:
       freshness-interval: 30s
