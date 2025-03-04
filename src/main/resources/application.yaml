@@ -86,7 +86,7 @@ tokenstore:
       freshness-interval: 1m
       check-interval: 1s
     work-queue:
-      freshness-interval: 1m
+      freshness-interval: 5m
       check-interval: 1s
     connections:
       freshness-interval: 5m
