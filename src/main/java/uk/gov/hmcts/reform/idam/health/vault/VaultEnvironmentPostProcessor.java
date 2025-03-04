@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Properties;
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.LOWEST_PRECEDENCE)
 @Slf4j
 public class VaultEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
