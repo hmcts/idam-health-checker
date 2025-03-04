@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 @Component
 @ConfigurationProperties("userstore.healthprobe")
 @Getter
@@ -14,8 +16,8 @@ public class UserStoreHealthProbeProperties {
     @Getter
     @Setter
     static class Probe {
-        private Long freshnessInterval;
-        private Long checkInterval;
+        private Duration freshnessInterval;
+        private Duration checkInterval;
     }
 
     private UserStoreHealthProbeProperties.Probe authentication;

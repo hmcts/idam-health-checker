@@ -30,8 +30,6 @@ management:
       order: DOWN, OUT_OF_SERVICE, UNKNOWN, UP
 
 azure:
-  application-insights:
-    instrumentation-key:
   keyvault:
 #    uri:
 #    client-id:
@@ -60,55 +58,55 @@ userstore:
   root: https://dummy:8443
   healthprobe:
     authentication:
-      freshness-interval: 60000
-      check-interval: 1000
+      freshness-interval: 1m
+      check-interval: 1s
     replication:
-      freshness-interval: 60000
-      check-interval: 1000
+      freshness-interval: 1m
+      check-interval: 1s
     work-queue:
-      freshness-interval: 300000
-      check-interval: 30000
+      freshness-interval: 5m
+      check-interval: 30s
     connections:
-      freshness-interval: 300000
-      check-interval: 30000
+      freshness-interval: 5m
+      check-interval: 30s
     alive:
-      freshness-interval: 30000
-      check-interval: 1000
+      freshness-interval: 30s
+      check-interval: 1s
     ready:
-      freshness-interval: 30000
-      check-interval: 1000
+      freshness-interval: 30s
+      check-interval: 1s
 
 tokenstore:
   root: https://dummy:8443
   healthprobe:
     search:
-      freshness-interval: 60000
-      check-interval: 1000
+      freshness-interval: 1m
+      check-interval: 1s
     replication:
-      freshness-interval: 60000
-      check-interval: 1000
+      freshness-interval: 1m
+      check-interval: 1s
     work-queue:
-      freshness-interval: 300000
-      check-interval: 30000
+      freshness-interval: 5m
+      check-interval: 1s
     connections:
-      freshness-interval: 300000
-      check-interval: 30000
+      freshness-interval: 5m
+      check-interval: 30s
     alive:
-      freshness-interval: 30000
-      check-interval: 1000
+      freshness-interval: 30s
+      check-interval: 1s
     ready:
-      freshness-interval: 30000
-      check-interval: 1000
+      freshness-interval: 30s
+      check-interval: 1s
 
 idm:
   root: https://dummy
   healthprobe:
     ping:
-      freshness-interval: 30000
-      check-interval: 1000
+      freshness-interval: 30s
+      check-interval: 1s
     check-role-exists:
-      freshness-interval: 360000
-      check-interval: 60000
+      freshness-interval: 6m
+      check-interval: 1m
       idm-client-id: idm-admin-ui
       idm-client-scope: openid fr:idm:*
       am-host: dummy
@@ -118,14 +116,19 @@ am:
   root: https://dummy
   healthprobe:
     live:
-      freshness-interval: 30000
-      check-interval: 1000
+      freshness-interval: 30s
+      check-interval: 1s
     ready:
-      freshness-interval: 30000
-      check-interval: 1000
+      freshness-interval: 30s
+      check-interval: 1s
     passwordGrant:
-      freshness-interval: 360000
-      check-interval: 60000
+      freshness-interval: 6m
+      check-interval: 1m
+    rootPasswordGrant:
+      freshness-interval: 6m
+      check-interval: 1m
+      client-id: idm-admin-ui
+      client-scope: openid fr:idm:*
     identity:
       scope: openid profile roles
       host: dummy
@@ -134,8 +137,8 @@ backup:
   healthprobe:
     full:
       name: FullBackup
-      freshness-interval: 900000
-      check-interval: 120000
+      freshness-interval: 15m
+      check-interval: 2m
       path: /opt/opendj/bak/backup.successful
       expiry-interval: 2700000
 
@@ -143,8 +146,8 @@ replication:
   healthprobe:
     command:
       name: ReplicationCommand
-      freshness-interval: 360000
-      check-interval: 60000
+      freshness-interval: 6m
+      check-interval: 1m
       template: /opt/opendj/bin/dsrepl status --showReplicas --bindDN %s --bindPassword %s --port 4444 --trustall
       delay-threshold: 999
       entry-difference-percent: 0.25

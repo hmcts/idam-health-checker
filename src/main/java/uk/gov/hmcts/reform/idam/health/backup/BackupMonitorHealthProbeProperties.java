@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 @Component
 @ConfigurationProperties("backup.healthprobe")
 @Getter
@@ -15,8 +17,8 @@ public class BackupMonitorHealthProbeProperties {
     @Setter
     static class Probe {
         private String name;
-        private Long freshnessInterval;
-        private Long checkInterval;
+        private Duration freshnessInterval;
+        private Duration checkInterval;
         private String path;
         private Long expiryInterval;
     }

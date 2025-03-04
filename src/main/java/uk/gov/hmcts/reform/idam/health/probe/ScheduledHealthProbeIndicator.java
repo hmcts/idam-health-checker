@@ -7,42 +7,47 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
 
 @Slf4j
 public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, HealthIndicator {
 
     private final HealthProbe healthProbe;
-    private final Long freshnessInterval;
+    private final Duration freshnessInterval;
     private final HealthProbeFailureHandling failureHandling;
     private Clock clock;
 
-    private Status status = Status.UNKNOWN;
+    private Status status;
     private LocalDateTime statusDateTime;
+
+    private static final EnumSet<Status> REQUIRE_PROBE_STATES = EnumSet.of(Status.OUT_OF_SERVICE, Status.UNKNOWN);
 
     public ScheduledHealthProbeIndicator(
             HealthProbe healthProbe,
             HealthProbeFailureHandling failureHandling,
             TaskScheduler taskScheduler,
-            Long freshnessInterval,
-            Long checkInterval) {
+            Duration freshnessInterval,
+            Duration checkInterval) {
         this.healthProbe = healthProbe;
         this.failureHandling = failureHandling;
         this.freshnessInterval = freshnessInterval;
+        this.status = failureHandling == HealthProbeFailureHandling.IGNORE ? Status.UNKNOWN: Status.OUT_OF_SERVICE;
         this.clock = Clock.systemDefaultZone();
         taskScheduler.scheduleWithFixedDelay(this::refresh, checkInterval);
     }
 
     @Override
     public boolean isOkay() {
-        if (status == Status.UNKNOWN) {
+        if (REQUIRE_PROBE_STATES.contains(status)) {
             return this.healthProbe.probe() || failureHandling == HealthProbeFailureHandling.IGNORE;
         }
 
         if (failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
             return status == Status.UP
-                    && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval, ChronoUnit.MILLIS));
+                    && LocalDateTime.now(clock).isBefore(statusDateTime.plus(freshnessInterval));
         } else {
             log.debug("{}: status evaluation ignored for this type of probe. failureHandling: {}, status: {}", healthProbe.getName(), failureHandling, status);
             return true;
@@ -50,8 +55,8 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
     }
 
     protected void refresh() {
-        boolean probeHasExpired = status == Status.UNKNOWN || LocalDateTime.now(clock)
-                .isAfter(statusDateTime.plus(Math.round(0.5 * freshnessInterval), ChronoUnit.MILLIS));
+        boolean probeHasExpired = REQUIRE_PROBE_STATES.contains(status) || LocalDateTime.now(clock)
+                .isAfter(statusDateTime.plus(Math.round(0.5 * freshnessInterval.toMillis()), ChronoUnit.MILLIS));
         if (status == Status.UP && !probeHasExpired) {
             return;
         }
@@ -71,7 +76,7 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
             this.status = newStatus;
             this.statusDateTime = LocalDateTime.now(clock);
         } else {
-            log.warn("{}: DOWN state ignored", this.healthProbe.getName());
+            log.warn("{}: probe failed, status {} unchanged", this.healthProbe.getName(), this.status);
         }
     }
 
@@ -87,20 +92,19 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
 
     @Override
     public Health health() {
+        Health.Builder builder;
         if (status == Status.UP) {
-            return Health.up().build();
+            builder = Health.up();
         } else if (status == Status.UNKNOWN) {
-            Health.Builder builder = Health.unknown();
-            if (healthProbe.getDetails() != null) {
-                builder.withDetail(healthProbe.getName(), healthProbe.getDetails());
-            }
-            return builder.build();
+            builder = Health.unknown();
+        } else if (status == Status.OUT_OF_SERVICE) {
+            builder = Health.outOfService();
         } else {
-            Health.Builder builder = Health.down();
-            if (healthProbe.getDetails() != null) {
-                builder.withDetail(healthProbe.getName(), healthProbe.getDetails());
-            }
-            return builder.build();
+            builder = Health.down();
         }
+        if (healthProbe.getDetails() != null) {
+            builder.withDetail(healthProbe.getName(), healthProbe.getDetails());
+        }
+        return builder.build();
     }
 }

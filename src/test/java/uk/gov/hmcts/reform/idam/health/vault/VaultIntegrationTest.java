@@ -48,7 +48,6 @@ public class VaultIntegrationTest {
             .put("DSTrootUserPassword", "FGHIJ")
             .put("adminUID", "admin123")
             .put("adminPassword", "passw0rd12345")
-            .put("appinsights-instrumentationkey", "ABCDE12345")
             .build();
 
     private final static String TOKEN_RESPONSE = "{\n"+
@@ -106,7 +105,6 @@ public class VaultIntegrationTest {
         final String ldapTokenstorePwd = env.getProperty("ldap.tokenstore-password");
         final String roleExistsUser = env.getProperty("idm.healthprobe.check-role-exists.am-user");
         final String roleExistsPwd = env.getProperty("idm.healthprobe.check-role-exists.am-password");
-        final String instrumentationKey = env.getProperty("azure.application-insights.instrumentation-key");
 
         assertEquals(VAULT_PROPERTIES.get("test-owner-username"), username);
         assertEquals(VAULT_PROPERTIES.get("test-owner-password"), userPwd);
@@ -115,7 +113,6 @@ public class VaultIntegrationTest {
         assertEquals(VAULT_PROPERTIES.get("DSTrootUserPassword"), ldapTokenstorePwd);
         assertEquals(VAULT_PROPERTIES.get("adminUID"), roleExistsUser);
         assertEquals(VAULT_PROPERTIES.get("adminPassword"), roleExistsPwd);
-        assertEquals(VAULT_PROPERTIES.get("appinsights-instrumentationkey"), instrumentationKey);
     }
 
     public static class ExampleTransformer extends ResponseDefinitionTransformer {
