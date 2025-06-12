@@ -8,7 +8,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
-group = 'uk.gov.hmcts.reform'
+group = 'com.github.hmcts'
 version = '2.4.2'
 
 java {
@@ -20,7 +20,7 @@ java {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url 'https://jitpack.io' }
+    maven { url = 'https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1' }
     jcenter()
 }
 
@@ -36,7 +36,7 @@ gitProperties {
 ext {
     springCloudVersion = "2024.0.0"
     log4JVersion = "2.23.1"
-    reformLoggingVersion = "6.1.6"
+    reformLoggingVersion = "6.1.9"
 }
 
 dependencyManagement {
@@ -86,6 +86,16 @@ publishing {
             groupId project.group
             artifactId rootProject.name
             version project.version
+        }
+    }
+    repositories {
+        maven {
+            name = "AzureArtifacts"
+            url = uri("https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1")
+            credentials {
+                username = System.getenv("AZURE_DEVOPS_ARTIFACT_USERNAME")
+                password = System.getenv("AZURE_DEVOPS_ARTIFACT_TOKEN")
+            }
         }
     }
 }
