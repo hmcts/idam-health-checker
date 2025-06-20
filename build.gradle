@@ -8,8 +8,10 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
+def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "DEV-SNAPSHOT"
+
 group = 'com.github.hmcts'
-version = '2.4.2'
+version = buildNumber
 
 java {
     toolchain {
