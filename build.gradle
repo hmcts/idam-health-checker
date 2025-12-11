@@ -47,7 +47,7 @@ dependencies {
     compile 'com.microsoft.azure:azure-keyvault:1.2.6'
     compile 'com.microsoft.azure:adal4j:1.6.7'
 
-    compile 'org.springframework.ldap:spring-ldap-core:2.4.1'
+    compile 'org.springframework.ldap:spring-ldap-core:4.0.1'
     compile 'com.microsoft.azure:applicationinsights-core:3.7.4'
     compile 'com.microsoft.azure:applicationinsights-web:3.7.4'
     compile 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.4'
