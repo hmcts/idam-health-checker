@@ -23,7 +23,6 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
     private final TaskScheduler taskScheduler;
     private final Duration checkInterval;
     private Clock clock;
-    private boolean scheduled;
 
     private Status status;
     private LocalDateTime statusDateTime;
@@ -45,13 +44,9 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
         this.clock = Clock.systemDefaultZone();
     }
 
-    @VisibleForTesting
     @EventListener(ApplicationReadyEvent.class)
-    protected synchronized void start() {
-        if (!scheduled) {
-            taskScheduler.scheduleWithFixedDelay(this::refresh, checkInterval);
-            scheduled = true;
-        }
+    protected void start() {
+        taskScheduler.scheduleWithFixedDelay(this::refresh, checkInterval);
     }
 
     @Override

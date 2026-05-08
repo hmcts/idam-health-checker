@@ -53,9 +53,8 @@ public class ScheduledHealthProbeIndicatorTest {
     }
 
     @Test
-    public void testStartSchedulesProbeOnlyOnce() {
+    public void testStartSchedulesProbe() {
         verify(taskScheduler, never()).scheduleWithFixedDelay(any(Runnable.class), any(Duration.class));
-        strictScheduledHealthProbe.start();
         strictScheduledHealthProbe.start();
         verify(taskScheduler, times(1)).scheduleWithFixedDelay(any(Runnable.class), any(Duration.class));
     }
