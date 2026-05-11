@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.idam.health.am.AmProvider;
 
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -117,5 +118,24 @@ public class IdmCheckRoleExistsHealthProbeTest {
         assertFalse(idmCheckRoleExistsHealthProbe.probe());
 
         verify(idmProvider, never()).getRole(any(), any());
+    }
+
+    @Test
+    public void probe_idmGetRoleThrowsRuntimeException() {
+        given(amProvider.rootPasswordGrantAccessToken(
+                eq("test-am-host"),
+                eq("test-am-user"),
+                eq("test-am-password"),
+                eq("test-idm-client-id"),
+                eq("test-idm-client-secret"),
+                eq("test-idm-client-scope")
+        )).willReturn(ImmutableMap.of("access_token", "test-access-token"));
+        given(idmProvider.getRole(
+                eq("bearer test-access-token"),
+                eq("test-citizen-id")
+        )).willThrow(new RuntimeException("test-exception"));
+
+        assertFalse(idmCheckRoleExistsHealthProbe.probe());
+        assertEquals("test-exception[RuntimeException]", idmCheckRoleExistsHealthProbe.getDetails());
     }
 }
