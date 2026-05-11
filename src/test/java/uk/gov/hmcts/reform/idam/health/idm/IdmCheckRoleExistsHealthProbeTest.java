@@ -64,6 +64,8 @@ public class IdmCheckRoleExistsHealthProbeTest {
         given(idmProvider.getRole(eq("bearer test-access-token"), eq("test-citizen-id"))).willReturn(response);
 
         assertTrue(idmCheckRoleExistsHealthProbe.probe());
+
+        verify(response).close();
     }
 
     @Test
@@ -81,6 +83,8 @@ public class IdmCheckRoleExistsHealthProbeTest {
         given(idmProvider.getRole(eq("bearer test-access-token"), eq("test-citizen-id"))).willReturn(response);
 
         assertFalse(idmCheckRoleExistsHealthProbe.probe());
+
+        verify(response).close();
     }
 
     @Test

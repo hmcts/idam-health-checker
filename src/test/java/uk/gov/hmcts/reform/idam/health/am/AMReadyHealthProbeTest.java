@@ -15,37 +15,41 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AmLiveHealthProbeTest {
+public class AMReadyHealthProbeTest {
 
     @Mock
     private AmProvider amProvider;
 
     @Mock
-    Response response;
+    private Response response;
 
     @InjectMocks
-    private AmLiveHealthProbe probe;
+    private AMReadyHealthProbe probe;
 
     @Test
-    public void testProbe_success() {
+    public void testProbeSuccess() {
         when(response.status()).thenReturn(HttpStatus.OK.value());
-        when(amProvider.healthLive()).thenReturn(response);
+        when(amProvider.healthReady()).thenReturn(response);
+
         assertThat(probe.probe(), is(true));
+
         verify(response).close();
     }
 
     @Test
-    public void testProve_failUnexpectedResponse() {
+    public void testProbeFailUnexpectedResponse() {
         when(response.status()).thenReturn(HttpStatus.I_AM_A_TEAPOT.value());
-        when(amProvider.healthLive()).thenReturn(response);
+        when(amProvider.healthReady()).thenReturn(response);
+
         assertThat(probe.probe(), is(false));
+
         verify(response).close();
     }
 
     @Test
-    public void testProve_failException() {
-        when(amProvider.healthLive()).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+    public void testProbeFailException() {
+        when(amProvider.healthReady()).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+
         assertThat(probe.probe(), is(false));
     }
-
 }

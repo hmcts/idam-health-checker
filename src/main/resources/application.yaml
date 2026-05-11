@@ -46,6 +46,7 @@ feign:
     enabled: false
   httpclient:
     enabled: true
+    connection-request-timeout: 2000
 
 ldap:
   root: ldaps://dummy:1636
