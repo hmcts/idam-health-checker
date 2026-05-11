@@ -11,7 +11,6 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,7 +30,6 @@ public class AmLiveHealthProbeTest {
         when(response.status()).thenReturn(HttpStatus.OK.value());
         when(amProvider.healthLive()).thenReturn(response);
         assertThat(probe.probe(), is(true));
-        verify(response).close();
     }
 
     @Test
@@ -39,7 +37,6 @@ public class AmLiveHealthProbeTest {
         when(response.status()).thenReturn(HttpStatus.I_AM_A_TEAPOT.value());
         when(amProvider.healthLive()).thenReturn(response);
         assertThat(probe.probe(), is(false));
-        verify(response).close();
     }
 
     @Test

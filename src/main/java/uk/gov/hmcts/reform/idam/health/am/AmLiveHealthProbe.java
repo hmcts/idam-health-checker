@@ -26,7 +26,8 @@ public class AmLiveHealthProbe extends HealthProbe {
 
     @Override
     public boolean probe() {
-        try (Response rsp = amProvider.healthLive()) {
+        try {
+            Response rsp = amProvider.healthLive();
             if (rsp.status() == HttpStatus.SC_OK) {
                 return handleSuccess();
             } else {
