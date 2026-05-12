@@ -42,11 +42,12 @@ public class IdmCheckRoleExistsHealthProbe extends HealthProbe {
             if (idmAccessToken == null) {
                 return handleError("failed to get IDM access token from AM");
             }
-            Response response = idmProvider.getRole(idmAccessToken, config.getCheckRoleExists().getRoleId());
-            if (response.status() == HttpStatus.SC_OK) {
-                return handleSuccess();
-            } else {
-                return handleError("Failed to find role with id '" + config.getCheckRoleExists().getRoleId() + "', response is " + response.status());
+            try (Response response = idmProvider.getRole(idmAccessToken, config.getCheckRoleExists().getRoleId())) {
+                if (response.status() == HttpStatus.SC_OK) {
+                    return handleSuccess();
+                } else {
+                    return handleError("Failed to find role with id '" + config.getCheckRoleExists().getRoleId() + "', response is " + response.status());
+                }
             }
         } catch (Exception e) {
             return handleException(e);

@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.time.Clock;
@@ -18,6 +20,8 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
     private final HealthProbe healthProbe;
     private final Duration freshnessInterval;
     private final HealthProbeFailureHandling failureHandling;
+    private final TaskScheduler taskScheduler;
+    private final Duration checkInterval;
     private Clock clock;
 
     private Status status;
@@ -33,9 +37,15 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
             Duration checkInterval) {
         this.healthProbe = healthProbe;
         this.failureHandling = failureHandling;
+        this.taskScheduler = taskScheduler;
         this.freshnessInterval = freshnessInterval;
+        this.checkInterval = checkInterval;
         this.status = failureHandling == HealthProbeFailureHandling.IGNORE ? Status.UNKNOWN: Status.OUT_OF_SERVICE;
         this.clock = Clock.systemDefaultZone();
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void start() {
         taskScheduler.scheduleWithFixedDelay(this::refresh, checkInterval);
     }
 

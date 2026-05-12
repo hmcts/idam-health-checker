@@ -51,7 +51,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-    implementation 'io.github.openfeign:feign-httpclient:13.5'
+    implementation 'io.github.openfeign:feign-hc5:13.5'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 
     implementation 'com.microsoft.azure:azure-keyvault:1.2.6'
     implementation 'com.microsoft.azure:adal4j:1.6.7'

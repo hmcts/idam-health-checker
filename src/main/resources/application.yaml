@@ -9,6 +9,11 @@ spring:
       client:
         composite-indicator:
           enabled: false
+    openfeign:
+      httpclient:
+        hc5:
+          connection-request-timeout: 5000
+          connection-request-timeout-unit: milliseconds
 
 management:
   endpoints:
@@ -40,12 +45,6 @@ azure:
         retry:
           max-number: 3
           interval-millis: 200
-
-feign:
-  okhttp:
-    enabled: false
-  httpclient:
-    enabled: true
 
 ldap:
   root: ldaps://dummy:1636
