@@ -12,7 +12,7 @@ spring:
     openfeign:
       httpclient:
         hc5:
-          connection-request-timeout: 2000
+          connection-request-timeout: 5000
           connection-request-timeout-unit: milliseconds
 
 management:
