@@ -244,4 +244,85 @@ public class ScheduledHealthProbeIndicatorTest {
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
     }
 
+    @Test
+    public void testHealth_includesLastCheckedAndLastStatusChangeAfterSuccessfulRefresh() {
+        when(healthProbe.probe()).thenReturn(true);
+        strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
+        strictScheduledHealthProbe.refresh();
+
+        Health health = strictScheduledHealthProbe.health();
+
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UP));
+        assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:00:00Z"));
+        assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
+        assertThat(health.getDetails().get("lastDetailUpdate"), is(nullValue()));
+    }
+
+    @Test
+    public void testHealth_includesLastDetailUpdateWhenFailedProbeReportsDetails() {
+        when(healthProbe.probe()).thenReturn(false);
+        when(healthProbe.getDetails()).thenReturn("test-error");
+        strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
+        strictScheduledHealthProbe.refresh();
+
+        Health health = strictScheduledHealthProbe.health();
+
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getDetails().get("testprobe"), is("test-error"));
+        assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:00:00Z"));
+        assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
+        assertThat(health.getDetails().get("lastDetailUpdate"), is("1970-01-01T01:00:00Z"));
+    }
+
+    @Test
+    public void testHealth_includesLastStatusChangeForIgnoredUnknownAfterFirstObservedRun() {
+        when(healthProbe.probe()).thenReturn(false);
+        when(healthProbe.getDetails()).thenReturn("test-error");
+        ignoringScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
+        ignoringScheduledHealthProbe.refresh();
+
+        Health health = ignoringScheduledHealthProbe.health();
+
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UNKNOWN));
+        assertThat(health.getDetails().get("testprobe"), is("test-error"));
+        assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:00:00Z"));
+        assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
+        assertThat(health.getDetails().get("lastDetailUpdate"), is("1970-01-01T01:00:00Z"));
+    }
+
+    @Test
+    public void testHealth_keepsLastDetailUpdateWhenStaleDetailRemainsAfterSuccess() {
+        when(healthProbe.probe()).thenReturn(false, true);
+        when(healthProbe.getDetails()).thenReturn("test-error");
+        strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
+        strictScheduledHealthProbe.refresh();
+
+        strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM + 60), ZoneId.systemDefault()));
+        strictScheduledHealthProbe.refresh();
+
+        Health health = strictScheduledHealthProbe.health();
+
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UP));
+        assertThat(health.getDetails().get("testprobe"), is("test-error"));
+        assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:01:00Z"));
+        assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:01:00Z"));
+        assertThat(health.getDetails().get("lastDetailUpdate"), is("1970-01-01T01:00:00Z"));
+    }
+
+    @Test
+    public void testHealth_updatesLastCheckedWithoutChangingLastStatusChangeWhenStatusRepeats() {
+        when(healthProbe.probe()).thenReturn(false);
+        strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
+        strictScheduledHealthProbe.refresh();
+
+        strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM + 60), ZoneId.systemDefault()));
+        strictScheduledHealthProbe.refresh();
+
+        Health health = strictScheduledHealthProbe.health();
+
+        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:01:00Z"));
+        assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
+    }
+
 }

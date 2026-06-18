@@ -10,6 +10,7 @@ import org.springframework.scheduling.TaskScheduler;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
@@ -26,6 +27,9 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
 
     private Status status;
     private LocalDateTime statusDateTime;
+    private Instant lastChecked;
+    private Instant lastStatusChange;
+    private Instant lastDetailUpdate;
 
     private static final EnumSet<Status> REQUIRE_PROBE_STATES = EnumSet.of(Status.OUT_OF_SERVICE, Status.UNKNOWN);
 
@@ -65,16 +69,23 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
     }
 
     protected void refresh() {
-        boolean probeHasExpired = REQUIRE_PROBE_STATES.contains(status) || LocalDateTime.now(clock)
+        LocalDateTime now = LocalDateTime.now(clock);
+        boolean probeHasExpired = REQUIRE_PROBE_STATES.contains(status) || now
                 .isAfter(statusDateTime.plus(Math.round(0.5 * freshnessInterval.toMillis()), ChronoUnit.MILLIS));
         if (status == Status.UP && !probeHasExpired) {
             return;
         }
 
         boolean probeResult = this.healthProbe.probe();
+        Instant checkedAt = clock.instant();
+        String currentDetails = this.healthProbe.getDetails();
+
+        this.lastChecked = checkedAt;
+        updateDetailTimestamp(currentDetails, probeResult, checkedAt);
 
         if (probeResult || failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
             Status newStatus = probeResult ? Status.UP : Status.DOWN;
+            updateStatusTimestamp(this.status, newStatus, checkedAt);
             if (this.status != newStatus) {
                 if (Status.DOWN.equals(newStatus)) {
                     log.error("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
@@ -84,8 +95,9 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
             }
 
             this.status = newStatus;
-            this.statusDateTime = LocalDateTime.now(clock);
+            this.statusDateTime = LocalDateTime.ofInstant(checkedAt, clock.getZone());
         } else {
+            updateStatusTimestamp(this.status, this.status, checkedAt);
             log.warn("{}: probe failed, status {} unchanged", this.healthProbe.getName(), this.status);
         }
     }
@@ -100,6 +112,20 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
         this.status = status;
     }
 
+    private void updateDetailTimestamp(String currentDetails, boolean probeResult, Instant checkedAt) {
+        if (currentDetails == null) {
+            this.lastDetailUpdate = null;
+        } else if (!probeResult) {
+            this.lastDetailUpdate = checkedAt;
+        }
+    }
+
+    private void updateStatusTimestamp(Status previousStatus, Status currentStatus, Instant checkedAt) {
+        if (lastStatusChange == null || previousStatus != currentStatus) {
+            this.lastStatusChange = checkedAt;
+        }
+    }
+
     @Override
     public Health health() {
         Health.Builder builder;
@@ -112,9 +138,19 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
         } else {
             builder = Health.down();
         }
-        if (healthProbe.getDetails() != null) {
-            builder.withDetail(healthProbe.getName(), healthProbe.getDetails());
+        String details = healthProbe.getDetails();
+        if (details != null) {
+            builder.withDetail(healthProbe.getName(), details);
         }
+        addTimestampDetail(builder, "lastChecked", lastChecked);
+        addTimestampDetail(builder, "lastStatusChange", lastStatusChange);
+        addTimestampDetail(builder, "lastDetailUpdate", lastDetailUpdate);
         return builder.build();
+    }
+
+    private void addTimestampDetail(Health.Builder builder, String name, Instant timestamp) {
+        if (timestamp != null) {
+            builder.withDetail(name, timestamp.toString());
+        }
     }
 }

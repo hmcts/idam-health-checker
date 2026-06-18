@@ -83,6 +83,39 @@ the probes and their statuses. For example:
 {"status":"UP","components":{"amLiveScheduledHealthProbe":{"status":"UP"},"amPasswordGrantScheduledHealthProbe":{"status":"UP"},"amReadyScheduledHealthProbe":{"status":"UP"}}}
 ```
 
+Scheduled probe components include timestamp metadata in their `details` object after a scheduled probe
+has completed. The existing probe-specific detail key is preserved when an error detail exists.
+
+Example component response:
+
+```
+{
+  "status": "DOWN",
+  "details": {
+    "AmLiveHealthProbe": "Unexpected response: 503",
+    "lastChecked": "2026-05-14T10:30:00Z",
+    "lastStatusChange": "2026-05-14T10:30:00Z",
+    "lastDetailUpdate": "2026-05-14T10:30:00Z"
+  }
+}
+```
+
+Timestamp meanings:
+
+| Field            | Meaning                                                                                          |
+|------------------|--------------------------------------------------------------------------------------------------|
+| lastChecked      | The last time the scheduled probe completed and recorded a result.                               |
+| lastStatusChange | The last time the current component status was first observed or later changed.                  |
+| lastDetailUpdate | The last time the currently displayed detail text was recorded.                                   |
+
+`lastDetailUpdate` is useful because successful probes do not clear older detail text. A component can
+therefore show status `UP` while still carrying a previous error detail; in that case `lastChecked`
+shows the latest successful check time and `lastDetailUpdate` shows when the displayed detail was
+originally recorded.
+
+For probes that remain `UNKNOWN`, `lastStatusChange` means the current `UNKNOWN` state was first
+observed at that time in the running health-checker process.
+
 ## 1.3. Statuses
 
 | Status         | Description                                                     |
