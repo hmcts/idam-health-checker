@@ -56,7 +56,7 @@ public class ReplicationStatusConverter {
     private ReplicationInfo simpleConvert(String value, String context) {
         try {
             String[] parts = value.split("\\s+");
-            if (parts.length == 6) {
+            if (parts.length == 6 || parts.length == 7) {
                 ReplicationInfo info = new ReplicationInfo();
                 info.setInstance(parts[1]);
                 info.setStatus(parts[2]);

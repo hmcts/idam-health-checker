@@ -99,6 +99,32 @@ public class ReplicationStatusConverterTest {
     }
 
     @Test
+    public void convert_withDs8HostnameColumn() {
+        when(probeProperties.getCommand().getReplicationIdentity()).thenReturn("forgerock_ds_tokenstore_idam_sandbox_2");
+        List<String> textOutput = new ArrayList<>();
+        textOutput.add("Base DN / DS                                  Status  Receive     Replay      Entry count  Hostname");
+        textOutput.add("                                                      delay (ms)  delay (ms)");
+        textOutput.add("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+        textOutput.add("ou=tokens");
+        textOutput.add("├─ DS/forgerock_ds_tokenstore_idam_sandbox_1  GOOD             0           0         3038  forgerock-ds-tokenstore-idam-sandbox-1.service.core-compute-idam-sandbox.internal");
+        textOutput.add("├─ DS/forgerock_ds_tokenstore_idam_sandbox_2  GOOD             0           0         3038  forgerock-ds-tokenstore-idam-sandbox-2.service.core-compute-idam-sandbox.internal");
+        textOutput.add("└─ DS/forgerock_ds_tokenstore_idam_sandbox_3  GOOD             0           0         3038  forgerock-ds-tokenstore-idam-sandbox-3.service.core-compute-idam-sandbox.internal");
+        TextCommandRunner.Response response = new TextCommandRunner.Response(textOutput, Collections.emptyList());
+
+        ReplicationStatus status = replicationStatusConverter.convert(response);
+
+        assertThat(status.getContextReplicationInfo().size(), is(1));
+        List<ReplicationInfo> results = status.getContextReplicationInfo().get("ou=tokens");
+        assertThat(results.size(), is(3));
+        assertThat(results.get(1).getInstance(), is("DS/forgerock_ds_tokenstore_idam_sandbox_2"));
+        assertThat(results.get(1).getInstanceType(), is(InstanceType.PRIMARY));
+        assertThat(results.get(1).getStatus(), is("GOOD"));
+        assertThat(results.get(1).getReceiveDelayMs(), is(0L));
+        assertThat(results.get(1).getReplayDelayMs(), is(0L));
+        assertThat(results.get(1).getEntryCount(), is(3038L));
+    }
+
+    @Test
     public void convert_withErrors() {
         TextCommandRunner.Response response = new TextCommandRunner.Response(Collections.emptyList(), Collections.singletonList("test-error"));
         ReplicationStatus status = replicationStatusConverter.convert(response);
