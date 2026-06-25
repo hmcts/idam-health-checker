@@ -38,10 +38,10 @@ public class ReplicationStatusConverterTest {
         textOutput.add("line3");
         textOutput.add("dc=test-context");
         textOutput.add("├ test-identity test-status 1 2 3 test-hostname");
-        textOutput.add("└ test-other-identity test-other-status 4 5 6 test-other-hostname");
+        textOutput.add("└ test-other-identity test-other-status 4 5 6 test-hostname");
         textOutput.add("ou=test-other-context");
         textOutput.add("├ test-identity test-status 9 8 7 test-hostname");
-        textOutput.add("└ test-other-identity test-other-status 6 5 4 test-other-hostname");
+        textOutput.add("└ test-other-identity test-other-status 6 5 4 test-hostname");
         TextCommandRunner.Response response = new TextCommandRunner.Response(textOutput, Collections.emptyList());
         ReplicationStatus status = replicationStatusConverter.convert(response);
         assertThat(status.getContextReplicationInfo().size(), is(2));
@@ -84,7 +84,7 @@ public class ReplicationStatusConverterTest {
         textOutput.add("dc=test-context");
         textOutput.add("├ fail");
         textOutput.add("├ test-identity test-status 1 2 3 test-hostname");
-        textOutput.add("└ test-other-identity test-other-status fail 5 6 test-other-hostname");
+        textOutput.add("└ test-other-identity test-other-status fail 5 6 test-hostname");
         TextCommandRunner.Response response = new TextCommandRunner.Response(textOutput, Collections.emptyList());
         ReplicationStatus status = replicationStatusConverter.convert(response);
         assertThat(status.getContextReplicationInfo().size(), is(1));
