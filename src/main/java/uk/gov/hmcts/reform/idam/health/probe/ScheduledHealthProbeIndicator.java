@@ -63,7 +63,7 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
     public boolean isOkay() {
         Status status = currentObservation.status();
         if (REQUIRE_PROBE_STATES.contains(status)) {
-            return this.healthProbe.probe() || failureHandling == HealthProbeFailureHandling.IGNORE;
+            return runProbeAndRecordObservation() || failureHandling == HealthProbeFailureHandling.IGNORE;
         }
 
         if (failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
@@ -84,6 +84,11 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
             return;
         }
 
+        runProbeAndRecordObservation();
+    }
+
+    private boolean runProbeAndRecordObservation() {
+        Status previousStatus = currentObservation.status();
         boolean probeResult = this.healthProbe.probe();
         Instant checkedAt = clock.instant();
         String currentDetails = this.healthProbe.getDetails();
@@ -105,6 +110,7 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
         }
 
         recordObservation(newStatus, currentDetails, probeResult, checkedAt);
+        return probeResult;
     }
 
     @VisibleForTesting
