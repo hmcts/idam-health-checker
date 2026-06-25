@@ -25,13 +25,18 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
     private final Duration checkInterval;
     private Clock clock;
 
-    private Status status;
     private LocalDateTime statusDateTime;
-    private Instant lastChecked;
-    private Instant lastStatusChange;
-    private Instant lastDetailUpdate;
+    private ProbeObservation currentObservation;
 
     private static final EnumSet<Status> REQUIRE_PROBE_STATES = EnumSet.of(Status.OUT_OF_SERVICE, Status.UNKNOWN);
+
+    private record ProbeObservation(
+            Status status,
+            String details,
+            Instant lastChecked,
+            Instant lastStatusChange,
+            Instant lastDetailUpdate) {
+    }
 
     public ScheduledHealthProbeIndicator(
             HealthProbe healthProbe,
@@ -44,7 +49,8 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
         this.taskScheduler = taskScheduler;
         this.freshnessInterval = freshnessInterval;
         this.checkInterval = checkInterval;
-        this.status = failureHandling == HealthProbeFailureHandling.IGNORE ? Status.UNKNOWN: Status.OUT_OF_SERVICE;
+        Status initialStatus = failureHandling == HealthProbeFailureHandling.IGNORE ? Status.UNKNOWN: Status.OUT_OF_SERVICE;
+        this.currentObservation = new ProbeObservation(initialStatus, null, null, null, null);
         this.clock = Clock.systemDefaultZone();
     }
 
@@ -55,6 +61,7 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
 
     @Override
     public boolean isOkay() {
+        Status status = currentObservation.status();
         if (REQUIRE_PROBE_STATES.contains(status)) {
             return this.healthProbe.probe() || failureHandling == HealthProbeFailureHandling.IGNORE;
         }
@@ -69,37 +76,35 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
     }
 
     protected void refresh() {
+        Status previousStatus = currentObservation.status();
         LocalDateTime now = LocalDateTime.now(clock);
-        boolean probeHasExpired = REQUIRE_PROBE_STATES.contains(status) || now
+        boolean probeHasExpired = REQUIRE_PROBE_STATES.contains(previousStatus) || statusDateTime == null || now
                 .isAfter(statusDateTime.plus(Math.round(0.5 * freshnessInterval.toMillis()), ChronoUnit.MILLIS));
-        if (status == Status.UP && !probeHasExpired) {
+        if (previousStatus == Status.UP && !probeHasExpired) {
             return;
         }
 
         boolean probeResult = this.healthProbe.probe();
         Instant checkedAt = clock.instant();
         String currentDetails = this.healthProbe.getDetails();
-
-        this.lastChecked = checkedAt;
-        updateDetailTimestamp(currentDetails, probeResult, checkedAt);
+        Status newStatus = previousStatus;
 
         if (probeResult || failureHandling == HealthProbeFailureHandling.MARK_AS_DOWN) {
-            Status newStatus = probeResult ? Status.UP : Status.DOWN;
-            updateStatusTimestamp(this.status, newStatus, checkedAt);
-            if (this.status != newStatus) {
+            newStatus = probeResult ? Status.UP : Status.DOWN;
+            if (previousStatus != newStatus) {
                 if (Status.DOWN.equals(newStatus)) {
-                    log.error("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
+                    log.error("{}: Status changing from {} to {}", this.healthProbe.getName(), previousStatus, newStatus);
                 } else {
-                    log.info("{}: Status changing from {} to {}", this.healthProbe.getName(), this.status, newStatus);
+                    log.info("{}: Status changing from {} to {}", this.healthProbe.getName(), previousStatus, newStatus);
                 }
             }
 
-            this.status = newStatus;
             this.statusDateTime = LocalDateTime.ofInstant(checkedAt, clock.getZone());
         } else {
-            updateStatusTimestamp(this.status, this.status, checkedAt);
-            log.warn("{}: probe failed, status {} unchanged", this.healthProbe.getName(), this.status);
+            log.warn("{}: probe failed, status {} unchanged", this.healthProbe.getName(), previousStatus);
         }
+
+        recordObservation(newStatus, currentDetails, probeResult, checkedAt);
     }
 
     @VisibleForTesting
@@ -109,42 +114,54 @@ public class ScheduledHealthProbeIndicator implements HealthProbeIndicator, Heal
 
     @VisibleForTesting
     protected void setStatus(Status status) {
-        this.status = status;
+        this.currentObservation = new ProbeObservation(
+                status,
+                currentObservation.details(),
+                currentObservation.lastChecked(),
+                currentObservation.lastStatusChange(),
+                currentObservation.lastDetailUpdate());
     }
 
-    private void updateDetailTimestamp(String currentDetails, boolean probeResult, Instant checkedAt) {
-        if (currentDetails == null) {
-            this.lastDetailUpdate = null;
+    private void recordObservation(Status status, String details, boolean probeResult, Instant checkedAt) {
+        Instant lastStatusChange = currentObservation.lastStatusChange();
+        if (lastStatusChange == null || currentObservation.status() != status) {
+            lastStatusChange = checkedAt;
+        }
+
+        Instant lastDetailUpdate = currentObservation.lastDetailUpdate();
+        if (details == null) {
+            lastDetailUpdate = null;
         } else if (!probeResult) {
-            this.lastDetailUpdate = checkedAt;
+            lastDetailUpdate = checkedAt;
         }
-    }
 
-    private void updateStatusTimestamp(Status previousStatus, Status currentStatus, Instant checkedAt) {
-        if (lastStatusChange == null || previousStatus != currentStatus) {
-            this.lastStatusChange = checkedAt;
-        }
+        this.currentObservation = new ProbeObservation(
+                status,
+                details,
+                checkedAt,
+                lastStatusChange,
+                lastDetailUpdate);
     }
 
     @Override
     public Health health() {
+        ProbeObservation observation = currentObservation;
         Health.Builder builder;
-        if (status == Status.UP) {
+        if (observation.status() == Status.UP) {
             builder = Health.up();
-        } else if (status == Status.UNKNOWN) {
+        } else if (observation.status() == Status.UNKNOWN) {
             builder = Health.unknown();
-        } else if (status == Status.OUT_OF_SERVICE) {
+        } else if (observation.status() == Status.OUT_OF_SERVICE) {
             builder = Health.outOfService();
         } else {
             builder = Health.down();
         }
-        String details = healthProbe.getDetails();
-        if (details != null) {
-            builder.withDetail(healthProbe.getName(), details);
+        if (observation.details() != null) {
+            builder.withDetail(healthProbe.getName(), observation.details());
         }
-        addTimestampDetail(builder, "lastChecked", lastChecked);
-        addTimestampDetail(builder, "lastStatusChange", lastStatusChange);
-        addTimestampDetail(builder, "lastDetailUpdate", lastDetailUpdate);
+        addTimestampDetail(builder, "lastChecked", observation.lastChecked());
+        addTimestampDetail(builder, "lastStatusChange", observation.lastStatusChange());
+        addTimestampDetail(builder, "lastDetailUpdate", observation.lastDetailUpdate());
         return builder.build();
     }
 

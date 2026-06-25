@@ -193,7 +193,6 @@ public class ScheduledHealthProbeIndicatorTest {
     @Test
     public void testHealth_unknown() {
         strictScheduledHealthProbe.setStatus(Status.UNKNOWN);
-        when(healthProbe.getDetails()).thenReturn(null);
         Health health = strictScheduledHealthProbe.health();
         assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UNKNOWN));
         assertThat(health.getDetails(), is(anEmptyMap()));
@@ -201,9 +200,12 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testHealth_unknownWithDetails() {
-        strictScheduledHealthProbe.setStatus(Status.UNKNOWN);
+        when(healthProbe.probe()).thenReturn(false);
         when(healthProbe.getDetails()).thenReturn("test-error");
-        Health health = strictScheduledHealthProbe.health();
+        ignoringScheduledHealthProbe.refresh();
+
+        Health health = ignoringScheduledHealthProbe.health();
+
         assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UNKNOWN));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
     }
@@ -211,7 +213,6 @@ public class ScheduledHealthProbeIndicatorTest {
     @Test
     public void testHealth_down() {
         strictScheduledHealthProbe.setStatus(Status.DOWN);
-        when(healthProbe.getDetails()).thenReturn(null);
         Health health = strictScheduledHealthProbe.health();
         assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
         assertThat(health.getDetails(), is(anEmptyMap()));
@@ -219,9 +220,12 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testHealth_downWithDetails() {
-        strictScheduledHealthProbe.setStatus(Status.DOWN);
+        when(healthProbe.probe()).thenReturn(false);
         when(healthProbe.getDetails()).thenReturn("test-error");
+        strictScheduledHealthProbe.refresh();
+
         Health health = strictScheduledHealthProbe.health();
+
         assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
     }
@@ -229,19 +233,18 @@ public class ScheduledHealthProbeIndicatorTest {
     @Test
     public void testHealth_outOfService() {
         strictScheduledHealthProbe.setStatus(Status.OUT_OF_SERVICE);
-        when(healthProbe.getDetails()).thenReturn(null);
         Health health = strictScheduledHealthProbe.health();
         assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.OUT_OF_SERVICE));
         assertThat(health.getDetails(), is(anEmptyMap()));
     }
 
     @Test
-    public void testHealth_outOfServiceWithDetails() {
+    public void testHealth_outOfServiceDoesNotReadLiveProbeDetailsBeforeObservation() {
         strictScheduledHealthProbe.setStatus(Status.OUT_OF_SERVICE);
-        when(healthProbe.getDetails()).thenReturn("test-error");
         Health health = strictScheduledHealthProbe.health();
         assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.OUT_OF_SERVICE));
-        assertThat(health.getDetails().get("testprobe"), is("test-error"));
+        assertThat(health.getDetails(), is(anEmptyMap()));
+        verify(healthProbe, never()).getDetails();
     }
 
     @Test
