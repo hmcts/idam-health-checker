@@ -2,10 +2,8 @@ package uk.gov.hmcts.reform.idam.health.vault;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpStatus;
@@ -23,7 +21,7 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static uk.gov.hmcts.reform.idam.health.vault.EnvironmentKeyVaultConfigBuilder.VAULT_BASE_URL;
@@ -70,7 +68,7 @@ public class VaultIntegrationTest {
     public static void setup() {
         wireMockServer = new WireMockServer(options()
                 .port(DUMMY_VAULT_SERVER_PORT)
-                .extensions(ExampleTransformer.class));
+                .extensions(new ExampleTransformer()));
         wireMockServer.start();
 
         configureFor("localhost", DUMMY_VAULT_SERVER_PORT);
@@ -115,15 +113,15 @@ public class VaultIntegrationTest {
         assertEquals(VAULT_PROPERTIES.get("adminPassword"), roleExistsPwd);
     }
 
-    public static class ExampleTransformer extends ResponseDefinitionTransformer {
+    public static class ExampleTransformer implements ResponseDefinitionTransformerV2 {
 
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
+        public ResponseDefinition transform(ServeEvent serveEvent) {
 
             return new ResponseDefinitionBuilder()
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
-                    .withBody(generateResponse(request.getUrl()))
+                    .withBody(generateResponse(serveEvent.getRequest().getUrl()))
                     .build();
         }
 

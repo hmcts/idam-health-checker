@@ -112,6 +112,8 @@ bootJar {
 }
 
 test {
+    // Mockito inline instrumentation appends to the bootstrap classpath, disabling CDS.
+    jvmArgs '-Xshare:off'
     testLogging {
         events "passed", "skipped", "failed"
         exceptionFormat = "full"

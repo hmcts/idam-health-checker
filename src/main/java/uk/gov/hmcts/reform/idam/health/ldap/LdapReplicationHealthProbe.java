@@ -273,7 +273,7 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
         static int parseReplayedUpdates(String replayedUpdates) {
             if (replayedUpdates != null) {
                 try {
-                    return new JsonParser().parse(replayedUpdates).getAsJsonObject().get("count").getAsInt();
+                    return JsonParser.parseString(replayedUpdates).getAsJsonObject().get("count").getAsInt();
                 } catch (JsonParseException | IllegalStateException e) {
                     log.error("JSON expected but got this: {} [{}]", replayedUpdates, e.getMessage());
                 }
