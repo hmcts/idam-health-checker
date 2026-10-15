@@ -1,11 +1,10 @@
 plugins {
     id 'java-library'
     id 'io.spring.dependency-management' version '1.1.7'
-    id "org.springframework.boot" version "3.4.3"
+    id "org.springframework.boot" version "3.5.16"
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id "io.freefair.lombok" version "8.4"
-    id "com.gorylenko.gradle-git-properties" version "2.4.1"
+    id "com.gorylenko.gradle-git-properties" version "4.0.1"
 }
 
 def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "DEV-SNAPSHOT"
@@ -23,7 +22,6 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven { url = 'https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1' }
-    jcenter()
 }
 
 bootRun {
@@ -36,7 +34,7 @@ gitProperties {
 }
 
 ext {
-    springCloudVersion = "2024.0.0"
+    springCloudVersion = "2025.0.3"
     log4JVersion = "2.23.1"
     reformLoggingVersion = "6.1.9"
 }
@@ -57,7 +55,7 @@ dependencies {
     implementation 'com.microsoft.azure:azure-keyvault:1.2.6'
     implementation 'com.microsoft.azure:adal4j:1.6.7'
 
-    implementation 'org.springframework.ldap:spring-ldap-core:3.2.11'
+    implementation 'org.springframework.ldap:spring-ldap-core'
 
     implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: reformLoggingVersion
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
@@ -86,12 +84,16 @@ publishing {
         Main(MavenPublication) {
             from components.java
             artifact bootJar
-            groupId project.group
-            artifactId rootProject.name
-            version project.version
+            groupId = project.group
+            artifactId = rootProject.name
+            version = project.version
         }
     }
     repositories {
+        maven {
+            name = "Ci"
+            url = layout.buildDirectory.dir('ci-repository')
+        }
         maven {
             name = "AzureArtifacts"
             url = uri("https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1")
@@ -112,6 +114,6 @@ bootJar {
 test {
     testLogging {
         events "passed", "skipped", "failed"
-        exceptionFormat "full"
+        exceptionFormat = "full"
     }
 }
