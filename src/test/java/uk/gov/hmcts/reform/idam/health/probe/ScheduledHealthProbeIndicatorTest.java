@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.scheduling.TaskScheduler;
 
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ScheduledHealthProbeIndicatorTest {
 
     private static final long EPOCH_1AM = 3600;
@@ -39,7 +39,7 @@ public class ScheduledHealthProbeIndicatorTest {
     private ScheduledHealthProbeIndicator ignoringScheduledHealthProbe;
     private ScheduledHealthProbeIndicator ignoringOnceReadyScheduledHealthProbe;
 
-    @Before
+    @BeforeEach
     public void setup() {
         strictScheduledHealthProbe = new ScheduledHealthProbeIndicator(
                 healthProbe, HealthProbeFailureHandling.MARK_AS_DOWN, taskScheduler, Duration.ofSeconds(40), Duration.ofSeconds(30));
@@ -49,7 +49,6 @@ public class ScheduledHealthProbeIndicatorTest {
                 healthProbe, HealthProbeFailureHandling.IGNORE_ONCE_READY, taskScheduler,  Duration.ofSeconds(40), Duration.ofSeconds(30));
 
 
-        when(healthProbe.getName()).thenReturn("testprobe");
     }
 
     @Test
@@ -61,6 +60,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_success() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(true);
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         strictScheduledHealthProbe.refresh();
@@ -70,6 +70,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_successBeforeRefresh() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(true);
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
 
@@ -85,6 +86,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_recordsFailedObservationBeforeRefresh() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         when(healthProbe.getDetails()).thenReturn("test-error");
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
@@ -102,6 +104,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_recordsIgnoredUnknownObservationBeforeRefresh() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         when(healthProbe.getDetails()).thenReturn("test-error");
         ignoringScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
@@ -119,6 +122,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_successNotExpired() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(true);
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         strictScheduledHealthProbe.refresh();
@@ -132,6 +136,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_failNotFresh() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(true);
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         strictScheduledHealthProbe.refresh();
@@ -141,6 +146,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_failDown() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         strictScheduledHealthProbe.refresh();
@@ -150,12 +156,14 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_failStatusUnknown() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         assertThat(strictScheduledHealthProbe.isOkay(), is(false));
     }
 
     @Test
     public void testIsOkay_ignoreDown() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(true);
         ignoringScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         ignoringScheduledHealthProbe.refresh();
@@ -168,6 +176,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_ignoreDownForIgnoreOnceReady() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(true);
         ignoringOnceReadyScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         ignoringOnceReadyScheduledHealthProbe.refresh();
@@ -180,6 +189,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_alwaysSuccessWhenIgnoreProbe() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
         when(healthProbe.probe()).thenReturn(true);
@@ -191,6 +201,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_returnDownAtStartupForIgnoreOnceReady() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         assertThat(ignoringOnceReadyScheduledHealthProbe.isOkay(), is(false));
         when(healthProbe.probe()).thenReturn(true);
@@ -202,6 +213,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_successWhenNotFreshAndIgnore() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(true);
         ignoringScheduledHealthProbe.refresh();
         assertThat(ignoringScheduledHealthProbe.isOkay(), is(true));
@@ -212,6 +224,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testIsOkay_successAfterFailure() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(true);
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         strictScheduledHealthProbe.refresh();
@@ -243,6 +256,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testHealth_unknownWithDetails() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         when(healthProbe.getDetails()).thenReturn("test-error");
         ignoringScheduledHealthProbe.refresh();
@@ -263,6 +277,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testHealth_downWithDetails() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         when(healthProbe.getDetails()).thenReturn("test-error");
         strictScheduledHealthProbe.refresh();
@@ -292,6 +307,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testHealth_includesLastCheckedAndLastStatusChangeAfterSuccessfulRefresh() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(true);
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         strictScheduledHealthProbe.refresh();
@@ -306,6 +322,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testHealth_includesLastDetailUpdateWhenFailedProbeReportsDetails() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         when(healthProbe.getDetails()).thenReturn("test-error");
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
@@ -322,6 +339,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testHealth_includesLastStatusChangeForIgnoredUnknownAfterFirstObservedRun() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         when(healthProbe.getDetails()).thenReturn("test-error");
         ignoringScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
@@ -338,6 +356,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testHealth_keepsLastDetailUpdateWhenStaleDetailRemainsAfterSuccess() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false, true);
         when(healthProbe.getDetails()).thenReturn("test-error");
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
@@ -357,6 +376,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
     @Test
     public void testHealth_updatesLastCheckedWithoutChangingLastStatusChangeWhenStatusRepeats() {
+        when(healthProbe.getName()).thenReturn("testprobe");
         when(healthProbe.probe()).thenReturn(false);
         strictScheduledHealthProbe.changeClock(Clock.fixed(Instant.ofEpochSecond(EPOCH_1AM), ZoneId.systemDefault()));
         strictScheduledHealthProbe.refresh();

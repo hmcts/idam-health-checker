@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.idam.health.userstore;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ldap.BadLdapGrammarException;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserStoreAuthenticationHealthProbeTest {
 
     @Mock
@@ -35,7 +35,7 @@ public class UserStoreAuthenticationHealthProbeTest {
 
     private UserStoreAuthenticationHealthProbe probe;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(probeUserProperties.getUsername()).thenReturn("test-username");
         when(probeUserProperties.getPassword()).thenReturn("test-password");

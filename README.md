@@ -9,7 +9,7 @@ and the Gradle 9.8.1 wrapper. Use `./gradlew` for builds.
 
 Boot manages the Spring, logging and JSON dependency versions. The legacy Azure
 Key Vault client and token handler retain Jackson 2 alongside Boot's Jackson 3.
-Tests run on JUnit Platform, with Vintage retaining the existing JUnit 4 suite.
+All tests use JUnit Jupiter on JUnit Platform, with versions managed by Spring Boot.
 
 ### CI verification
 

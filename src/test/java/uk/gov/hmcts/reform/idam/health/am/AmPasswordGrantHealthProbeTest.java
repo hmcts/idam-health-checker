@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.idam.health.am;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.idam.health.props.AgentProperties;
@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AmPasswordGrantHealthProbeTest {
 
     @Mock
@@ -34,7 +34,7 @@ public class AmPasswordGrantHealthProbeTest {
 
     private AmPasswordGrantHealthProbe probe;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(amHealthProbeProperties.getIdentity().getHost()).thenReturn("test-host");
         when(amHealthProbeProperties.getIdentity().getScope()).thenReturn("test-scope");

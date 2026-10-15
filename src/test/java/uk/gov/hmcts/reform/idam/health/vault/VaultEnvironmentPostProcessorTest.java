@@ -2,13 +2,13 @@ package uk.gov.hmcts.reform.idam.health.vault;
 
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.SpringApplication;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
@@ -18,13 +18,13 @@ import uk.gov.hmcts.reform.vault.config.KeyVaultConfig;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class VaultEnvironmentPostProcessorTest {
 
     @Mock
@@ -47,7 +47,7 @@ public class VaultEnvironmentPostProcessorTest {
 
     private VaultEnvironmentPostProcessor postProcessor;
 
-    @Before
+    @BeforeEach
     public void setup() {
         postProcessor = new VaultEnvironmentPostProcessor(keyVaultClientProvider);
 
