@@ -14,7 +14,7 @@ version = buildNumber
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -42,6 +42,10 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
+}
+
+configurations {
+    mockitoAgent
 }
 
 dependencies {
@@ -77,6 +81,7 @@ dependencies {
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.mockito:mockito-core'
+    mockitoAgent('org.mockito:mockito-core') { transitive = false }
 
     testImplementation "org.wiremock:wiremock-standalone:3.3.1"
 }
@@ -115,6 +120,10 @@ bootJar {
 
 test {
     useJUnitPlatform()
+    // Load instrumentation at startup to avoid dynamic attachment on Java 21+.
+    jvmArgumentProviders.add({
+        ["-javaagent:${configurations.mockitoAgent.singleFile.absolutePath}"]
+    } as CommandLineArgumentProvider)
     // Mockito inline instrumentation appends to the bootstrap classpath, disabling CDS.
     jvmArgs '-Xshare:off'
     testLogging {
@@ -147,7 +156,7 @@ def integrationTest = tasks.register('integrationTest', Test) {
     classpath = sourceSets.integrationTest.runtimeClasspath
     useJUnitPlatform { includeEngines 'junit-jupiter' }
     javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
     dependsOn tasks.named('test'), tasks.named('publishMainPublicationToCiRepository')
     // Publication and runtime checks must run even when compiled tests are unchanged.

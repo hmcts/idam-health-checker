@@ -4,7 +4,7 @@ A Spring Boot application checking the health of various components of the Forge
 
 ## 1.1. Build and Deployment
 
-The application targets Java 17 and uses Spring Boot 4.1.1, Spring Cloud 2025.1.3
+The application targets Java 21 and uses Spring Boot 4.1.1, Spring Cloud 2025.1.3
 and the Gradle 9.8.1 wrapper. Use `./gradlew` for builds.
 
 Boot manages the Spring, logging and JSON dependency versions. The legacy Azure
@@ -13,7 +13,7 @@ Tests run on JUnit Platform, with Vintage retaining the existing JUnit 4 suite.
 
 ### CI verification
 
-Run `bash scripts/ci/verify.sh` with Java 17 (`JAVA_HOME` set).
+Run `bash scripts/ci/verify.sh` with Java 21 (`JAVA_HOME` set).
 This is the shared verification entry point for pull requests and releases. It:
 
 - Runs a clean build and the existing tests, rejecting an empty test run.
@@ -71,7 +71,7 @@ Most of the Forgerock components will also require you to configura an appropria
 downloading the truststore from one of the lower environement VMs and referencing it in the run command.
 
 You can find the location of the environment truststore as a parameter on the run command in an environment, i.e.
-`-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-17-openjdk-amd64/lib/security/cacerts`. You can then scp this file to your local machine
+`-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-21-openjdk-amd64/lib/security/cacerts`. You can then scp this file to your local machine
 and set the `-Djavax.net.ssl.trustStore` to the location of the file you have downloaded.
 
 When running in intellij set the following VM options to control the profile and the location of the truststore
@@ -102,7 +102,7 @@ For example:
 ```
 java -jar -Xmx256M -Dserver.port=8282 -Dspring.application.name=test-health-am-forgerock-am-idam-preview-1 
 -Dapplicationinsights.role.name=test-health-check-role-name -Dspring.profiles.active=am 
--Djavax.net.ssl.trustStore=/usr/lib/jvm/java-17-openjdk-amd64/lib/security/cacerts 
+-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-21-openjdk-amd64/lib/security/cacerts
 -Dazure.keyvault.uri=https://idamvaultpreview.vault.azure.net/ 
 -Dam.root=https://forgerock-am.service.core-compute-idam-preview.internal:8443/openam 
 -Dam.healthprobe.identity.host=forgerock-am.service.core-compute-idam-preview.internal 
