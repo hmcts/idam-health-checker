@@ -7,14 +7,14 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpStatus;
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
 
@@ -26,7 +26,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static uk.gov.hmcts.reform.idam.health.vault.EnvironmentKeyVaultConfigBuilder.VAULT_BASE_URL;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = VaultEnvironmentPostProcessor.class)
 @ActiveProfiles("it")
 public class VaultIntegrationTest {
@@ -64,7 +63,7 @@ public class VaultIntegrationTest {
             "\t\"attributes\":{\"enabled\":true,\"created\":1541609008,\"updated\":1541609008,\"recoveryLevel\":\"Purgeable\"},\n" +
             "\t\"tags\":{\"file-encoding\":\"utf-8\"}}";
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         wireMockServer = new WireMockServer(options()
                 .port(DUMMY_VAULT_SERVER_PORT)
@@ -84,7 +83,7 @@ public class VaultIntegrationTest {
                         .withTransformers("secret-response-transformer")));
     }
 
-    @AfterClass
+    @AfterAll
     public static void shutdown() {
         wireMockServer.stop();
     }

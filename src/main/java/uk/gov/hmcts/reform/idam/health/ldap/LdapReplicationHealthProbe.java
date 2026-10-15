@@ -246,7 +246,7 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
                 String value = e.nextElement();
                 if (value.contains("cn=remote replicas")) {
                     connectedReplicationServer = serverId;
-                } else if (serverId != null && StringUtils.equals(serverId, connServerId)) {
+                } else if (serverId != null && serverId.equals(connServerId)) {
                     replicationServer = serverId;
                 }
             }

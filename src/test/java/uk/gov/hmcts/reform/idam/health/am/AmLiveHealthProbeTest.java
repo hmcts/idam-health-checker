@@ -34,7 +34,7 @@ public class AmLiveHealthProbeTest {
 
     @Test
     public void testProve_failUnexpectedResponse() {
-        when(response.status()).thenReturn(HttpStatus.I_AM_A_TEAPOT.value());
+        when(response.status()).thenReturn(HttpStatus.SERVICE_UNAVAILABLE.value());
         when(amProvider.healthLive()).thenReturn(response);
         assertThat(probe.probe(), is(false));
     }

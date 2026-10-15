@@ -152,7 +152,9 @@ def main():
     jar = artifacts()
     for profile, code, status in [('optimist', 200, 'UP'), ('pessimist', 503, 'DOWN')]:
         with application(jar, profile) as (process, port):
-            wait_for(process, port, profile, lambda c, b: c == code and b.get('status') == status)
+            body = wait_for(process, port, profile, lambda c, b: c == code and b.get('status') == status)
+            require(set(body.get('components', {})) == {profile}, 'Unexpected health components')
+            require(not body.get('groups'), 'Unexpected health groups')
             info_code, info = get(port, '/admin/info')
             require(info_code == 200, 'Info endpoint unavailable')
             require(info['forgerock']['commit'] == 'ci-forgerock-fixture', 'ForgeRock info missing')

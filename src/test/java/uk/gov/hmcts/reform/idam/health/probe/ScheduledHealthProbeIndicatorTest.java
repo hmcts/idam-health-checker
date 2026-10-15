@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.health.contributor.Health;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.time.Clock;
@@ -77,7 +77,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = strictScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UP));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.UP));
         assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:00:00Z"));
         assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
         assertThat(health.getDetails().get("lastDetailUpdate"), is(nullValue()));
@@ -93,7 +93,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = strictScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.DOWN));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
         assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:00:00Z"));
         assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
@@ -110,7 +110,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = ignoringScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UNKNOWN));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.UNKNOWN));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
         assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:00:00Z"));
         assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
@@ -230,14 +230,14 @@ public class ScheduledHealthProbeIndicatorTest {
     public void testHealth_up() {
         strictScheduledHealthProbe.setStatus(Status.UP);
         Health health = strictScheduledHealthProbe.health();
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UP));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.UP));
     }
 
     @Test
     public void testHealth_unknown() {
         strictScheduledHealthProbe.setStatus(Status.UNKNOWN);
         Health health = strictScheduledHealthProbe.health();
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UNKNOWN));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.UNKNOWN));
         assertThat(health.getDetails(), is(anEmptyMap()));
     }
 
@@ -249,7 +249,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = ignoringScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UNKNOWN));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.UNKNOWN));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
     }
 
@@ -257,7 +257,7 @@ public class ScheduledHealthProbeIndicatorTest {
     public void testHealth_down() {
         strictScheduledHealthProbe.setStatus(Status.DOWN);
         Health health = strictScheduledHealthProbe.health();
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.DOWN));
         assertThat(health.getDetails(), is(anEmptyMap()));
     }
 
@@ -269,7 +269,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = strictScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.DOWN));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
     }
 
@@ -277,7 +277,7 @@ public class ScheduledHealthProbeIndicatorTest {
     public void testHealth_outOfService() {
         strictScheduledHealthProbe.setStatus(Status.OUT_OF_SERVICE);
         Health health = strictScheduledHealthProbe.health();
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.OUT_OF_SERVICE));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.OUT_OF_SERVICE));
         assertThat(health.getDetails(), is(anEmptyMap()));
     }
 
@@ -285,7 +285,7 @@ public class ScheduledHealthProbeIndicatorTest {
     public void testHealth_outOfServiceDoesNotReadLiveProbeDetailsBeforeObservation() {
         strictScheduledHealthProbe.setStatus(Status.OUT_OF_SERVICE);
         Health health = strictScheduledHealthProbe.health();
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.OUT_OF_SERVICE));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.OUT_OF_SERVICE));
         assertThat(health.getDetails(), is(anEmptyMap()));
         verify(healthProbe, never()).getDetails();
     }
@@ -298,7 +298,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = strictScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UP));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.UP));
         assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:00:00Z"));
         assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
         assertThat(health.getDetails().get("lastDetailUpdate"), is(nullValue()));
@@ -313,7 +313,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = strictScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.DOWN));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
         assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:00:00Z"));
         assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
@@ -329,7 +329,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = ignoringScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UNKNOWN));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.UNKNOWN));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
         assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:00:00Z"));
         assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
@@ -348,7 +348,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = strictScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.UP));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.UP));
         assertThat(health.getDetails().get("testprobe"), is("test-error"));
         assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:01:00Z"));
         assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:01:00Z"));
@@ -366,7 +366,7 @@ public class ScheduledHealthProbeIndicatorTest {
 
         Health health = strictScheduledHealthProbe.health();
 
-        assertThat(health.getStatus(), is(org.springframework.boot.actuate.health.Status.DOWN));
+        assertThat(health.getStatus(), is(org.springframework.boot.health.contributor.Status.DOWN));
         assertThat(health.getDetails().get("lastChecked"), is("1970-01-01T01:01:00Z"));
         assertThat(health.getDetails().get("lastStatusChange"), is("1970-01-01T01:00:00Z"));
     }

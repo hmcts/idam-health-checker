@@ -4,6 +4,13 @@ A Spring Boot application checking the health of various components of the Forge
 
 ## 1.1. Build and Deployment
 
+The application targets Java 17 and uses Spring Boot 4.1.1, Spring Cloud 2025.1.3
+and the Gradle 9.8.1 wrapper. Use `./gradlew` for builds.
+
+Boot manages the Spring, logging and JSON dependency versions. The legacy Azure
+Key Vault client and token handler retain Jackson 2 alongside Boot's Jackson 3.
+Tests run on JUnit Platform, with Vintage retaining the existing JUnit 4 suite.
+
 ### CI verification
 
 Run `bash scripts/ci/verify.sh` with Java 17 (`JAVA_HOME` set) and Python 3.9 or newer.
