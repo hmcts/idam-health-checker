@@ -7,8 +7,8 @@ A Spring Boot application checking the health of various components of the Forge
 The application targets Java 21 and uses Spring Boot 4.1.1, Spring Cloud 2025.1.3
 and the Gradle 9.8.1 wrapper. Use `./gradlew` for builds.
 
-Boot manages the Spring, logging and JSON dependency versions. The legacy Azure
-Key Vault client and token handler retain Jackson 2 alongside Boot's Jackson 3.
+Boot manages the Spring, logging and JSON dependency versions. Application code and
+tests use Jackson 3. The legacy Azure Key Vault SDK still brings Jackson 2 transitively.
 All tests use JUnit Jupiter on JUnit Platform, with versions managed by Spring Boot.
 
 ### CI verification

@@ -1,7 +1,8 @@
 package uk.gov.hmcts.reform.vault.credential;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.core.JacksonException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -29,9 +30,15 @@ public class TokenResponseHandler implements ResponseHandler<String> {
         HttpEntity entity = response.getEntity();
         String json = EntityUtils.toString(entity, StandardCharsets.UTF_8);
 
-        ObjectNode node = mapper.readValue(json, ObjectNode.class);
+        ObjectNode node;
+        try {
+            node = mapper.readValue(json, ObjectNode.class);
+        } catch (JacksonException e) {
+            // Keep the checked failure contract expected by the HTTP client and Azure credentials.
+            throw new IOException("Invalid JSON in token response", e);
+        }
         if (node.has(ACCESS_TOKEN_KEY)) {
-            return node.get(ACCESS_TOKEN_KEY).asText();
+            return node.get(ACCESS_TOKEN_KEY).asString();
         }
 
         throw new HttpResponseException(HttpStatus.SC_INTERNAL_SERVER_ERROR,

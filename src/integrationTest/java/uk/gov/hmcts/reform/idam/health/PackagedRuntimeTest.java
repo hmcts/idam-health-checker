@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.idam.health;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import org.junit.jupiter.api.Test;
@@ -47,8 +47,8 @@ class PackagedRuntimeTest {
             var info = app.get("/admin/info");
             assertEquals(200, info.statusCode());
             var body = JSON.readTree(info.body());
-            assertEquals("ci-forgerock-fixture", body.at("/forgerock/commit").asText());
-            String commit = body.at("/git/commit/id").asText();
+            assertEquals("ci-forgerock-fixture", body.at("/forgerock/commit").asString());
+            String commit = body.at("/git/commit/id").asString();
             assertFalse(commit.isBlank(), "Missing Git commit");
             assertTrue(PublishedArtifactTest.COMMIT.startsWith(commit), "Git commit mismatch");
         }
@@ -83,9 +83,9 @@ class PackagedRuntimeTest {
                 am.editStub(get(urlEqualTo("/json/health/ready")).withId(ready.getId()).willReturn(aResponse().withStatus(503)));
                 app.health("am-down", 503, "DOWN", body -> {
                     var component = body.path("components").path("amReadyScheduledHealthProbe");
-                    assertEquals("DOWN", component.path("status").asText());
-                    assertTrue(component.at("/details/AMReadyHealthProbe").asText().contains("503"));
-                    assertDoesNotThrow(() -> Instant.parse(component.at("/details/lastDetailUpdate").asText()));
+                    assertEquals("DOWN", component.path("status").asString());
+                    assertTrue(component.at("/details/AMReadyHealthProbe").asString().contains("503"));
+                    assertDoesNotThrow(() -> Instant.parse(component.at("/details/lastDetailUpdate").asString()));
                 });
                 am.editStub(get(urlEqualTo("/json/health/ready")).withId(ready.getId()).willReturn(okJson("{}")));
                 app.health("am-recovered", 200, "UP", PackagedRuntimeTest::assertAmUp);
@@ -110,9 +110,9 @@ class PackagedRuntimeTest {
     private static void assertAmUp(JsonNode body) {
         for (String name : AM_COMPONENTS) {
             var component = body.path("components").path(name);
-            assertEquals("UP", component.path("status").asText(), name);
+            assertEquals("UP", component.path("status").asString(), name);
             for (String field : List.of("lastChecked", "lastStatusChange")) {
-                assertDoesNotThrow(() -> Instant.parse(component.path("details").path(field).asText()), name + ": " + field);
+                assertDoesNotThrow(() -> Instant.parse(component.path("details").path(field).asString()), name + ": " + field);
             }
         }
     }
@@ -159,7 +159,7 @@ class PackagedRuntimeTest {
                         Files.writeString(REPORTS.resolve(label + ".json"), response.body());
                         assertEquals(code, response.statusCode(), response.body());
                         var body = JSON.readTree(response.body());
-                        assertEquals(status, body.path("status").asText());
+                        assertEquals(status, body.path("status").asString());
                         assertions.accept(body);
                     });
         }

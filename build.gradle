@@ -57,8 +57,8 @@ dependencies {
 
     implementation 'com.microsoft.azure:azure-keyvault:1.2.6'
     implementation 'com.microsoft.azure:adal4j:1.6.7'
-    // The legacy Azure SDK and its token response handler still use Jackson 2.
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    // Application JSON uses Jackson 3; the legacy Azure SDK still brings Jackson 2 transitively.
+    implementation 'tools.jackson.core:jackson-databind'
 
     implementation 'org.springframework.ldap:spring-ldap-core'
 
