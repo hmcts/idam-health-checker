@@ -13,7 +13,7 @@ Tests run on JUnit Platform, with Vintage retaining the existing JUnit 4 suite.
 
 ### CI verification
 
-Run `bash scripts/ci/verify.sh` with Java 17 (`JAVA_HOME` set) and Python 3.9 or newer.
+Run `bash scripts/ci/verify.sh` with Java 17 (`JAVA_HOME` set).
 This is the shared verification entry point for pull requests and releases. It:
 
 - Runs a clean build and the existing tests, rejecting an empty test run.
@@ -22,12 +22,18 @@ This is the shared verification entry point for pull requests and releases. It:
 - Starts the published executable JAR with the `optimist` and `pessimist` profiles
   and verifies `/admin/health` returns 200/UP and 503/DOWN respectively.
 - Verifies `/admin/info` against Git metadata and a temporary ForgeRock version file.
-- Runs the real `am` profile against a local HTTP fixture, checking both password
+- Runs the real `am` profile against WireMock, checking both password
   grant forms, JSON decoding, probe timestamps, readiness failure and recovery.
 
 No Azure or ForgeRock credentials are needed. Runtime checks use loopback ports,
 bounded waits and process cleanup. Logs and captured health responses are written
 to `build/reports/runtime`; Actions uploads these alongside test reports even on failure.
+
+The packaged-runtime checks use JUnit Jupiter and Awaitility in `src/integrationTest`.
+Run `./gradlew integrationTest` to run them directly, including their unit-test and
+local-publication prerequisites. They also run as part of `check` and `build`.
+JUnit XML results are in `build/test-results/integrationTest` and the HTML report is
+in `build/reports/tests/integrationTest`.
 
 Release verification uses the tag as `RELEASE_VERSION`. Azure publication runs only
 after verification and reuses the verified JARs. Manual release runs must select a tag.

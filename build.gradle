@@ -122,3 +122,47 @@ test {
         exceptionFormat = "full"
     }
 }
+
+sourceSets {
+    integrationTest
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+tasks.register('cleanCiRepository', Delete) {
+    delete layout.buildDirectory.dir('ci-repository')
+}
+
+tasks.named('publishMainPublicationToCiRepository') {
+    dependsOn tasks.named('cleanCiRepository')
+}
+
+def integrationTest = tasks.register('integrationTest', Test) {
+    description = 'Verifies the locally published JAR in a separate Java process.'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    useJUnitPlatform { includeEngines 'junit-jupiter' }
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    dependsOn tasks.named('test'), tasks.named('publishMainPublicationToCiRepository')
+    // Publication and runtime checks must run even when compiled tests are unchanged.
+    outputs.upToDateWhen { false }
+    systemProperty 'verification.buildDir', layout.buildDirectory.get().asFile.absolutePath
+    systemProperty 'verification.version', project.version.toString()
+    systemProperty 'verification.commit', providers.exec {
+        commandLine 'git', 'rev-parse', 'HEAD'
+    }.standardOutput.asText.get().trim()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.named('check') {
+    dependsOn integrationTest
+}
