@@ -246,7 +246,7 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
                 String value = e.nextElement();
                 if (value.contains("cn=remote replicas")) {
                     connectedReplicationServer = serverId;
-                } else if (serverId != null && StringUtils.equals(serverId, connServerId)) {
+                } else if (serverId != null && serverId.equals(connServerId)) {
                     replicationServer = serverId;
                 }
             }
@@ -273,7 +273,7 @@ public class LdapReplicationHealthProbe extends LdapQueryHealthProbe<LdapReplica
         static int parseReplayedUpdates(String replayedUpdates) {
             if (replayedUpdates != null) {
                 try {
-                    return new JsonParser().parse(replayedUpdates).getAsJsonObject().get("count").getAsInt();
+                    return JsonParser.parseString(replayedUpdates).getAsJsonObject().get("count").getAsInt();
                 } catch (JsonParseException | IllegalStateException e) {
                     log.error("JSON expected but got this: {} [{}]", replayedUpdates, e.getMessage());
                 }

@@ -4,6 +4,47 @@ A Spring Boot application checking the health of various components of the Forge
 
 ## 1.1. Build and Deployment
 
+The application targets Java 21 and uses Spring Boot 4.1.1, Spring Cloud 2025.1.3
+and the Gradle 9.8.1 wrapper. Use `./gradlew` for builds.
+
+Boot manages the Spring, logging and JSON dependency versions. Application code and
+tests use Jackson 3. The legacy Azure Key Vault SDK still brings Jackson 2 transitively.
+All tests use JUnit Jupiter on JUnit Platform, with versions managed by Spring Boot.
+
+### CI verification
+
+Run `bash scripts/ci/verify.sh` with Java 21 (`JAVA_HOME` set).
+This is the shared verification entry point for pull requests and releases. It:
+
+- Runs a clean build and the existing tests, rejecting an empty test run.
+- Publishes to `build/ci-repository` and checks Maven coordinates, executable JAR
+  contents, version, Git metadata and equality with the built JAR.
+- Starts the published executable JAR with the `optimist` and `pessimist` profiles
+  and verifies `/admin/health` returns 200/UP and 503/DOWN respectively.
+- Verifies `/admin/info` against Git metadata and a temporary ForgeRock version file.
+- Runs the real `am` profile against WireMock, checking both password
+  grant forms, JSON decoding, probe timestamps, readiness failure and recovery.
+
+No Azure or ForgeRock credentials are needed. Runtime checks use loopback ports,
+bounded waits and process cleanup. Logs and captured health responses are written
+to `build/reports/runtime`; Actions uploads these alongside test reports even on failure.
+
+The packaged-runtime checks use JUnit Jupiter and Awaitility in `src/integrationTest`.
+Run `./gradlew integrationTest` to run them directly, including their unit-test and
+local-publication prerequisites. They also run as part of `check` and `build`.
+JUnit XML results are in `build/test-results/integrationTest` and the HTML report is
+in `build/reports/tests/integrationTest`.
+
+Release verification uses the tag as `RELEASE_VERSION`. Azure publication runs only
+after verification and reuses the verified JARs. Manual release runs must select a tag.
+The CI repository is local only; use `publishMainPublicationToAzureArtifactsRepository`
+to publish specifically to Azure.
+
+These checks do not deploy through `idam-forgerock-config` or validate live LDAP,
+Azure credentials, host truststores or the Application Insights agent. A lower-environment
+deployment smoke test is still needed for those integrations. Configure the `build`
+Actions check as required in repository branch protection to gate merges.
+
 # 1.1.1 Production
 
 For production the executable jar should be built using `gradle bootJar` and the generated jar is then placed in blob 
@@ -30,7 +71,7 @@ Most of the Forgerock components will also require you to configura an appropria
 downloading the truststore from one of the lower environement VMs and referencing it in the run command.
 
 You can find the location of the environment truststore as a parameter on the run command in an environment, i.e.
-`-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-17-openjdk-amd64/lib/security/cacerts`. You can then scp this file to your local machine
+`-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-21-openjdk-amd64/lib/security/cacerts`. You can then scp this file to your local machine
 and set the `-Djavax.net.ssl.trustStore` to the location of the file you have downloaded.
 
 When running in intellij set the following VM options to control the profile and the location of the truststore
@@ -61,7 +102,7 @@ For example:
 ```
 java -jar -Xmx256M -Dserver.port=8282 -Dspring.application.name=test-health-am-forgerock-am-idam-preview-1 
 -Dapplicationinsights.role.name=test-health-check-role-name -Dspring.profiles.active=am 
--Djavax.net.ssl.trustStore=/usr/lib/jvm/java-17-openjdk-amd64/lib/security/cacerts 
+-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-21-openjdk-amd64/lib/security/cacerts
 -Dazure.keyvault.uri=https://idamvaultpreview.vault.azure.net/ 
 -Dam.root=https://forgerock-am.service.core-compute-idam-preview.internal:8443/openam 
 -Dam.healthprobe.identity.host=forgerock-am.service.core-compute-idam-preview.internal 

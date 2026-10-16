@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.idam.health.probe;
 
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.HealthIndicator;
 
 public class FixedHealthProbeIndicator implements HealthProbeIndicator, HealthIndicator {
 
