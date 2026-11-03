@@ -17,22 +17,25 @@ spring:
 
 management:
   endpoints:
-    enabled-by-default: false
+    access:
+      default: none
     web:
       base-path: /admin
       exposure:
         include: health, info
   endpoint:
     health:
-      enabled: true
+      access: read-only
       show-details: "ALWAYS"
+      probes:
+        enabled: false
+      status:
+        order: DOWN, OUT_OF_SERVICE, UNKNOWN, UP
     info:
-      enabled: true
+      access: read-only
   health:
     defaults:
       enabled: false
-    status:
-      order: DOWN, OUT_OF_SERVICE, UNKNOWN, UP
 
 azure:
   keyvault:

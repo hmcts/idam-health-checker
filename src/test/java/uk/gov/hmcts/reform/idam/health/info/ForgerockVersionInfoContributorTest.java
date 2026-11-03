@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.idam.health.info;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.actuate.info.Info;
 
 import java.io.IOException;
@@ -15,12 +15,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ForgerockVersionInfoContributorTest {
 
     private static final long EPOCH_1AM = 3600;
@@ -30,7 +30,7 @@ public class ForgerockVersionInfoContributorTest {
 
     private final ForgerockVersionInfoContributor contributor = new ForgerockVersionInfoContributor();
 
-    @Before
+    @BeforeEach
     public void setup() {
         contributor.setVersionFilePath("test-path");
         contributor.setFileAccess(fileAccess);

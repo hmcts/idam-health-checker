@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.idam.health.userstore;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ldap.BadLdapGrammarException;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
@@ -19,12 +19,12 @@ import java.util.Collections;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserStoreAuthenticationHealthProbeTest {
 
     @Mock
@@ -35,11 +35,11 @@ public class UserStoreAuthenticationHealthProbeTest {
 
     private UserStoreAuthenticationHealthProbe probe;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(probeUserProperties.getUsername()).thenReturn("test-username");
         when(probeUserProperties.getPassword()).thenReturn("test-password");
-        when(ldapTemplate.search(anyString(), anyString(), any(int.class), any(AttributesMapper.class))).thenReturn(singletonList("test-username"));
+        when(ldapTemplate.search(anyString(), anyString(), any(int.class), ArgumentMatchers.<AttributesMapper<String>>any())).thenReturn(singletonList("test-username"));
         probe = new UserStoreAuthenticationHealthProbe(ldapTemplate, probeUserProperties);
     }
 
@@ -51,7 +51,7 @@ public class UserStoreAuthenticationHealthProbeTest {
 
     @Test
     public void testProbe_userDoesNotExist() {
-        when(ldapTemplate.search(anyString(), anyString(), any(int.class), any(AttributesMapper.class))).thenReturn(emptyList());
+        when(ldapTemplate.search(anyString(), anyString(), any(int.class), ArgumentMatchers.<AttributesMapper<String>>any())).thenReturn(emptyList());
         assertThat(probe.probe(), is(true));
     }
 

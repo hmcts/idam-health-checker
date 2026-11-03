@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.idam.health.ldap;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQuery;
 import uk.gov.hmcts.reform.idam.health.props.ConfigProperties;
@@ -14,14 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe.ReplicationRecordType.LOCAL_DS;
 import static uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe.ReplicationRecordType.LOCAL_RS;
 import static uk.gov.hmcts.reform.idam.health.ldap.LdapReplicationHealthProbe.ReplicationRecordType.LOCAL_RS_CONN_DS;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LdapReplicationHealthProbeTest {
 
     @Mock
@@ -35,11 +35,9 @@ public class LdapReplicationHealthProbeTest {
 
     private LdapReplicationHealthProbe probe;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(configProperties.getLdap()).thenReturn(ldapProperties);
-        when(ldapProperties.getReplication().getMissingUpdatesThreshold()).thenReturn(0);
-        when(ldapProperties.getReplication().getDelayThreshold()).thenReturn(0);
         probe = new LdapReplicationHealthProbe("probeName", ldapTemplate, "ou=domain-name", configProperties);
     }
 

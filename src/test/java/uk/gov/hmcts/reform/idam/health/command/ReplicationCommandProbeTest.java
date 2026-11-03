@@ -1,12 +1,11 @@
 package uk.gov.hmcts.reform.idam.health.command;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 
 import java.io.IOException;
@@ -19,7 +18,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ReplicationCommandProbeTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -37,22 +36,11 @@ public class ReplicationCommandProbeTest {
     @InjectMocks
     private ReplicationCommandProbe probe;
 
-    @Before
-    public void setup() {
-        when(probeProperties.getCommand().getUser()).thenReturn("test-user");
-        when(probeProperties.getCommand().getDSUPassword()).thenReturn("test-password");
-        when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s");
-        when(probeProperties.getCommand().getReplicationIdentity()).thenReturn("test-identity");
-        when(probeProperties.getCommand().getCommandTimeout()).thenReturn(20000L);
+    @Test
+    public void testVerify_PrimaryHostOkay() {
         when(probeProperties.getCommand().getName()).thenReturn("test-probe");
         when(probeProperties.getCommand().getDelayThreshold()).thenReturn(10L);
         when(probeProperties.getCommand().getEntryDifferencePercent()).thenReturn(0.2);
-        when(probeProperties.getCommand().getUser()).thenReturn("test-user");
-        when(environment.getActiveProfiles()).thenReturn(new String[]{"userstore"});
-    }
-
-    @Test
-    public void testVerify_PrimaryHostOkay() {
         ReplicationStatus status = new ReplicationStatus();
         status.getContextReplicationInfo().put("test-context", new ArrayList<>());
         status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY));
@@ -62,6 +50,8 @@ public class ReplicationCommandProbeTest {
 
     @Test
     public void testVerify_PrimaryHostNotPresent() {
+        when(probeProperties.getCommand().getReplicationIdentity()).thenReturn("test-identity");
+        when(probeProperties.getCommand().getName()).thenReturn("test-probe");
         ReplicationStatus status = new ReplicationStatus();
         status.getContextReplicationInfo().put("test-context", new ArrayList<>());
         status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.REPLICA));
@@ -71,6 +61,9 @@ public class ReplicationCommandProbeTest {
 
     @Test
     public void testVerify_PrimaryHostHasDelay() {
+        when(probeProperties.getCommand().getName()).thenReturn("test-probe");
+        when(probeProperties.getCommand().getDelayThreshold()).thenReturn(10L);
+        when(probeProperties.getCommand().getEntryDifferencePercent()).thenReturn(0.2);
         ReplicationStatus status = new ReplicationStatus();
         status.getContextReplicationInfo().put("test-context", new ArrayList<>());
         ReplicationInfo hostInfo = simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY);
@@ -82,6 +75,9 @@ public class ReplicationCommandProbeTest {
 
     @Test
     public void testVerify_PrimaryHostMissingEntries() {
+        when(probeProperties.getCommand().getName()).thenReturn("test-probe");
+        when(probeProperties.getCommand().getDelayThreshold()).thenReturn(10L);
+        when(probeProperties.getCommand().getEntryDifferencePercent()).thenReturn(0.2);
         ReplicationStatus status = new ReplicationStatus();
         status.getContextReplicationInfo().put("test-context", new ArrayList<>());
         status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY));
@@ -94,6 +90,9 @@ public class ReplicationCommandProbeTest {
 
     @Test
     public void testVerify_PrimaryHostMissingEntriesWithinThreshold() {
+        when(probeProperties.getCommand().getName()).thenReturn("test-probe");
+        when(probeProperties.getCommand().getDelayThreshold()).thenReturn(10L);
+        when(probeProperties.getCommand().getEntryDifferencePercent()).thenReturn(0.2);
         ReplicationStatus status = new ReplicationStatus();
         status.getContextReplicationInfo().put("test-context", new ArrayList<>());
         status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY));
@@ -106,6 +105,7 @@ public class ReplicationCommandProbeTest {
 
     @Test
     public void testVerify_StatusErrors() {
+        when(probeProperties.getCommand().getName()).thenReturn("test-probe");
         ReplicationStatus status = new ReplicationStatus();
         status.setErrors(Collections.singletonList("test-error"));
         boolean result = probe.verify(status);
@@ -114,6 +114,7 @@ public class ReplicationCommandProbeTest {
 
     @Test
     public void testVerify_StatusEmpty() {
+        when(probeProperties.getCommand().getName()).thenReturn("test-probe");
         ReplicationStatus status = new ReplicationStatus();
         boolean result = probe.verify(status);
         assertThat(result, is(false));
@@ -121,6 +122,14 @@ public class ReplicationCommandProbeTest {
 
     @Test
     public void testProbe_Success() throws IOException, ExecutionException, InterruptedException {
+        when(probeProperties.getCommand().getDSUPassword()).thenReturn("test-password");
+        when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s");
+        when(probeProperties.getCommand().getCommandTimeout()).thenReturn(20000L);
+        when(probeProperties.getCommand().getName()).thenReturn("test-probe");
+        when(probeProperties.getCommand().getDelayThreshold()).thenReturn(10L);
+        when(probeProperties.getCommand().getEntryDifferencePercent()).thenReturn(0.2);
+        when(probeProperties.getCommand().getUser()).thenReturn("test-user");
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"userstore"});
         ReplicationStatus status = new ReplicationStatus();
         status.getContextReplicationInfo().put("test-context", new ArrayList<>());
         status.getContextReplicationInfo().get("test-context").add(simpleReplicationInfo("test-context", "test-instance", InstanceType.PRIMARY));
@@ -132,6 +141,12 @@ public class ReplicationCommandProbeTest {
 
     @Test
     public void testProbe_Exception() throws IOException, ExecutionException, InterruptedException {
+        when(probeProperties.getCommand().getDSUPassword()).thenReturn("test-password");
+        when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s");
+        when(probeProperties.getCommand().getCommandTimeout()).thenReturn(20000L);
+        when(probeProperties.getCommand().getName()).thenReturn("test-probe");
+        when(probeProperties.getCommand().getUser()).thenReturn("test-user");
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"userstore"});
         when(textCommandRunner.execute(any(), any())).thenThrow(new RuntimeException("test-exception"));
         boolean result = probe.probe();
         assertThat(result, is(false));
@@ -139,6 +154,10 @@ public class ReplicationCommandProbeTest {
 
     @Test
     public void testGetCommand_Success() {
+        when(probeProperties.getCommand().getDSUPassword()).thenReturn("test-password");
+        when(probeProperties.getCommand().getTemplate()).thenReturn("test-template %s %s");
+        when(probeProperties.getCommand().getUser()).thenReturn("test-user");
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"userstore"});
         String[] result = probe.getCommand();
         assertThat(result.length, is(3));
         assertThat(result[0], is("test-template"));
